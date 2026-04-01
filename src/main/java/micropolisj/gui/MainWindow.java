@@ -8,6 +8,7 @@
 
 package micropolisj.gui;
 
+import micropolisj.ai.AIAssistant;
 import micropolisj.engine.CityListener;
 import micropolisj.engine.CityLocation;
 import micropolisj.engine.CityRect;
@@ -108,6 +109,7 @@ public class MainWindow extends JFrame
 	private final NotificationPane notificationPane;
 	private final EvaluationPane evaluationPane;
 	private final GraphsPane graphsPane;
+	private final AIAssistantPanel aiPanel;
 	private final Map<MapState, JMenuItem> mapStateMenuItems = new EnumMap<>(MapState.class);
 	private File currentFile;
 	private Micropolis engine;
@@ -255,6 +257,11 @@ public class MainWindow extends JFrame
 		notificationPane = new NotificationPane(engine);
 		leftPane.add(notificationPane, constraints);
 
+		AIAssistant aiAssistant = new AIAssistant();
+		aiAssistant.setEngine(engine);
+		aiPanel = new AIAssistantPanel(aiAssistant);
+		add(aiPanel, BorderLayout.LINE_END);
+
 		pack();
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -363,6 +370,7 @@ public class MainWindow extends JFrame
 		evaluationPane.setEngine(engine);
 		demandInd.setEngine(engine);
 		graphsPane.setEngine(engine);
+		aiPanel.setEngine(engine);
 		reloadFunds();
 		reloadOptions();
 		notificationPane.setVisible(false);
