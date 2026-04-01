@@ -152,34 +152,38 @@ public class AIToolHandler {
             param("width", "integer", "Required width in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)"),
             param("height", "integer", "Required height in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)")
         ));
-        tools.add(makeTool("write_learning",
-            "Record a quick one-line observation to the learnings log. The response shows recent entries in the same category — check them to avoid duplicates. For structured long-term knowledge, prefer update_memory. Generalize observations: avoid turn numbers and coordinates.",
-            param("category", "string", "Category: placement_rules, strategy, terrain, tools, bugs, tips"),
-            param("observation", "string", "What you observed or learned. Be GENERAL and actionable — no turn numbers or specific coordinates.")
+        tools.add(makeToolWithOptional("plan_city_block",
+            "Plan and build an entire city block in one call. Places a rectangular grid of zones "
+            + "with roads automatically laid out using the optimal strip pattern:\n"
+            + "  [Zone strip]  [Zone strip]  <- 2 rows of zones touching (power flows between them)\n"
+            + "  ===== ROAD =====            <- 1 road row (serves both strips above and below)\n"
+            + "  [Zone strip]  [Zone strip]  <- 2 more rows touching\n"
+            + "Each zone is 3x3. Roads are placed between every pair of strips. "
+            + "Power wires are automatically built across each road row so power propagates through the entire block. "
+            + "You still need to connect one zone in the block to a power plant via power line. "
+            + "Returns a summary of zones placed, roads built, and any failures. "
+            + "Use find_empty_area first to find a location with enough space.",
+            new String[][] {
+                param("zone_type", "string", "Zone type: residential, commercial, or industrial"),
+                param("x", "integer", "Top-left X coordinate of the block"),
+                param("y", "integer", "Top-left Y coordinate of the block"),
+                param("cols", "integer", "Number of zones per row (1-13). Each zone is 3 tiles wide."),
+            },
+            new String[][] {
+                param("rows", "integer", "Number of zone rows/strips (1-10, default 2). Roads are auto-placed between every pair."),
+            }
         ));
-        tools.add(makeTool("read_learnings",
-            "Read all previously recorded learnings from the log. For your structured cheatsheet, use read_memory instead."
-        ));
-        tools.add(makeTool("consolidate_learnings",
-            "Replace the entire learnings log with a consolidated version. Use this when the log exceeds ~30 entries. "
-            + "Read the log first, then call this with a cleaned-up version that merges redundant observations, "
-            + "removes turn-specific details, and keeps only actionable generalizable knowledge. Aim for ~15-20 entries max.",
-            param("consolidated_content", "string", "The full replacement content for the learnings log. Each entry on its own line, format: [category] observation")
-        ));
-        tools.add(makeTool("read_memory",
-            "Read your long-term memory cheatsheet (agent_memory.md). This contains your accumulated knowledge about what strategies work, what doesn't, placement rules, financial tips, and your current best strategy. READ THIS at the start of every new game session and when the reward signal turns negative."
-        ));
+        // Memory/learning tools disabled — agent plays with a clean slate each session.
+        // The execution code is preserved below; only tool definitions are hidden from the LLM.
+        /*
+        tools.add(makeTool("write_learning", ...));
+        tools.add(makeTool("read_learnings", ...));
+        tools.add(makeTool("consolidate_learnings", ...));
+        tools.add(makeTool("read_memory", ...));
+        tools.add(makeTool("update_memory", ...));
+        */
         tools.add(makeTool("read_strategy_guide",
-            "Read the game strategy guide (game_strategy_guide.md). Contains exact formulas, thresholds, and causal relationships extracted from the engine source code: zone growth mechanics, demand valve calculations, scoring system, overlay systems, costs, and strategic implications. Read this when you need to understand WHY something is happening or to plan optimal build order."
-        ));
-        tools.add(makeTool("update_memory",
-            "Update a section in your long-term memory cheatsheet. The response shows the CURRENT section content — read it before adding to avoid duplicates. "
-            + "Use replace='true' to rewrite bloated sections with consolidated knowledge (aim for ~8-12 entries per section). "
-            + "NEVER add turn-specific or coordinate-specific entries — generalize into reusable principles. "
-            + "Sections: 'Strategies That Work', 'Strategies That Don't Work', 'Placement Rules Learned', 'Financial Management', 'Common Mistakes', 'Map Reading Tips', 'Current Best Strategy'.",
-            param("section", "string", "Section name exactly as listed (e.g. 'Strategies That Work')"),
-            param("entry", "string", "The knowledge to add or the full replacement content when replace='true'. Be GENERAL and actionable — no turn numbers, no specific coordinates."),
-            param("replace", "string", "Set to 'true' to replace the entire section content with a consolidated version, 'false' to append a new bullet point. Use 'true' when a section has >12 entries.")
+            "Read the game strategy guide with detailed engine mechanics, formulas, zone growth rules, scoring system, costs, and strategic tips. Highly recommended at game start."
         ));
         tools.add(makeToolWithOptional("set_objectives",
             "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. "
@@ -253,7 +257,8 @@ public class AIToolHandler {
 
     private static final java.util.Set<String> TRACKED_ACTIONS = java.util.Set.of(
         "place_zone", "place_building", "build_road", "build_rail",
-        "build_power_line", "bulldoze", "place_park", "set_tax_rate", "set_budget"
+        "build_power_line", "bulldoze", "place_park", "set_tax_rate", "set_budget",
+        "plan_city_block"
     );
 
     private String summarizeInput(String toolName, JsonObject input) {
@@ -268,6 +273,9 @@ public class AIToolHandler {
                 return input.get("rate") + "%";
             case "set_budget":
                 return "r" + input.get("road_pct") + "/p" + input.get("police_pct") + "/f" + input.get("fire_pct");
+            case "plan_city_block":
+                return input.get("zone_type").getAsString() + " " + input.get("cols") + "x"
+                    + (input.has("rows") ? input.get("rows") : "2") + " at " + input.get("x") + "," + input.get("y");
             default:
                 return input.get("x") + "," + input.get("y");
         }
@@ -305,6 +313,7 @@ public class AIToolHandler {
                 case "diagnose_infrastructure": return observer.diagnoseInfrastructure();
                 case "render_map": return executeRenderMap(input);
                 case "find_empty_area": return executeFindEmptyArea(input);
+                case "plan_city_block": return executePlanCityBlock(input);
                 case "write_learning": return executeWriteLearning(input);
                 case "read_learnings": return executeReadLearnings();
                 case "consolidate_learnings": return executeConsolidateLearnings(input);
@@ -599,6 +608,143 @@ public class AIToolHandler {
         int w = input.get("width").getAsInt();
         int h = input.get("height").getAsInt();
         return observer.findEmptyArea(w, h);
+    }
+
+    /**
+     * Place an entire city block using the optimal strip layout:
+     * zones are grouped in pairs of strips with a road row between each pair,
+     * and power wires bridging each road so power propagates throughout.
+     *
+     * Layout for rows=4, cols=3:
+     *   y+0  to y+2:  [Z][Z][Z]  strip 0
+     *   y+3:          ==ROAD===  (serves strips 0 and 1)
+     *   y+4  to y+6:  [Z][Z][Z]  strip 1
+     *   y+7  to y+9:  [Z][Z][Z]  strip 2  (touches strip 1 → power flows)
+     *   y+10:         ==ROAD===  (serves strips 2 and 3)
+     *   y+11 to y+13: [Z][Z][Z]  strip 3
+     */
+    private JsonObject executePlanCityBlock(JsonObject input) {
+        String zoneType = input.get("zone_type").getAsString().toLowerCase();
+        int x = input.get("x").getAsInt();
+        int y = input.get("y").getAsInt();
+        int cols = Math.max(1, Math.min(input.get("cols").getAsInt(), 13));
+        int rows = input.has("rows") && !input.get("rows").isJsonNull()
+            ? Math.max(1, Math.min(input.get("rows").getAsInt(), 10)) : 2;
+
+        MicropolisTool zoneTool;
+        switch (zoneType) {
+            case "residential": zoneTool = MicropolisTool.RESIDENTIAL; break;
+            case "commercial": zoneTool = MicropolisTool.COMMERCIAL; break;
+            case "industrial": zoneTool = MicropolisTool.INDUSTRIAL; break;
+            default: return errorResult("Invalid zone_type. Use residential, commercial, or industrial.");
+        }
+
+        List<Integer> stripYPositions = new ArrayList<>();
+        List<Integer> roadYPositions = new ArrayList<>();
+
+        int curY = y;
+        for (int i = 0; i < rows; i++) {
+            stripYPositions.add(curY);
+            curY += 3;
+            if (i % 2 == 0) {
+                roadYPositions.add(curY);
+                curY += 1;
+            }
+        }
+
+        int blockWidth = cols * 3;
+        int blockHeight = curY - y;
+
+        if (x < 0 || y < 0 || x + blockWidth > 120 || curY > 100) {
+            return errorResult("Block " + blockWidth + "x" + blockHeight
+                + " at (" + x + "," + y + ") exceeds map bounds (120x100)."
+                + " Use find_empty_area(" + blockWidth + "," + blockHeight + ") to find a valid spot.");
+        }
+
+        int estimatedCost = (rows * cols * 100) + (roadYPositions.size() * blockWidth * 10)
+            + (roadYPositions.size() * 5);
+        if (engine.getBudget().getTotalFunds() < estimatedCost) {
+            return errorResult("Estimated cost ~$" + estimatedCost
+                + " exceeds funds $" + engine.getBudget().getTotalFunds()
+                + ". Try fewer cols/rows.");
+        }
+
+        int zonesPlaced = 0, zonesFailed = 0, roadTiles = 0, wires = 0;
+        List<String> failures = new ArrayList<>();
+
+        for (int stripY : stripYPositions) {
+            for (int col = 0; col < cols; col++) {
+                int zx = x + col * 3;
+                ToolResult tr = placeZoneDirect(zoneTool, zx, stripY);
+                if (tr == ToolResult.SUCCESS) {
+                    zonesPlaced++;
+                } else {
+                    zonesFailed++;
+                    failures.add("zone(" + zx + "," + stripY + "): " + tr.name());
+                }
+            }
+        }
+
+        for (int roadY : roadYPositions) {
+            ToolStroke stroke = MicropolisTool.ROADS.beginStroke(engine, x, roadY);
+            stroke.dragTo(x + blockWidth - 1, roadY);
+            ToolResult tr = stroke.apply();
+            if (tr == ToolResult.SUCCESS) {
+                roadTiles += blockWidth;
+            } else {
+                failures.add("road(y=" + roadY + "): " + tr.name());
+            }
+
+            int wireX = x + (blockWidth / 2);
+            ToolStroke wireStroke = MicropolisTool.WIRE.beginStroke(engine, wireX, roadY);
+            wireStroke.dragTo(wireX, roadY);
+            ToolResult wtr = wireStroke.apply();
+            if (wtr == ToolResult.SUCCESS) wires++;
+        }
+
+        JsonObject r = new JsonObject();
+        r.addProperty("success", zonesFailed == 0);
+        r.addProperty("zones_placed", zonesPlaced);
+        r.addProperty("zones_failed", zonesFailed);
+        r.addProperty("road_tiles", roadTiles);
+        r.addProperty("power_wires", wires);
+        r.addProperty("block_size", blockWidth + "x" + blockHeight + " tiles");
+        r.addProperty("block_position", "(" + x + "," + y + ") to (" + (x + blockWidth - 1) + "," + (curY - 1) + ")");
+        r.addProperty("funds_remaining", engine.getBudget().getTotalFunds());
+
+        StringBuilder layout = new StringBuilder();
+        for (int i = 0; i < stripYPositions.size(); i++) {
+            int sy = stripYPositions.get(i);
+            layout.append("strip ").append(i).append(": y=").append(sy).append("-").append(sy + 2);
+            if (i < stripYPositions.size() - 1) layout.append(", ");
+        }
+        layout.append(" | roads: ");
+        for (int i = 0; i < roadYPositions.size(); i++) {
+            layout.append("y=").append(roadYPositions.get(i));
+            if (i < roadYPositions.size() - 1) layout.append(", ");
+        }
+        r.addProperty("layout", layout.toString());
+
+        if (!failures.isEmpty()) {
+            JsonArray failArr = new JsonArray();
+            int show = Math.min(failures.size(), 10);
+            for (int i = 0; i < show; i++) failArr.add(failures.get(i));
+            if (failures.size() > show) failArr.add("... and " + (failures.size() - show) + " more");
+            r.add("failures", failArr);
+        }
+
+        r.addProperty("next_step", "Connect a power plant to any zone in this block via power line. "
+            + "Power will propagate through all touching zones; wires already bridge the road rows.");
+
+        return r;
+    }
+
+    private ToolResult placeZoneDirect(MicropolisTool tool, int x, int y) {
+        int engineX = x + 1;
+        int engineY = y + 1;
+        ToolStroke stroke = tool.beginStroke(engine, engineX, engineY);
+        stroke.dragTo(engineX, engineY);
+        return stroke.apply();
     }
 
     private JsonObject executeWriteLearning(JsonObject input) {

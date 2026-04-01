@@ -30,7 +30,7 @@ public class AIAssistant {
     private GameStateObserver observer;
     private AIToolHandler toolHandler;
     private AIGameListener listener;
-    private final AnthropicClient client;
+    private final LLMClient client;
 
     private final List<JsonObject> conversationHistory = new ArrayList<>();
     private final List<Objective> currentObjectives = new ArrayList<>();
@@ -96,7 +96,7 @@ public class AIAssistant {
     private int turnCount = 0;
 
     public AIAssistant() {
-        this.client = new AnthropicClient();
+        this.client = new LLMClient();
         this.reflectiveAgent = new ReflectiveAgent(client);
     }
 
@@ -111,7 +111,7 @@ public class AIAssistant {
         engine.addListener(this.listener);
     }
 
-    public AnthropicClient getClient() {
+    public LLMClient getClient() {
         return client;
     }
 
@@ -306,58 +306,23 @@ public class AIAssistant {
             userContent.append("[End User Messages]");
         }
 
-        userContent.append("\n\n[Instructions]\n");
-
         if (hasUrgentMessages) {
-            userContent.append("!! URGENT: System Updates contain CRITICAL or DISASTER events. ");
-            userContent.append("You MUST address these FIRST — they override all current objectives. ");
-            userContent.append("Replace or reprioritize your objectives to handle these emergencies. ");
-            userContent.append("Use end_turn('continue') to keep acting until the crisis is resolved.\n");
+            userContent.append("\n\n!! URGENT events detected in System Updates above. Address these first.");
         }
-
-        if (!structuredEvents.isEmpty()) {
-            userContent.append("STEP 1: Read every System Update message above. ");
-            userContent.append("Each message is a direct signal from citizens about what the city needs. ");
-            userContent.append("Repeated messages = unresolved urgent problems. ");
-            userContent.append("Translate the most pressing messages into concrete objectives.\n");
-        }
-
-        if (!currentObjectives.isEmpty()) {
-            userContent.append("STEP 2: Compare your current objectives against the System Updates. ");
-            userContent.append("Are your objectives still relevant? Do the System Updates reveal NEW problems your objectives don't cover? ");
-            userContent.append("If yes, call set_objectives to update them. Complete any that are done.\n");
-        } else {
-            userContent.append("STEP 2: You have NO objectives. Set 2-3 based on the most urgent System Updates or city state.\n");
-        }
-
-        userContent.append("STEP 3: Act on your highest-priority objective. Call get_city_entities to see ALL buildings, zones, and problems. Use render_map for spatial layout. Then take actions.\n");
 
         if (!rewardHistory.isEmpty()) {
-            userContent.append("\n[Reward Trend] ");
+            userContent.append("\n\n[Reward Trend] ");
             int show = Math.min(rewardHistory.size(), 5);
-            userContent.append("Last ").append(show).append(" turns: ");
+            userContent.append("Last ").append(show).append(": ");
             for (int i = rewardHistory.size() - show; i < rewardHistory.size(); i++) {
                 if (i > rewardHistory.size() - show) userContent.append(", ");
                 userContent.append(String.format("%.1f", rewardHistory.get(i)));
             }
             double avg = rewardHistory.stream().mapToDouble(d -> d).average().orElse(0);
             userContent.append(String.format(" (avg: %.1f)", avg));
-            if (avg < -1.0) {
-                userContent.append(" !! DECLINING — consider changing strategy");
-            }
-            userContent.append("\n");
         }
 
-        userContent.append("\nREFLECTION (think through this, then adjust objectives if needed):\n");
-        userContent.append("- Which objectives did I make progress on? Which are stalled?\n");
-        userContent.append("- Are any System Updates STILL unresolved from previous turns?\n");
-        userContent.append("- Is my reward trend positive or negative? Should I pivot?\n");
-
-        if (hasUrgentMessages || hasDemandMessages) {
-            userContent.append("\nSTEP 4: Call end_turn('continue') — there are unresolved problems requiring immediate follow-up.\n");
-        } else {
-            userContent.append("\nSTEP 4: Call end_turn('continue') if you have more work to do, or end_turn('wait') if the city is stable and you want the simulation to advance.\n");
-        }
+        userContent.append("\n\nRemember to call end_turn('continue' or 'wait') when you're done.");
 
         JsonObject userMsg = new JsonObject();
         userMsg.addProperty("role", "user");
@@ -393,12 +358,12 @@ public class AIAssistant {
             messages.add(assistantMsg);
             conversationHistory.add(assistantMsg);
 
-            String text = AnthropicClient.extractText(response);
+            String text = LLMClient.extractText(response);
             if (!text.isEmpty()) {
                 emit(onThinking, text);
             }
 
-            if (!"tool_use".equals(stopReason) || !AnthropicClient.hasToolUse(response)) {
+            if (!"tool_use".equals(stopReason) || !LLMClient.hasToolUse(response)) {
                 break;
             }
 
@@ -436,6 +401,9 @@ public class AIAssistant {
 
         trimHistory();
 
+        // Reflection loop disabled — agent plays freely without meta-agent interference.
+        // To re-enable, uncomment the block below.
+        /*
         if (turnCount % REFLECTION_INTERVAL == 0 && turnCount > 0) {
             try {
                 reflectiveAgent.runReflection(
@@ -450,6 +418,7 @@ public class AIAssistant {
                 emit(onError, "Reflection error: " + e.getMessage());
             }
         }
+        */
     }
 
     private void trimHistory() {
@@ -505,37 +474,35 @@ public class AIAssistant {
     }
 
     private String buildSystemPrompt() {
-        StringBuilder sb = new StringBuilder(SystemPrompt.PROMPT);
+        // Returns the base system prompt only.
+        // Reflective prompt additions and agent memory loading are disabled.
+        // To re-enable, uncomment the blocks below.
+        return SystemPrompt.PROMPT;
 
+        /*
+        StringBuilder sb = new StringBuilder(SystemPrompt.PROMPT);
         try {
             Path reflectivePath = Paths.get("ai_data/reflective_prompt.md");
             if (Files.exists(reflectivePath)) {
                 String additions = new String(Files.readAllBytes(reflectivePath));
                 if (!additions.trim().isEmpty()) {
                     sb.append("\n\n## Strategic Additions (from self-reflection)\n");
-                    sb.append("These instructions were generated by your reflective meta-agent based on game performance analysis.\n");
                     sb.append(additions);
                 }
             }
-        } catch (IOException e) {
-            // ignore
-        }
-
+        } catch (IOException e) { }
         try {
             Path memoryPath = Paths.get("ai_data/agent_memory.md");
             if (Files.exists(memoryPath)) {
                 String memory = new String(Files.readAllBytes(memoryPath));
                 if (!memory.trim().isEmpty()) {
-                    sb.append("\n\n## Your Long-Term Memory (loaded automatically)\n");
-                    sb.append("This is your accumulated knowledge from past games. Use it to make better decisions.\n");
-                    sb.append("Use read_strategy_guide for detailed engine mechanics. Use read_learnings for recent observations.\n\n");
+                    sb.append("\n\n## Your Long-Term Memory\n");
                     sb.append(memory);
                 }
             }
-        } catch (IOException e) {
-            // ignore
-        }
+        } catch (IOException e) { }
         return sb.toString();
+        */
     }
 
     public boolean shouldTrigger(int simStepsSinceLastTurn, int triggerInterval) {

@@ -138,7 +138,7 @@ Complete redesigned output set:
 
 ## Other Changes
 
-- **AnthropicClient:** Minor adjustments to the LLM API integration
+- **LLMClient** (renamed from AnthropicClient)**:** Multi-provider LLM client, minor adjustments to the API integration
 - **LLMProvider:** Interface update for expanded capabilities
 - **GameStateObserver:** Added 69 lines of new observation methods for the expanded info tools (map sectors, demand, averages, evaluation, infrastructure)
 - **Sample city file:** `nyc.cty` added for testing

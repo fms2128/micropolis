@@ -28,6 +28,7 @@ public class GameStateObserver {
     private int prevUnpowered = -1;
     private int prevPollution = -1;
     private int prevCrime = -1;
+    private int prevRoadEffect = -1;
     private double smoothedReward = 0.0;
 
     public GameStateObserver(Micropolis engine) {
@@ -75,6 +76,7 @@ public class GameStateObserver {
         int curUnpowered = engine.getUnpoweredZoneCount();
         int curPollution = engine.getPollutionAverage();
         int curCrime = engine.getCrimeAverage();
+        int roadEffect = engine.getRoadEffect();
 
         if (prevScore >= 0) {
             int deltaScore = curScore - prevScore;
@@ -100,6 +102,9 @@ public class GameStateObserver {
             if (prevCrime > 0 && curCrime < prevCrime) {
                 structuralBonus += (prevCrime - curCrime) * 0.1;
             }
+            if (prevRoadEffect >= 0 && roadEffect > prevRoadEffect) {
+                structuralBonus += (roadEffect - prevRoadEffect) * 0.3;
+            }
 
             double instantReward = scoreComponent + popComponent + fundsComponent + structuralBonus;
             smoothedReward = 0.3 * instantReward + 0.7 * smoothedReward;
@@ -112,6 +117,11 @@ public class GameStateObserver {
             }
             s.addProperty("reward", round2(instantReward));
             s.addProperty("reward_trend", round2(smoothedReward));
+        }
+
+        s.addProperty("road_effect", roadEffect);
+        if (roadEffect < 32) {
+            s.addProperty("road_score_penalty", 32 - roadEffect);
         }
 
         BudgetNumbers bn = engine.generateBudget();
@@ -131,6 +141,7 @@ public class GameStateObserver {
         prevUnpowered = curUnpowered;
         prevPollution = curPollution;
         prevCrime = curCrime;
+        prevRoadEffect = roadEffect;
 
         CityEval eval = engine.getEvaluation();
         CityProblem[] problems = eval.getProblemOrder();
@@ -640,6 +651,20 @@ public class GameStateObserver {
         infra.addProperty("total_road_tiles", roadTiles);
         infra.addProperty("total_power_line_tiles", powerLineTiles);
         infra.addProperty("total_rail_tiles", railTiles);
+
+        int totalZones = totalRes + totalCom + totalInd;
+        int roadEffect = engine.getRoadEffect();
+        infra.addProperty("road_effect", roadEffect);
+        if (roadEffect < 32) {
+            infra.addProperty("road_score_penalty", 32 - roadEffect);
+        }
+        if (totalZones > 0) {
+            double efficiency = (double) roadTiles / totalZones;
+            infra.addProperty("road_tiles_per_zone", Math.round(efficiency * 10.0) / 10.0);
+            if (efficiency > 3.0) {
+                infra.addProperty("road_warning", "TOO MANY roads (" + roadTiles + " tiles for " + totalZones + " zones). Target: <" + (int)(totalZones * 1.5) + " tiles. Excess roads raise maintenance and lower roadEffect.");
+            }
+        }
         result.add("infrastructure", infra);
 
         if (problems.size() > 0) result.add("problems", problems);

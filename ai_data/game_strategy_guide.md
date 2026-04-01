@@ -439,7 +439,7 @@ The most effective city structure separates zone types into concentric rings:
 
 ### Two-Zone Strip Pattern (Most Efficient Layout)
 
-The strip pattern packs 25% more zones than donut layouts using 48% less road infrastructure:
+The strip pattern is a space-efficient layout for zones with integrated road access:
 
 ```
 ZONE ZONE ZONE ZONE ZONE ZONE    <- Row of 3x3 zones touching each other
@@ -456,11 +456,11 @@ ZONE ZONE ZONE ZONE ZONE ZONE
 | Donut (3x3 blocks) | 72 | 23.2 km | Low |
 | Two-zone strip | 90 | 12.0 km | High |
 
-### Minimum Transport Rule
+### Road Access Rule
 
-Each zone needs exactly ONE tile of road or rail touching any edge of its 3x3 footprint.
-The game does NOT require roads to be connected to each other — isolated road tiles work fine.
-Build ONE road row between zone strips, not a grid surrounding every zone.
+Each zone needs at least one tile of road or rail touching any edge of its 3x3 footprint.
+The plan_city_block tool handles this automatically with road rows between zone strips.
+You can also build traditional road grids — whatever creates good connectivity for your city.
 
 ### Power Layout Integration
 
@@ -473,13 +473,13 @@ Since zones conduct power to adjacent zones, the strip pattern also provides fre
 
 ## 11. Infrastructure Strategy
 
-### Roads: Minimum Viable Transport
+### Roads: Good Infrastructure
 
-- Each 3x3 zone needs ONE tile of road touching any edge for road access.
-- More road = more maintenance cost AND more traffic congestion (both penalize score).
-- Optimal: one road row between two rows of zone strips.
-- Never build road grids surrounding zones — massive waste.
-- Fewer total road tiles = cheaper maintenance = better `roadEffect` ratio.
+- Each 3x3 zone needs at least one road/rail tile touching its perimeter for road access.
+- Build proper road networks — zones without road access simply won't grow.
+- The strip layout (road rows between zone strips) is efficient, but regular road grids work too.
+- Fund roads at 100% via set_budget — underfunded roads directly subtract from your city score.
+- `roadEffect` (0-32) measures road maintenance quality. Keep it at 32 by fully funding roads.
 
 ### Power Lines: Only Where Needed
 
@@ -510,8 +510,8 @@ Since zones conduct power to adjacent zones, the strip pattern also provides fre
 | Conducts power | Only with wire | No |
 
 - Use roads for general connectivity (cheaper, can combine with wire for power).
-- Use rails to replace roads in congested corridors (eliminates traffic penalty).
-- On high-density maps, traffic congestion from roads becomes a significant score penalty.
+- Use rails in high-traffic corridors to reduce congestion while maintaining connectivity.
+- A well-connected city with good road infrastructure is essential for growth.
 
 ### Service Building Placement
 

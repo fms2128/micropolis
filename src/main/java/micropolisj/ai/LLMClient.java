@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * matching Anthropic's content-block structure so the rest of the
  * codebase can stay provider-agnostic.
  */
-public class AnthropicClient {
+public class LLMClient {
 
     private static final String ANTHROPIC_VERSION = "2023-06-01";
     private static final int MAX_TOKENS = 4096;
@@ -28,7 +28,7 @@ public class AnthropicClient {
     private String model = "claude-sonnet-4-20250514";
     private LLMProvider provider = LLMProvider.ANTHROPIC;
 
-    public AnthropicClient() {
+    public LLMClient() {
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
             .build();

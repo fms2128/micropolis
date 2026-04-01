@@ -25,10 +25,10 @@ public class ReflectiveAgent {
     private static final String REFLECTIVE_PROMPT_FILE = "ai_data/reflective_prompt.md";
     private static final int MAX_TOOL_ROUNDS = 4;
 
-    private final AnthropicClient client;
+    private final LLMClient client;
     private Consumer<String> onThinking;
 
-    public ReflectiveAgent(AnthropicClient client) {
+    public ReflectiveAgent(LLMClient client) {
         this.client = client;
     }
 
@@ -144,12 +144,12 @@ public class ReflectiveAgent {
             assistantMsg.add("content", response.getAsJsonArray("content"));
             messages.add(assistantMsg);
 
-            String text = AnthropicClient.extractText(response);
+            String text = LLMClient.extractText(response);
             if (!text.isEmpty()) {
                 emit("[Reflection] " + text);
             }
 
-            if (!"tool_use".equals(stopReason) || !AnthropicClient.hasToolUse(response)) {
+            if (!"tool_use".equals(stopReason) || !LLMClient.hasToolUse(response)) {
                 break;
             }
 
