@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SimCity AI Agent - Last Seen Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 20px; }
+  h1 { color: #00d4ff; margin-bottom: 4px; font-size: 20px; }
+  .subtitle { color: #888; font-size: 12px; margin-bottom: 16px; }
+  .container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .map-panel { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px; }
+  .map-panel h2 { color: #00d4ff; font-size: 14px; margin-bottom: 8px; }
+  canvas { display: block; image-rendering: pixelated; border: 1px solid #0f3460; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 11px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-color { width: 14px; height: 14px; border: 1px solid #333; display: inline-block; }
+  .stats { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px; min-width: 260px; }
+  .stats h2 { color: #00d4ff; font-size: 14px; margin-bottom: 8px; }
+  .stat-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; border-bottom: 1px solid #0f3460; }
+  .stat-label { color: #aaa; }
+  .stat-val { color: #fff; font-weight: bold; }
+  .ok { color: #4caf50; }
+  .warn { color: #ff9800; }
+  .crit { color: #f44336; }
+  .building-list { margin-top: 8px; }
+  .building-item { font-size: 11px; padding: 4px 0; border-bottom: 1px solid #0f3460; }
+  .issues { margin-top: 12px; }
+  .issue { font-size: 11px; padding: 3px 6px; margin: 2px 0; border-radius: 4px; }
+  .issue.power { background: #4a1515; color: #ff6b6b; }
+  .issue.road { background: #4a3515; color: #ffb347; }
+  .issue.rubble { background: #3a3a15; color: #e0d050; }
+  #tooltip { position: fixed; background: #222; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 11px; pointer-events: none; display: none; z-index: 100; border: 1px solid #555; }
+</style>
+</head>
+<body>
+<h1>SimCity AI Agent - Letzte Kartenansicht</h1>
+<div class="subtitle">Basierend auf get_city_entities + render_map vom letzten Turn (ca. 00:44:52)</div>
+
+<div class="container">
+  <div class="map-panel">
+    <h2>Stadtgebiet (x=0-30, y=0-18)</h2>
+    <canvas id="cityMap" width="620" height="380"></canvas>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-color" style="background:#2e7d32"></span> Residential</div>
+      <div class="legend-item"><span class="legend-color" style="background:#1565c0"></span> Commercial</div>
+      <div class="legend-item"><span class="legend-color" style="background:#e65100"></span> Industrial</div>
+      <div class="legend-item"><span class="legend-color" style="background:#fdd835"></span> Nuclear</div>
+      <div class="legend-item"><span class="legend-color" style="background:#7b1fa2"></span> Police</div>
+      <div class="legend-item"><span class="legend-color" style="background:#c62828"></span> Fire Stn</div>
+      <div class="legend-item"><span class="legend-color" style="background:#666"></span> Road</div>
+      <div class="legend-item"><span class="legend-color" style="background:#ff0"></span> Power Line</div>
+      <div class="legend-item"><span class="legend-color" style="background:#1b5e20"></span> Trees</div>
+      <div class="legend-item"><span class="legend-color" style="background:#1a237e"></span> Water</div>
+      <div class="legend-item"><span class="legend-color" style="background:#5d4037"></span> Rubble</div>
+      <div class="legend-item"><span class="legend-color" style="background:#333"></span> Empty</div>
+      <div class="legend-item"><span class="legend-color" style="background:repeating-linear-gradient(45deg,#c62828,#c62828 2px,#000 2px,#000 4px)"></span> Unpowered</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <h2>Entity-Katalog (get_city_entities)</h2>
+
+    <div class="stat-row"><span class="stat-label">Score</span><span class="stat-val">754 (+146)</span></div>
+    <div class="stat-row"><span class="stat-label">Population</span><span class="stat-val">6,080</span></div>
+    <div class="stat-row"><span class="stat-label">Funds</span><span class="stat-val">$2,148</span></div>
+    <div class="stat-row"><span class="stat-label">Tax Rate</span><span class="stat-val">4%</span></div>
+
+    <h2 style="margin-top:12px">Zonen-Summary</h2>
+    <div class="stat-row"><span class="stat-label">Residential</span><span class="stat-val ok">12 (11 pwr, 12 road)</span></div>
+    <div class="stat-row"><span class="stat-label">Commercial</span><span class="stat-val ok">6 (5 pwr, 6 road)</span></div>
+    <div class="stat-row"><span class="stat-label">Industrial</span><span class="stat-val ok">5 (5 pwr, 5 road)</span></div>
+
+    <h2 style="margin-top:12px">Gebaeude</h2>
+    <div class="building-list">
+      <div class="building-item"><span class="ok">&#9889;</span> Nuclear (1,1) 4x4 <span class="ok">PWR</span> <span class="warn">no ROAD</span></div>
+      <div class="building-item"><span class="ok">&#9889;</span> Police (11,1) 3x3 <span class="ok">PWR</span> <span class="ok">ROAD</span></div>
+      <div class="building-item"><span class="crit">&#9889;</span> Fire Stn (16,12) 3x3 <span class="crit">NO PWR</span> <span class="ok">ROAD</span></div>
+    </div>
+
+    <h2 style="margin-top:12px">Infrastruktur</h2>
+    <div class="stat-row"><span class="stat-label">Road Tiles</span><span class="stat-val">48</span></div>
+    <div class="stat-row"><span class="stat-label">Power Lines</span><span class="stat-val">2</span></div>
+    <div class="stat-row"><span class="stat-label">Rail Tiles</span><span class="stat-val">0</span></div>
+
+    <div class="issues">
+      <h2>Aktive Probleme</h2>
+      <div class="issue power">Fire Station (16,12) NO POWER</div>
+      <div class="issue power">Residential (16,15) unpowered</div>
+      <div class="issue power">Commercial (19,15) unpowered</div>
+      <div class="issue road">Nuclear (1,1) no road access</div>
+      <div class="issue rubble">23 rubble tiles (tornado trail)</div>
+    </div>
+
+    <h2 style="margin-top:12px">Demand</h2>
+    <div class="stat-row"><span class="stat-label">Res Valve</span><span class="stat-val ok">+5</span></div>
+    <div class="stat-row"><span class="stat-label">Com Valve</span><span class="stat-val ok">+1,500</span></div>
+    <div class="stat-row"><span class="stat-label">Ind Valve</span><span class="stat-val ok">+1,500</span></div>
+
+    <h2 style="margin-top:12px">Averages</h2>
+    <div class="stat-row"><span class="stat-label">Crime</span><span class="stat-val warn">67</span></div>
+    <div class="stat-row"><span class="stat-label">Pollution</span><span class="stat-val warn">52</span></div>
+    <div class="stat-row"><span class="stat-label">Land Value</span><span class="stat-val">121</span></div>
+    <div class="stat-row"><span class="stat-label">Traffic</span><span class="stat-val ok">0</span></div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const CELL = 20;
+const W = 31, H = 19;
+
+const colors = {
+  R: '#2e7d32', r: '#1b3a1b',
+  C: '#1565c0', c: '#0a2a5a',
+  I: '#e65100', i: '#5a2200',
+  N: '#fdd835',
+  S: '#7b1fa2',
+  F: '#c62828', f: '#5a1111',
+  P: '#fdd835', p: '#6a5a00',
+  '=': '#666666',
+  '+': '#ffff00',
+  '#': '#8d6e63',
+  '~': '#1a237e',
+  T: '#1b5e20',
+  X: '#5d4037',
+  '!': '#ff1744',
+  '*': '#880000',
+  '.': '#222233',
+  ' ': '#222233',
+  H: '#00838f', h: '#003a3f',
+  A: '#4527a0', a: '#1a0a40',
+  D: '#f9a825', d: '#5a3d00',
+};
+
+const zoneData = [
+  "....I..II.....I..I..RRRII.CCC..",
+  "....IIIII.....IIIIIIRRRII.CCC..",
+  "....IIIIII....IIIIIIRRRIIICCC..",
+  "...............................",
+  ".RRRRRRRRRCCCRRRRRRCCCCCC......",
+  ".RRRRRRRRRCCCRRRRRRCCCCCC......",
+  ".RRRRRRRRRCCCRRRRRRCCCCCC......",
+  "..RRRRRRRRRRRRCCC..RRR.........",
+  "..RRRRRRRRRRRRCCC..RRR.........",
+  "..RRRRRRRRRRRRCCC..RRR.........",
+  "...............................",
+  "...............................",
+  "...............................",
+  "...............................",
+  ".........RRRCCC..............",
+  ".........RrRCcC..............",
+  ".........RRRCCC..............",
+  "...............................",
+  "...............................",
+];
+
+const infraData = [
+  "..........FFF..................",
+  ".NNN......FSS..................",
+  "N.NN......SSS..................",
+  "NNNN=.=.==.====+=+===========..",
+  ".........................=....",
+  ".........................=....",
+  ".........................=....",
+  ".=.......................=....",
+  ".........................=....",
+  ".........................=....",
+  "...=========..===......====...",
+  ".........PPP..................",
+  ".........PfF..................",
+  ".........FFF..................",
+  "..............................",
+  "..........*..*...............",
+  "..............................",
+  ".........======...............",
+  "..............................",
+];
+
+const terrainData = [
+  "              T               ",
+  "              T               ",
+  "              T               ",
+  "      . .  .                  ",
+  " .                         ~~~",
+  " .                         ~~~",
+  " .                         ~~~",
+  " .               ..   .~~ ~~~",
+  " ..              ..   .~~ ~~~",
+  " ..              T.   .~~ ~~~",
+  " ...        ..   T.  ..   ~~~",
+  " ........TTTTTTTT.......~~~~~",
+  " ..........TTTTT....TT...~~~~",
+  " ........TT.........TT....~~~",
+  " .......TTTTT..............~~",
+  " .......TTTTTT....TTT......~~",
+  " ........TTTTT...TTTTT..TT.~~",
+  " .........TTT....TTTTT.TTT.~~",
+  " ..........TT.......TT.TTT.~~",
+];
+
+const entityTooltips = {};
+entityTooltips["1,1"] = "Nuclear Power Plant (4x4)\nPowered: YES\nRoad: NO";
+entityTooltips["11,1"] = "Police Station (3x3)\nPowered: YES\nRoad: YES";
+entityTooltips["16,12"] = "Fire Station (3x3)\nPowered: NO!\nRoad: YES";
+
+const zoneCenters = [
+  {x:5,y:1,t:"Industrial"},{x:8,y:1,t:"Industrial"},
+  {x:15,y:1,t:"Industrial"},{x:18,y:1,t:"Industrial"},
+  {x:21,y:1,t:"Residential"},{x:24,y:1,t:"Industrial"},
+  {x:27,y:1,t:"Commercial"},
+  {x:2,y:5,t:"Residential"},{x:5,y:5,t:"Residential"},
+  {x:8,y:5,t:"Residential"},{x:11,y:5,t:"Commercial"},
+  {x:14,y:5,t:"Residential"},{x:17,y:5,t:"Residential"},
+  {x:20,y:5,t:"Commercial"},{x:23,y:5,t:"Commercial"},
+  {x:3,y:8,t:"Residential"},{x:6,y:8,t:"Residential"},
+  {x:9,y:8,t:"Residential"},{x:12,y:8,t:"Residential"},
+  {x:15,y:8,t:"Commercial"},{x:20,y:8,t:"Residential"},
+  {x:16,y:15,t:"Residential (UNPOWERED!)"},
+  {x:19,y:15,t:"Commercial (UNPOWERED!)"},
+];
+zoneCenters.forEach(z => {
+  entityTooltips[z.x+","+z.y] = z.t + " Zone Center\n(" + z.x + "," + z.y + ")";
+});
+
+function getCell(data, x, y) {
+  if (y < 0 || y >= data.length) return ' ';
+  const row = data[y];
+  if (x < 0 || x >= row.length) return ' ';
+  return row[x];
+}
+
+function drawMap() {
+  const canvas = document.getElementById('cityMap');
+  const ctx = canvas.getContext('2d');
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const terrain = getCell(terrainData, x, y);
+      const zone = getCell(zoneData, x, y);
+      const infra = getCell(infraData, x, y);
+
+      let color = colors['.'];
+      let label = '';
+
+      if (terrain === '~') { color = colors['~']; label = '~'; }
+      else if (terrain === 'T') { color = colors['T']; }
+      else if (terrain === 'X') { color = colors['X']; label = 'X'; }
+      else if (terrain === '!') { color = colors['!']; label = '!'; }
+
+      if (zone !== '.' && zone !== ' ') {
+        color = colors[zone] || color;
+        label = zone.toUpperCase();
+      }
+
+      if (infra !== '.' && infra !== ' ') {
+        if ('NNPP'.includes(infra.toUpperCase()) || 'FSfs'.includes(infra)) {
+          color = colors[infra] || color;
+          label = infra.toUpperCase();
+        } else if (infra === '=' || infra === '+' || infra === '#') {
+          color = colors[infra];
+          label = infra;
+        } else if (infra === '*') {
+          color = colors['*'];
+          label = '*';
+        }
+      }
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+
+      if (infra === 'f' || infra === 'p' || infra === 'n' || infra === 's' ||
+          zone === 'r' || zone === 'c' || zone === 'i' || infra === '*') {
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x*CELL, y*CELL);
+        ctx.lineTo(x*CELL+CELL, y*CELL+CELL);
+        ctx.moveTo(x*CELL+CELL, y*CELL);
+        ctx.lineTo(x*CELL, y*CELL+CELL);
+        ctx.stroke();
+      }
+
+      if (label) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, x*CELL+CELL/2, y*CELL+CELL/2);
+      }
+
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(x * CELL, y * CELL, CELL, CELL);
+    }
+  }
+
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, H*CELL-18, 200, 18);
+  ctx.fillStyle = '#aaa';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('Hover tiles for details | Red X = unpowered', 4, H*CELL-6);
+}
+
+const canvas = document.getElementById('cityMap');
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / CELL);
+  const y = Math.floor((e.clientY - rect.top) / CELL);
+  const tip = document.getElementById('tooltip');
+
+  if (x < 0 || x >= W || y < 0 || y >= H) { tip.style.display='none'; return; }
+
+  const key = x+","+y;
+  const terrain = getCell(terrainData, x, y);
+  const zone = getCell(zoneData, x, y);
+  const infra = getCell(infraData, x, y);
+
+  let text = `(${x},${y})`;
+  if (entityTooltips[key]) text += '\n' + entityTooltips[key];
+  else {
+    const names = { R:'Residential',r:'Res(UNPWR)',C:'Commercial',c:'Com(UNPWR)',
+      I:'Industrial',i:'Ind(UNPWR)','=':'Road','+':'PowerLine','#':'Rail',
+      N:'Nuclear',S:'Police',F:'FireStn',f:'FireStn(UNPWR)',P:'CoalPwr',
+      '~':'Water',T:'Trees',X:'Rubble','!':'Fire','*':'Unpowered Zone',' ':'Empty','.':'Empty'};
+    if (zone !== '.' && zone !== ' ') text += ' | ' + (names[zone]||zone);
+    if (infra !== '.' && infra !== ' ') text += ' | ' + (names[infra]||infra);
+    if (terrain === '~') text += ' | Water';
+    else if (terrain === 'T') text += ' | Trees';
+    else if (terrain === 'X') text += ' | Rubble';
+  }
+
+  tip.textContent = text;
+  tip.style.whiteSpace = 'pre';
+  tip.style.display = 'block';
+  tip.style.left = (e.clientX + 12) + 'px';
+  tip.style.top = (e.clientY + 12) + 'px';
+});
+canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip').style.display='none'; });
+
+drawMap();
+</script>
+</body>
+</html>

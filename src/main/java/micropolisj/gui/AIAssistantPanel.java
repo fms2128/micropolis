@@ -26,11 +26,9 @@ public class AIAssistantPanel extends JPanel {
     private final JTextField userInput;
     private final JComboBox<LLMProvider> providerSelector;
     private final JComboBox<String> modelSelector;
-    private final JSpinner intervalSpinner;
     private final JLabel statusLabel;
 
-    private Timer autoTimer;
-    private int simStepsSinceLastTurn = 0;
+    private Timer nextTurnTimer;
     private boolean autoPlayEnabled = false;
 
     public AIAssistantPanel(AIAssistant assistant) {
@@ -77,13 +75,7 @@ public class AIAssistantPanel extends JPanel {
         configPanel.add(modelPanel);
         configPanel.add(Box.createVerticalStrut(4));
 
-        JPanel intervalPanel = new JPanel(new BorderLayout(4, 0));
-        intervalPanel.add(new JLabel("Auto-play interval (s):"), BorderLayout.LINE_START);
-        intervalSpinner = new JSpinner(new SpinnerNumberModel(30, 5, 300, 5));
-        intervalPanel.add(intervalSpinner, BorderLayout.CENTER);
-        intervalPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        configPanel.add(intervalPanel);
-        configPanel.add(Box.createVerticalStrut(4));
+        configPanel.add(Box.createVerticalStrut(2));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
         enableButton = new JToggleButton("Auto-Play OFF");
@@ -140,13 +132,14 @@ public class AIAssistantPanel extends JPanel {
     private void onToggleAutoPlay(ActionEvent e) {
         applyApiKey();
         autoPlayEnabled = enableButton.isSelected();
+        assistant.setAutoPlayActive(autoPlayEnabled);
         enableButton.setText(autoPlayEnabled ? "Auto-Play ON" : "Auto-Play OFF");
 
         if (autoPlayEnabled) {
-            startAutoTimer();
             statusLabel.setText("Status: Auto-play active");
+            scheduleNextAutoTurn(0);
         } else {
-            stopAutoTimer();
+            cancelScheduledTurn();
             statusLabel.setText("Status: Idle");
         }
     }
@@ -159,18 +152,36 @@ public class AIAssistantPanel extends JPanel {
         }
         String userMsg = userInput.getText().trim();
         userInput.setText("");
-        if (!userMsg.isEmpty()) {
-            appendLog("You", userMsg);
-        }
-        statusLabel.setText("Status: Thinking...");
-        askButton.setEnabled(false);
 
-        assistant.runTurn(userMsg.isEmpty() ? null : userMsg).thenRun(() ->
-            SwingUtilities.invokeLater(() -> {
-                statusLabel.setText("Status: " + (autoPlayEnabled ? "Auto-play active" : "Idle"));
-                askButton.setEnabled(true);
-            })
-        );
+        if (userMsg.isEmpty()) {
+            if (!assistant.isRunning()) {
+                statusLabel.setText("Status: Thinking...");
+                askButton.setEnabled(false);
+                assistant.runTurn(null).thenRun(() ->
+                    SwingUtilities.invokeLater(() -> {
+                        statusLabel.setText("Status: " + (autoPlayEnabled ? "Auto-play active" : "Idle"));
+                        askButton.setEnabled(true);
+                    })
+                );
+            }
+            return;
+        }
+
+        appendLog("You", userMsg);
+
+        if (assistant.isRunning()) {
+            assistant.queueUserMessage(userMsg);
+            statusLabel.setText("Status: Message queued (agent busy)");
+        } else {
+            statusLabel.setText("Status: Thinking...");
+            askButton.setEnabled(false);
+            assistant.runTurn(userMsg).thenRun(() ->
+                SwingUtilities.invokeLater(() -> {
+                    statusLabel.setText("Status: " + (autoPlayEnabled ? "Auto-play active" : "Idle"));
+                    askButton.setEnabled(true);
+                })
+            );
+        }
     }
 
     private void onProviderChanged() {
@@ -192,25 +203,44 @@ public class AIAssistantPanel extends JPanel {
         }
     }
 
-    private void startAutoTimer() {
-        stopAutoTimer();
-        int intervalMs = ((Number) intervalSpinner.getValue()).intValue() * 1000;
-        autoTimer = new Timer(intervalMs, e -> {
-            if (autoPlayEnabled && !assistant.isRunning() && assistant.isConfigured()) {
-                statusLabel.setText("Status: Auto-turn...");
-                assistant.runTurn().thenRun(() ->
-                    SwingUtilities.invokeLater(() ->
-                        statusLabel.setText("Status: Auto-play active")));
+    private void scheduleNextAutoTurn(int delayMs) {
+        cancelScheduledTurn();
+        if (!autoPlayEnabled || !assistant.isConfigured()) return;
+
+        int effectiveDelay = Math.max(delayMs, 100);
+        nextTurnTimer = new Timer(effectiveDelay, e -> {
+            if (!autoPlayEnabled || !assistant.isConfigured()) return;
+
+            if (assistant.isRunning()) {
+                scheduleNextAutoTurn(2000);
+                return;
             }
+
+            statusLabel.setText("Status: Auto-turn...");
+            assistant.runTurn().whenComplete((result, error) ->
+                SwingUtilities.invokeLater(() -> {
+                    if (!autoPlayEnabled) {
+                        statusLabel.setText("Status: Idle");
+                        return;
+                    }
+                    int nextDelay = assistant.getNextTurnDelayMs();
+                    if (nextDelay > 3000 && assistant.getListener().hasCriticalEvent()) {
+                        nextDelay = 3000;
+                    }
+                    statusLabel.setText(nextDelay == 0
+                        ? "Status: Continuing immediately..."
+                        : "Status: Waiting " + (nextDelay / 1000) + "s for simulation...");
+                    scheduleNextAutoTurn(nextDelay);
+                }));
         });
-        autoTimer.setRepeats(true);
-        autoTimer.start();
+        nextTurnTimer.setRepeats(false);
+        nextTurnTimer.start();
     }
 
-    private void stopAutoTimer() {
-        if (autoTimer != null) {
-            autoTimer.stop();
-            autoTimer = null;
+    private void cancelScheduledTurn() {
+        if (nextTurnTimer != null) {
+            nextTurnTimer.stop();
+            nextTurnTimer = null;
         }
     }
 

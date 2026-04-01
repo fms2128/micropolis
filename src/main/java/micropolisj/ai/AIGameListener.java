@@ -3,6 +3,7 @@ package micropolisj.ai;
 import micropolisj.engine.*;
 
 import java.util.*;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -11,7 +12,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AIGameListener implements CityListener {
 
+    private static final int RECENT_HISTORY_SIZE = 30;
+
     private final ConcurrentLinkedQueue<MessageEntry> messageQueue = new ConcurrentLinkedQueue<>();
+    private final LinkedList<String> recentHistory = new LinkedList<>();
+    private final LinkedList<String> recentMessageIds = new LinkedList<>();
+    private int messageIdCounter = 0;
     private volatile boolean hasCriticalEvent = false;
     private volatile boolean censusOccurred = false;
     private volatile boolean evaluationOccurred = false;
@@ -94,26 +100,46 @@ public class AIGameListener implements CityListener {
     }
 
     /**
-     * Drain all collected messages as structured, categorized system updates.
-     * Deduplicates repeated messages and translates enum names into
-     * human-readable, actionable descriptions with priority categories.
+     * Drain all collected messages, add them to the rolling history,
+     * and return the last {@link #RECENT_HISTORY_SIZE} messages as a
+     * chronological log so the AI can observe repetition patterns.
      */
     public String drainStructuredMessages() {
-        Map<MicropolisMessage, CityLocation> seen = new LinkedHashMap<>();
         MessageEntry entry;
         while ((entry = messageQueue.poll()) != null) {
-            seen.putIfAbsent(entry.message, entry.location);
-        }
-        if (seen.isEmpty()) return "";
-
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<MicropolisMessage, CityLocation> e : seen.entrySet()) {
-            String line = formatMessage(e.getKey(), e.getValue());
+            String line = formatMessage(entry.message, entry.location);
             if (line != null) {
-                sb.append("- ").append(line).append("\n");
+                String msgId = "m" + (++messageIdCounter);
+                synchronized (recentHistory) {
+                    recentHistory.addLast(line);
+                    recentMessageIds.addLast(msgId);
+                    while (recentHistory.size() > RECENT_HISTORY_SIZE) {
+                        recentHistory.removeFirst();
+                        recentMessageIds.removeFirst();
+                    }
+                }
             }
         }
-        return sb.toString();
+
+        synchronized (recentHistory) {
+            if (recentHistory.isEmpty()) return "";
+            StringBuilder sb = new StringBuilder();
+            Iterator<String> idIter = recentMessageIds.iterator();
+            for (String line : recentHistory) {
+                String id = idIter.hasNext() ? idIter.next() : "m?";
+                sb.append("- [").append(id).append("] ").append(line).append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    /**
+     * Returns the set of message IDs currently in the recent history window.
+     */
+    public List<String> getCurrentMessageIds() {
+        synchronized (recentHistory) {
+            return new ArrayList<>(recentMessageIds);
+        }
     }
 
     private String formatMessage(MicropolisMessage msg, CityLocation loc) {

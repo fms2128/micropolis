@@ -46,7 +46,7 @@
 
 ```mermaid
 flowchart TD
-    PowerPlants["Power Plants<br/>(Coal: 700, Nuclear: 2000)"] --> PowerScan["Power Scan<br/>(conducts along wires/roads)"]
+    PowerPlants["Power Plants<br/>(Coal: 700, Nuclear: 2000)"] --> PowerScan["Power Scan<br/>(conducts along wires/zones, NOT roads)"]
     PowerScan --> ZonePower["Zone Powered?"]
 
     Roads["Roads / Rails"] --> TrafficSim["Traffic Simulation<br/>(pathfinding, 30-step limit)"]
@@ -367,7 +367,162 @@ Checked every simulation cycle 15. Probability: `1 / (disChance[level] + 1)` per
 
 ---
 
-## 9. Strategic Implications
+## 9. Power Conductivity (CRITICAL)
+
+Power propagation uses a flood-fill algorithm starting from each power plant. It walks along "conductive" tiles only.
+
+### Conductivity Table (from tiles.rc)
+
+| Tile Type | Conducts Power? | Tile IDs | Notes |
+|-----------|----------------|----------|-------|
+| Power lines/wires | YES | 208-223 | Primary power conduit |
+| Road+Wire crossings | YES | 77-78, 93-94, etc. | Auto-created when wire crosses road |
+| Residential zones | YES | 240+ | All zone tiles conduct |
+| Commercial zones | YES | 423+ | All zone tiles conduct |
+| Industrial zones | YES | 612+ | All zone tiles conduct |
+| Power plants | YES | 750+ (coal), 816+ (nuclear) | Source of power |
+| Regular roads | **NO** | 64-76 | Roads BLOCK power! |
+| Rails/railroad | **NO** | 224-239 | Rails do NOT conduct |
+| Parks | **NO** | 840 | Parks do NOT conduct |
+| Empty land/trees | **NO** | 0, 21-43 | Not conductive |
+| Water | **NO** | 2-20 | Not conductive |
+
+### How Power Propagation Works
+
+1. Algorithm starts at each power plant and flood-fills along conductive tiles.
+2. Adjacent zones propagate power to each other freely (no wire needed).
+3. A road between two zones BREAKS the power chain (roads are NOT conductive).
+4. To bridge a road, build a wire across it (creates a road+wire crossing tile that conducts).
+5. Each power unit consumed by the scan counts against plant capacity (Coal: 700, Nuclear: 2000).
+
+### Common Power Mistakes
+
+- Expecting roads to carry power (they don't — only road+wire crossings do).
+- Building zones with road gaps between them and wondering why they're unpowered.
+- Not running a wire from the plant to the first zone in a chain.
+
+### Optimal Power Layout
+
+```
+PowerPlant -> Wire -> Zone -> Zone -> Zone (power flows freely through adjacent zones)
+                       |
+                     Road    <-- power STOPS here
+                       |
+                     Wire    <-- needed to bridge the road
+                       |
+                     Zone -> Zone -> Zone (power resumes)
+```
+
+---
+
+## 10. Optimal City Layout
+
+### Three-Ring Model
+
+The most effective city structure separates zone types into concentric rings:
+
+```
++--------------------------------------------------+
+| INDUSTRIAL  INDUSTRIAL  INDUSTRIAL  INDUSTRIAL   |  <- Map edges
+|  COMMERCIAL  COMMERCIAL  COMMERCIAL  COMMERCIAL  |  <- Buffer ring
+|    RESIDENTIAL  RESIDENTIAL  RESIDENTIAL          |  <- City center
+|    RESIDENTIAL  RESIDENTIAL  RESIDENTIAL          |
+|  COMMERCIAL  COMMERCIAL  COMMERCIAL  COMMERCIAL  |
+| INDUSTRIAL  INDUSTRIAL  INDUSTRIAL  INDUSTRIAL   |
++--------------------------------------------------+
+```
+
+**Why this works:**
+- Industrial at edges: ~50% of pollution spills off the map edge, and edge land has lowest value anyway.
+- Commercial as buffer: Tolerates pollution better than residential, thrives on proximity to city center.
+- Residential at center: Benefits from highest land value (center proximity bonus in `comRate` formula).
+
+### Two-Zone Strip Pattern (Most Efficient Layout)
+
+The strip pattern packs 25% more zones than donut layouts using 48% less road infrastructure:
+
+```
+ZONE ZONE ZONE ZONE ZONE ZONE    <- Row of 3x3 zones touching each other
+ZONE ZONE ZONE ZONE ZONE ZONE    <- Second row of zones
+= = = = ROAD = = = = = = = =     <- Single road row
+ZONE ZONE ZONE ZONE ZONE ZONE    <- Next strip
+ZONE ZONE ZONE ZONE ZONE ZONE
+```
+
+**Comparison on 31x31 area:**
+
+| Layout | Zones | Road/Rail | Density |
+|--------|-------|-----------|---------|
+| Donut (3x3 blocks) | 72 | 23.2 km | Low |
+| Two-zone strip | 90 | 12.0 km | High |
+
+### Minimum Transport Rule
+
+Each zone needs exactly ONE tile of road or rail touching any edge of its 3x3 footprint.
+The game does NOT require roads to be connected to each other — isolated road tiles work fine.
+Build ONE road row between zone strips, not a grid surrounding every zone.
+
+### Power Layout Integration
+
+Since zones conduct power to adjacent zones, the strip pattern also provides free power propagation:
+- Connect the power plant to any zone in the strip with a wire.
+- Power flows through the entire strip of touching zones automatically.
+- Only need wires across road rows (one wire per road crossing point).
+
+---
+
+## 11. Infrastructure Strategy
+
+### Roads: Minimum Viable Transport
+
+- Each 3x3 zone needs ONE tile of road touching any edge for road access.
+- More road = more maintenance cost AND more traffic congestion (both penalize score).
+- Optimal: one road row between two rows of zone strips.
+- Never build road grids surrounding zones — massive waste.
+- Fewer total road tiles = cheaper maintenance = better `roadEffect` ratio.
+
+### Power Lines: Only Where Needed
+
+- Zones propagate power for free when touching each other.
+- Only build wires to bridge non-conductive gaps (roads, empty land).
+- A single wire from plant to first zone chain handles everything if zones are contiguous.
+- Wire cost: only $5/tile — cheap insurance for power connectivity.
+
+### Nuclear vs Coal Power Plant ROI
+
+| | Coal | Nuclear | Nuclear Advantage |
+|--|------|---------|-------------------|
+| Cost | $3,000 | $5,000 | |
+| Power | 700 units | 2,000 units | 2.86x more power |
+| Power/Dollar | 0.23 | 0.40 | **1.74x better ROI** |
+| Pollution | YES (100) | NO | Huge land value benefit |
+| Meltdown risk (Easy) | N/A | 1/30,001 per cycle | Negligible |
+
+**Recommendation:** Always prefer nuclear when funds allow ($5,000+). The lack of pollution alone justifies the cost — pollution destroys land value, raises crime, and can trigger monster attacks (>60 pollution average).
+
+### Rail vs Road Trade-offs
+
+| | Road | Rail |
+|--|------|------|
+| Provides zone connectivity | Yes | Yes |
+| Creates traffic congestion | **Yes** | No |
+| Maintenance per tile | 1x | 2x |
+| Conducts power | Only with wire | No |
+
+- Use roads for general connectivity (cheaper, can combine with wire for power).
+- Use rails to replace roads in congested corridors (eliminates traffic penalty).
+- On high-density maps, traffic congestion from roads becomes a significant score penalty.
+
+### Service Building Placement
+
+- Police stations: every ~15 tiles of developed area. Coverage halved without power or road.
+- Fire stations: same spacing. One fire station early to prevent uncontrolled fires.
+- Power plants: corner of the map, adjacent to industrial. No road needed.
+- Stadium/Seaport/Airport: build ONE each just before growth caps activate. Don't waste space on multiples.
+
+---
+
+## 12. Strategic Implications (Quick Reference)
 
 ### Priority Order for City Building
 
@@ -427,17 +582,28 @@ Practical guidance:
 
 ### Reward Signal Alignment
 
-The agent reward formula is: `reward = (delta_score * 2) + (delta_population / 100) + (delta_funds / 500)`
+The agent reward is decomposed into components each turn:
 
-- **delta_score** has highest weight — optimize for score above all
-- Score is a moving average — improvements take 2+ evaluation periods to fully register
-- Avoid large cash expenditures without immediate score/population payoff (delta_funds penalty)
-- Population growth contributes but is secondary to score improvement
+```
+reward_score      = delta_score * 2.0              (highest weight — score is PRIMARY objective)
+reward_pop        = delta_pop / max(100, pop*0.02) (normalized by city size — early growth valued more)
+reward_funds      = delta_funds / 500              (stay solvent)
+reward_structural = bonus for fixing power, reducing pollution/crime (infrastructure improvements)
+reward            = sum of all components           (instant total)
+reward_trend      = 0.3 * instant + 0.7 * previous (smoothed EMA — shows long-term trajectory)
+```
+
+**Key insights:**
+- Check `reward_score` first — if it's negative, find what problem is dragging down city score.
+- `reward_structural` rewards infrastructure fixes even when score hasn't caught up yet (score is a moving average).
+- `reward_trend` declining over several turns = strategy needs fundamental change.
+- Large negative `reward_funds` from investment is expected — focus on whether `reward_score` and `reward_pop` recover on subsequent turns.
 
 ---
 
-## 10. Reference
+## 13. Reference
 
 - **Source files:** `Micropolis.java`, `MapScanner.java`, `TrafficGen.java`, `CityEval.java`, `MicropolisTool.java`
-- **Experiential memory:** `agent_memory.md` — records what strategies worked or failed in actual games
+- **Experiential memory:** `ai_data/agent_memory.md` — records what strategies worked or failed in actual games
 - **System prompt:** `SystemPrompt.java` — defines the agent's interface, available tools, and reward formula
+- **Session notes:** `ai_data/session_notes.md` — map-specific tactical notes (reset each game)

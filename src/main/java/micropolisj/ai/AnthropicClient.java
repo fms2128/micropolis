@@ -192,8 +192,7 @@ public class AnthropicClient {
                     }
                 }
 
-                if (text.length() > 0) oaiMsg.addProperty("content", text.toString());
-                else oaiMsg.add("content", null);
+                oaiMsg.addProperty("content", text.length() > 0 ? text.toString() : "");
                 if (toolCalls.size() > 0) oaiMsg.add("tool_calls", toolCalls);
                 oai.add(oaiMsg);
 

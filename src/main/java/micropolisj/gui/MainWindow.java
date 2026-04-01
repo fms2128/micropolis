@@ -53,6 +53,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -127,6 +128,8 @@ public class MainWindow extends JFrame
 	private boolean dirty2;  //indicates if simulator took a step since last save
 	private long lastSavedTime;  //real-time clock of when file was last saved
 	private boolean autoBudgetPending;
+	private volatile BudgetDialog currentBudgetDialog;
+	private AIAssistant aiAssistant;
 	private JMenuItem autoBudgetMenuItem;
 	private JMenuItem autoBulldozeMenuItem;
 	private JMenuItem disastersMenuItem;
@@ -259,8 +262,10 @@ public class MainWindow extends JFrame
 		notificationPane = new NotificationPane(engine);
 		leftPane.add(notificationPane, constraints);
 
-		AIAssistant aiAssistant = new AIAssistant();
+		aiAssistant = new AIAssistant();
 		aiAssistant.setEngine(engine);
+		aiAssistant.setBudgetDismisser(() -> dismissBudgetDialog());
+		aiAssistant.setBudgetDialogOpenChecker(() -> currentBudgetDialog != null);
 		aiPanel = new AIAssistantPanel(aiAssistant);
 		add(aiPanel, BorderLayout.LINE_END);
 
@@ -1048,6 +1053,9 @@ public class MainWindow extends JFrame
 			for (int i = 0; i < count; i++) {
 				engine.animate();
 				if (!engine.isAutoBudget() && engine.isBudgetTime()) {
+					if (aiAssistant != null && aiAssistant.isAutoPlayActive()) {
+						continue;
+					}
 					showAutoBudget();
 					return;
 				}
@@ -1313,11 +1321,21 @@ public class MainWindow extends JFrame
 		}
 
 		BudgetDialog dlg = new BudgetDialog(this, engine);
+		currentBudgetDialog = dlg;
 		dlg.setModal(true);
 		dlg.setVisible(true);
+		currentBudgetDialog = null;
 
 		if (timerEnabled) {
 			startTimer();
+		}
+	}
+
+	private void dismissBudgetDialog()
+	{
+		BudgetDialog dlg = currentBudgetDialog;
+		if (dlg != null) {
+			SwingUtilities.invokeLater(() -> dlg.dispose());
 		}
 	}
 

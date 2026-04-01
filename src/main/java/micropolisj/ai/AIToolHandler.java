@@ -18,9 +18,11 @@ import java.util.*;
  */
 public class AIToolHandler {
 
-    private static final String LOG_FILE = "ai_learnings.log";
-    private static final String MEMORY_FILE = "agent_memory.md";
-    private static final String STRATEGY_FILE = "game_strategy_guide.md";
+    private static final String AI_DATA_DIR = "ai_data";
+    private static final String LOG_FILE = AI_DATA_DIR + "/ai_learnings.log";
+    private static final String MEMORY_FILE = AI_DATA_DIR + "/agent_memory.md";
+    private static final String STRATEGY_FILE = AI_DATA_DIR + "/game_strategy_guide.md";
+    private static final String SESSION_FILE = AI_DATA_DIR + "/session_notes.md";
 
     private final Micropolis engine;
     private final GameStateObserver observer;
@@ -113,18 +115,56 @@ public class AIToolHandler {
         tools.add(makeTool("get_map_overview",
             "Get compressed map overview: 12x10 sector grid showing dominant tile type, development %, empty %, and unpowered zones per sector. Good for finding where to build."
         ));
+        tools.add(makeTool("get_history",
+            "Get historical trends for city metrics. Returns sampled data points, min/max/avg, and trend direction (rising_fast, rising, stable, falling, falling_fast). Use to detect patterns like 'crime rising over last 5 years' or 'cashflow declining'. Financial history includes per-cycle funds, tax income, and expenses.",
+            param("metric", "string", "Metric: residential, commercial, industrial, crime, pollution, money, financial, or all"),
+            param("period", "string", "Time range: 'recent' (last ~10 years, ~6-month samples) or 'long_term' (120 years, ~10-year samples)")
+        ));
+        tools.add(makeTool("get_city_entities",
+            "Get a COMPLETE catalog of every building, zone, and problem on the map. "
+            + "Returns: buildings array (type, position, powered, road_access, size), "
+            + "zone_summary (total/powered/road counts per R/C/I type), "
+            + "unpowered_zones and no_road_zones arrays (only the problematic ones with coordinates), "
+            + "infrastructure counts (road/power_line/rail tiles), "
+            + "and active problems (fire/rubble/flood/radiation with coordinates). "
+            + "This is your PRIMARY analysis tool — call it FIRST before making any build or repair decisions. "
+            + "All power checks use zone CENTER tiles only (matching engine behavior), so data is 100% accurate."
+        ));
+        tools.add(makeTool("diagnose_infrastructure",
+            "Scan the ENTIRE map for infrastructure problems: unpowered zones, buildings without power, "
+            + "zones without road access. Returns a prioritized issue list with exact coordinates. "
+            + "For a full city overview including all buildings and zone counts, prefer get_city_entities instead."
+        ));
+        tools.add(makeToolWithOptional("render_map",
+            "Render a visual ASCII map of an area. Returns 3 layered views: terrain, zones (uppercase=powered, lowercase=UNPOWERED), "
+            + "and infrastructure (roads/power/buildings). Much easier to read than inspect_area. "
+            + "Use this to understand spatial layout before building. Essential for diagnosing road and power problems.",
+            new String[][] {
+                param("x", "integer", "Center X coordinate"),
+                param("y", "integer", "Center Y coordinate"),
+            },
+            new String[][] {
+                param("radius", "integer", "Radius in tiles (default 15, max 25)")
+            }
+        ));
         tools.add(makeTool("find_empty_area",
             "Scan the entire map to find a contiguous rectangular area of empty (dirt) tiles. Returns the top-left corner of the best area found, preferring areas near existing roads. Use BEFORE placing buildings/zones to find valid locations. For zones use 3x3, for powerplant/stadium/seaport use 4x4, for airport use 6x6.",
             param("width", "integer", "Required width in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)"),
             param("height", "integer", "Required height in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)")
         ));
         tools.add(makeTool("write_learning",
-            "Record a quick one-line observation to the learnings log. For structured long-term knowledge, prefer update_memory instead.",
+            "Record a quick one-line observation to the learnings log. The response shows recent entries in the same category — check them to avoid duplicates. For structured long-term knowledge, prefer update_memory. Generalize observations: avoid turn numbers and coordinates.",
             param("category", "string", "Category: placement_rules, strategy, terrain, tools, bugs, tips"),
-            param("observation", "string", "What you observed or learned. Be specific and actionable.")
+            param("observation", "string", "What you observed or learned. Be GENERAL and actionable — no turn numbers or specific coordinates.")
         ));
         tools.add(makeTool("read_learnings",
             "Read all previously recorded learnings from the log. For your structured cheatsheet, use read_memory instead."
+        ));
+        tools.add(makeTool("consolidate_learnings",
+            "Replace the entire learnings log with a consolidated version. Use this when the log exceeds ~30 entries. "
+            + "Read the log first, then call this with a cleaned-up version that merges redundant observations, "
+            + "removes turn-specific details, and keeps only actionable generalizable knowledge. Aim for ~15-20 entries max.",
+            param("consolidated_content", "string", "The full replacement content for the learnings log. Each entry on its own line, format: [category] observation")
         ));
         tools.add(makeTool("read_memory",
             "Read your long-term memory cheatsheet (agent_memory.md). This contains your accumulated knowledge about what strategies work, what doesn't, placement rules, financial tips, and your current best strategy. READ THIS at the start of every new game session and when the reward signal turns negative."
@@ -133,14 +173,29 @@ public class AIToolHandler {
             "Read the game strategy guide (game_strategy_guide.md). Contains exact formulas, thresholds, and causal relationships extracted from the engine source code: zone growth mechanics, demand valve calculations, scoring system, overlay systems, costs, and strategic implications. Read this when you need to understand WHY something is happening or to plan optimal build order."
         ));
         tools.add(makeTool("update_memory",
-            "Update a section in your long-term memory cheatsheet. Use this to record durable strategic knowledge you've confirmed over multiple turns. This is your most valuable tool for getting better over time. Sections: 'Strategies That Work', 'Strategies That Don't Work', 'Placement Rules Learned', 'Financial Management', 'Common Mistakes', 'Map Reading Tips', 'Current Best Strategy'.",
+            "Update a section in your long-term memory cheatsheet. The response shows the CURRENT section content — read it before adding to avoid duplicates. "
+            + "Use replace='true' to rewrite bloated sections with consolidated knowledge (aim for ~8-12 entries per section). "
+            + "NEVER add turn-specific or coordinate-specific entries — generalize into reusable principles. "
+            + "Sections: 'Strategies That Work', 'Strategies That Don't Work', 'Placement Rules Learned', 'Financial Management', 'Common Mistakes', 'Map Reading Tips', 'Current Best Strategy'.",
             param("section", "string", "Section name exactly as listed (e.g. 'Strategies That Work')"),
-            param("entry", "string", "The knowledge to add. Be specific and actionable (e.g. 'Placing 3 residential zones before any industrial leads to higher early growth')"),
-            param("replace", "string", "Set to 'true' to replace the entire section content, 'false' to append a new bullet point. Default: false.")
+            param("entry", "string", "The knowledge to add or the full replacement content when replace='true'. Be GENERAL and actionable — no turn numbers, no specific coordinates."),
+            param("replace", "string", "Set to 'true' to replace the entire section content with a consolidated version, 'false' to append a new bullet point. Use 'true' when a section has >12 entries.")
         ));
-        tools.add(makeTool("set_objectives",
-            "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. When the situation changes, use this to set entirely new objectives. To mark an existing objective as done, use complete_objective instead.",
-            param("objectives", "string", "Semicolon-separated list of 1-5 short-term objectives. E.g. 'Power all zones; Reach 500 population; Build residential away from industry'")
+        tools.add(makeToolWithOptional("set_objectives",
+            "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. "
+            + "When the situation changes, use this to set entirely new objectives. "
+            + "IMPORTANT: Link each objective to the message IDs (e.g. m5, m7) it addresses via linked_messages. "
+            + "This prevents duplicate objectives for already-handled messages. "
+            + "Messages shown as [UNCOVERED] MUST be addressed by new objectives.",
+            new String[][] {
+                param("objectives", "string", "Semicolon-separated list of 1-5 short-term objectives. E.g. 'Power all zones; Reach 500 population; Build residential away from industry'")
+            },
+            new String[][] {
+                param("linked_messages", "string",
+                    "Semicolon-separated groups of message IDs for each objective (matching order). "
+                    + "Each group is comma-separated. E.g. 'm5,m7;m3;m12,m14' means obj1 covers m5+m7, obj2 covers m3, obj3 covers m12+m14. "
+                    + "Use empty string for objectives not linked to specific messages.")
+            }
         ));
         tools.add(makeTool("complete_objective",
             "Mark an objective as completed by its 1-based index. The objective moves to the 'completed' list and remains visible in the UI. Use this when you've achieved a goal, then optionally set_objectives to add new ones.",
@@ -149,10 +204,80 @@ public class AIToolHandler {
         tools.add(makeTool("get_objectives",
             "Read your current short-term objectives and recently completed ones."
         ));
+        tools.add(makeTool("write_session_note",
+            "Record a map-specific note for this game session only. Use for coordinates, turn-specific observations, "
+            + "and tactical details that are NOT general knowledge. Session notes are deleted when a new game starts. "
+            + "For general reusable knowledge, use update_memory or write_learning instead.",
+            param("note", "string", "The session-specific observation, including coordinates and turn details as needed.")
+        ));
+        tools.add(makeTool("read_session_notes",
+            "Read all session notes for the current game. These are map-specific tactical notes that reset with each new game."
+        ));
+        tools.add(makeTool("dismiss_budget",
+            "Close the budget dialog window if it is currently open. The budget dialog pops up at the end of each fiscal year (when auto-budget is off) and pauses the game until dismissed. Call this after reviewing/adjusting budget settings to resume the game."
+        ));
+        tools.add(makeTool("end_turn",
+            "Signal how to proceed after this turn. Call this as the LAST tool in every auto-play turn. "
+            + "'continue' = immediately start the next turn (use when you have more objectives to work on right now). "
+            + "'wait' = wait ~10 seconds for the simulation to advance before the next turn (use when you've placed zones/buildings and want to see growth, collect taxes, or let the simulation settle). "
+            + "If you don't call this tool, the default is 'wait'.",
+            param("action", "string", "Either 'continue' (next turn immediately) or 'wait' (pause ~10s for simulation)")
+        ));
+        tools.add(makeToolWithOptional("search_engine_code",
+            "Search the game engine Java source code for keywords. Use this to understand game mechanics by finding the actual implementation: "
+            + "how crime spreads, how zone growth works, how demand valves are calculated, how scoring is computed, etc. "
+            + "Returns matching code lines with surrounding context. Great for diagnosing WHY something is happening.",
+            new String[][] { param("query", "string",
+                "Keyword or phrase to search for in source code (e.g. 'crimeRamp', 'pollutionMem', 'demand', 'taxEffect', 'doZoneGrowth', 'score')") },
+            new String[][] { param("scope", "string",
+                "Search scope: 'engine' (game mechanics, default), 'gui' (UI code), 'ai' (AI code), or 'all'. Defaults to 'engine'.") }
+        ));
+        tools.add(makeToolWithOptional("read_engine_file",
+            "Read a specific Java source file from the game engine. Deeply understand how a subsystem works by reading its code. "
+            + "Can extract a specific method, read a line range, or show the full file with method listing for navigation. "
+            + "Key classes: Micropolis (main engine), MapScanner (zone processing, overlays), CityEval (scoring), "
+            + "TrafficGen (traffic), TileConstants (tile IDs), BuildingTool (placement), CityBudget (finances), Disaster (disasters).",
+            new String[][] { param("class_name", "string",
+                "Java class name without .java (e.g. 'Micropolis', 'MapScanner', 'CityEval', 'TrafficGen')") },
+            new String[][] {
+                param("method", "string",
+                    "Extract a specific method by name (e.g. 'setValves', 'crimeScan'). Returns the full method body with javadoc."),
+                param("start_line", "integer",
+                    "Read from this line number (1-based). Combine with end_line for a range."),
+                param("end_line", "integer",
+                    "Read up to this line number. Defaults to start_line + 100 if only start_line is given.")
+            }
+        ));
         return tools;
     }
 
+    private static final java.util.Set<String> TRACKED_ACTIONS = java.util.Set.of(
+        "place_zone", "place_building", "build_road", "build_rail",
+        "build_power_line", "bulldoze", "place_park", "set_tax_rate", "set_budget"
+    );
+
+    private String summarizeInput(String toolName, JsonObject input) {
+        switch (toolName) {
+            case "place_zone":
+                return input.get("type").getAsString() + " " + input.get("x") + "," + input.get("y");
+            case "place_building":
+                return input.get("type").getAsString() + " " + input.get("x") + "," + input.get("y");
+            case "build_road": case "build_rail": case "build_power_line":
+                return input.get("x1") + "," + input.get("y1") + "->" + input.get("x2") + "," + input.get("y2");
+            case "set_tax_rate":
+                return input.get("rate") + "%";
+            case "set_budget":
+                return "r" + input.get("road_pct") + "/p" + input.get("police_pct") + "/f" + input.get("fire_pct");
+            default:
+                return input.get("x") + "," + input.get("y");
+        }
+    }
+
     public JsonObject executeTool(String toolName, JsonObject input) {
+        if (TRACKED_ACTIONS.contains(toolName)) {
+            assistant.recordAction(toolName, summarizeInput(toolName, input));
+        }
+
         JsonObject result = new JsonObject();
         try {
             switch (toolName) {
@@ -175,15 +300,26 @@ public class AIToolHandler {
                 case "get_demand": return observer.getDemand();
                 case "get_averages": return observer.getAverages();
                 case "get_map_overview": return executeGetMapOverview();
+                case "get_history": return executeGetHistory(input);
+                case "get_city_entities": return observer.getCityEntities();
+                case "diagnose_infrastructure": return observer.diagnoseInfrastructure();
+                case "render_map": return executeRenderMap(input);
                 case "find_empty_area": return executeFindEmptyArea(input);
                 case "write_learning": return executeWriteLearning(input);
                 case "read_learnings": return executeReadLearnings();
+                case "consolidate_learnings": return executeConsolidateLearnings(input);
                 case "read_memory": return executeReadMemory();
                 case "read_strategy_guide": return executeReadStrategyGuide();
                 case "update_memory": return executeUpdateMemory(input);
                 case "set_objectives": return executeSetObjectives(input);
                 case "complete_objective": return executeCompleteObjective(input);
                 case "get_objectives": return executeGetObjectives();
+                case "write_session_note": return executeWriteSessionNote(input);
+                case "read_session_notes": return executeReadSessionNotes();
+                case "dismiss_budget": return executeDismissBudget();
+                case "end_turn": return executeEndTurn(input);
+                case "search_engine_code": return executeSearchEngineCode(input);
+                case "read_engine_file": return executeReadEngineFile(input);
                 default:
                     result.addProperty("error", "Unknown tool: " + toolName);
             }
@@ -338,6 +474,12 @@ public class AIToolHandler {
         return result;
     }
 
+    private JsonObject executeGetHistory(JsonObject input) {
+        String metric = input.get("metric").getAsString();
+        String period = input.get("period").getAsString();
+        return observer.getHistoryData(metric, period);
+    }
+
     private JsonObject applyTool(MicropolisTool tool, int x, int y) {
         if (!engine.testBounds(x, y)) return errorResult("Coordinates (" + x + "," + y + ") out of bounds. Map is 120x100.");
 
@@ -444,6 +586,15 @@ public class AIToolHandler {
         return r;
     }
 
+    private JsonObject executeRenderMap(JsonObject input) {
+        int x = input.get("x").getAsInt();
+        int y = input.get("y").getAsInt();
+        int radius = input.has("radius") && !input.get("radius").isJsonNull()
+            ? input.get("radius").getAsInt() : 15;
+        if (!engine.testBounds(x, y)) return errorResult("Center coordinates out of bounds");
+        return observer.renderMapArea(x, y, radius);
+    }
+
     private JsonObject executeFindEmptyArea(JsonObject input) {
         int w = input.get("width").getAsInt();
         int h = input.get("height").getAsInt();
@@ -457,12 +608,49 @@ public class AIToolHandler {
         String entry = "[" + timestamp + "] [" + category + "] " + observation;
 
         try {
-            Files.write(Paths.get(LOG_FILE),
+            Path p = Paths.get(LOG_FILE);
+            List<String> existingInCategory = new ArrayList<>();
+            int totalLines = 0;
+            if (Files.exists(p)) {
+                List<String> allLines = Files.readAllLines(p);
+                totalLines = allLines.size();
+                String tag = "[" + category + "]";
+                for (String line : allLines) {
+                    if (line.contains(tag)) {
+                        existingInCategory.add(line);
+                    }
+                }
+            }
+
+            if (totalLines >= 40) {
+                return errorResult("Learnings log has " + totalLines + " entries (max 40). "
+                    + "You MUST call consolidate_learnings first to merge redundant entries before adding new ones. "
+                    + "Aim for ~15 consolidated entries.");
+            }
+
+            Files.write(p,
                 (entry + System.lineSeparator()).getBytes(),
                 StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             JsonObject r = new JsonObject();
             r.addProperty("success", true);
             r.addProperty("message", "Learning recorded: " + category);
+            r.addProperty("total_entries", totalLines + 1);
+            r.addProperty("entries_in_category", existingInCategory.size() + 1);
+
+            if (totalLines > 25) {
+                r.addProperty("consolidation_hint",
+                    "The learnings log has " + (totalLines + 1) + " entries. "
+                    + "Consider calling consolidate_learnings soon to keep the log focused (blocked at 40).");
+            }
+
+            if (!existingInCategory.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                int show = Math.min(existingInCategory.size(), 5);
+                for (int i = existingInCategory.size() - show; i < existingInCategory.size(); i++) {
+                    sb.append(existingInCategory.get(i)).append("\n");
+                }
+                r.addProperty("recent_in_category", sb.toString().trim());
+            }
             return r;
         } catch (IOException e) {
             return errorResult("Failed to write learning: " + e.getMessage());
@@ -484,6 +672,27 @@ public class AIToolHandler {
             return r;
         } catch (IOException e) {
             return errorResult("Failed to read learnings: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeConsolidateLearnings(JsonObject input) {
+        String consolidated = input.get("consolidated_content").getAsString();
+        try {
+            Path p = Paths.get(LOG_FILE);
+            int oldCount = 0;
+            if (Files.exists(p)) {
+                oldCount = Files.readAllLines(p).size();
+            }
+            Files.write(p, consolidated.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            int newCount = consolidated.split("\n").length;
+            JsonObject r = new JsonObject();
+            r.addProperty("success", true);
+            r.addProperty("old_entry_count", oldCount);
+            r.addProperty("new_entry_count", newCount);
+            r.addProperty("message", "Learnings consolidated: " + oldCount + " -> " + newCount + " entries.");
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to consolidate learnings: " + e.getMessage());
         }
     }
 
@@ -538,6 +747,27 @@ public class AIToolHandler {
             String sectionHeader = "## " + section;
             int headerIdx = content.indexOf(sectionHeader);
 
+            String previousSectionContent = "";
+            int entryCount = 0;
+
+            if (headerIdx >= 0) {
+                int contentStart = content.indexOf('\n', headerIdx);
+                if (contentStart < 0) contentStart = content.length();
+                contentStart++;
+                int nextSection = content.indexOf("\n## ", contentStart);
+                if (nextSection < 0) nextSection = content.length();
+                previousSectionContent = content.substring(contentStart, nextSection).trim();
+                for (String line : previousSectionContent.split("\n")) {
+                    if (line.trim().startsWith("- ")) entryCount++;
+                }
+            }
+
+            if (!replace && entryCount >= 15) {
+                return errorResult("Section '" + section + "' has " + entryCount + " entries (max 15). "
+                    + "Use replace='true' to consolidate before adding more. "
+                    + "Merge similar entries, remove turn-specific details, keep ~8-12 high-quality generalizations.");
+            }
+
             if (headerIdx < 0) {
                 content = content + "\n" + sectionHeader + "\n\n- " + entry + "\n";
             } else {
@@ -571,6 +801,19 @@ public class AIToolHandler {
             JsonObject r = new JsonObject();
             r.addProperty("success", true);
             r.addProperty("message", "Memory updated: [" + section + "] " + (replace ? "replaced" : "appended"));
+            r.addProperty("entry_count", replace ? -1 : entryCount + 1);
+
+            if (!previousSectionContent.isEmpty()) {
+                r.addProperty("previous_section_content", previousSectionContent);
+            }
+
+            if (!replace && entryCount >= 10) {
+                r.addProperty("consolidation_hint",
+                    "Section '" + section + "' now has " + (entryCount + 1) + " entries. "
+                    + "Consider using replace='true' to rewrite this section with consolidated, "
+                    + "generalized knowledge. Remove turn-specific details and merge similar entries. "
+                    + "Aim for ~8-12 high-quality entries per section.");
+            }
             return r;
         } catch (IOException e) {
             return errorResult("Failed to update memory: " + e.getMessage());
@@ -588,12 +831,36 @@ public class AIToolHandler {
         if (objectives.isEmpty()) {
             return errorResult("Provide at least one objective.");
         }
-        assistant.setObjectives(objectives);
+
+        List<List<String>> linkedIds = null;
+        if (input.has("linked_messages") && !input.get("linked_messages").isJsonNull()) {
+            String linkedRaw = input.get("linked_messages").getAsString();
+            String[] linkedParts = linkedRaw.split(";", -1);
+            linkedIds = new ArrayList<>();
+            for (String group : linkedParts) {
+                List<String> ids = new ArrayList<>();
+                for (String id : group.split(",")) {
+                    String trimmed = id.trim();
+                    if (!trimmed.isEmpty()) ids.add(trimmed);
+                }
+                linkedIds.add(ids);
+            }
+        }
+
+        assistant.setObjectives(objectives, linkedIds);
         JsonObject r = new JsonObject();
         r.addProperty("success", true);
         r.addProperty("active_count", objectives.size());
         JsonArray arr = new JsonArray();
-        for (String o : objectives) arr.add(o);
+        List<AIAssistant.Objective> objs = assistant.getObjectives();
+        for (AIAssistant.Objective o : objs) {
+            JsonObject objJson = new JsonObject();
+            objJson.addProperty("text", o.getText());
+            if (!o.getLinkedMessageIds().isEmpty()) {
+                objJson.addProperty("linked_messages", String.join(",", o.getLinkedMessageIds()));
+            }
+            arr.add(objJson);
+        }
         r.add("objectives", arr);
         return r;
     }
@@ -619,17 +886,339 @@ public class AIToolHandler {
         List<AIAssistant.Objective> completed = assistant.getCompletedObjectives();
         JsonObject r = new JsonObject();
         JsonArray activeArr = new JsonArray();
-        for (AIAssistant.Objective o : active) activeArr.add(o.getText());
+        for (AIAssistant.Objective o : active) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("text", o.getText());
+            if (!o.getLinkedMessageIds().isEmpty()) {
+                obj.addProperty("covers_messages", String.join(",", o.getLinkedMessageIds()));
+            }
+            activeArr.add(obj);
+        }
         r.add("active", activeArr);
         r.addProperty("active_count", active.size());
         JsonArray completedArr = new JsonArray();
-        for (AIAssistant.Objective o : completed) completedArr.add(o.getText());
+        for (AIAssistant.Objective o : completed) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("text", o.getText());
+            if (!o.getLinkedMessageIds().isEmpty()) {
+                obj.addProperty("covers_messages", String.join(",", o.getLinkedMessageIds()));
+            }
+            completedArr.add(obj);
+        }
         r.add("completed", completedArr);
         r.addProperty("completed_count", completed.size());
         if (active.isEmpty() && completed.isEmpty()) {
             r.addProperty("message", "No objectives set. Use set_objectives to define your short-term goals.");
         }
         return r;
+    }
+
+    private JsonObject executeWriteSessionNote(JsonObject input) {
+        String note = input.get("note").getAsString();
+        try {
+            Path dir = Paths.get(AI_DATA_DIR);
+            if (!Files.exists(dir)) Files.createDirectories(dir);
+            Path p = Paths.get(SESSION_FILE);
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+            String entry = "[" + timestamp + "] " + note + System.lineSeparator();
+            Files.write(p, entry.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            JsonObject r = new JsonObject();
+            r.addProperty("success", true);
+            r.addProperty("message", "Session note recorded.");
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to write session note: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeReadSessionNotes() {
+        try {
+            Path p = Paths.get(SESSION_FILE);
+            if (!Files.exists(p)) {
+                JsonObject r = new JsonObject();
+                r.addProperty("notes", "No session notes yet. Use write_session_note to record map-specific observations.");
+                return r;
+            }
+            String content = new String(Files.readAllBytes(p));
+            JsonObject r = new JsonObject();
+            r.addProperty("notes", content);
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to read session notes: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeDismissBudget() {
+        JsonObject r = new JsonObject();
+        if (assistant.isBudgetDialogOpen()) {
+            boolean dismissed = assistant.dismissBudgetDialog();
+            r.addProperty("success", dismissed);
+            r.addProperty("message", dismissed ? "Budget dialog closed. Game resumed." : "Failed to dismiss budget dialog.");
+        } else {
+            r.addProperty("success", true);
+            r.addProperty("message", "No budget dialog is currently open.");
+        }
+        return r;
+    }
+
+    private JsonObject executeEndTurn(JsonObject input) {
+        String action = input.get("action").getAsString().toLowerCase().trim();
+        JsonObject r = new JsonObject();
+        if ("continue".equals(action)) {
+            assistant.setNextTurnDelayMs(0);
+            r.addProperty("success", true);
+            r.addProperty("next_turn", "immediate");
+        } else {
+            assistant.setNextTurnDelayMs(10_000);
+            r.addProperty("success", true);
+            r.addProperty("next_turn", "wait_10s");
+        }
+        return r;
+    }
+
+    // ── Source Code Introspection ──────────────────────────────────────
+
+    private JsonObject executeSearchEngineCode(JsonObject input) {
+        String query = input.get("query").getAsString();
+        String scope = input.has("scope") && !input.get("scope").isJsonNull()
+                ? input.get("scope").getAsString() : "engine";
+
+        Path baseSrc = Paths.get("src", "main", "java", "micropolisj");
+        List<Path> searchDirs = new ArrayList<>();
+        switch (scope.toLowerCase()) {
+            case "gui":    searchDirs.add(baseSrc.resolve("gui")); break;
+            case "ai":     searchDirs.add(baseSrc.resolve("ai")); break;
+            case "all":
+                searchDirs.add(baseSrc.resolve("engine"));
+                searchDirs.add(baseSrc.resolve("gui"));
+                searchDirs.add(baseSrc.resolve("ai"));
+                break;
+            default:       searchDirs.add(baseSrc.resolve("engine")); break;
+        }
+
+        JsonArray matches = new JsonArray();
+        int totalMatches = 0;
+        int maxResults = 30;
+        String lowerQuery = query.toLowerCase();
+
+        try {
+            for (Path dir : searchDirs) {
+                if (!Files.exists(dir)) continue;
+                File[] files = dir.toFile().listFiles((d, name) -> name.endsWith(".java"));
+                if (files == null) continue;
+                Arrays.sort(files);
+                for (File file : files) {
+                    List<String> lines = Files.readAllLines(file.toPath());
+                    for (int i = 0; i < lines.size(); i++) {
+                        if (lines.get(i).toLowerCase().contains(lowerQuery)) {
+                            totalMatches++;
+                            if (matches.size() < maxResults) {
+                                JsonObject match = new JsonObject();
+                                match.addProperty("file", file.getName());
+                                match.addProperty("line", i + 1);
+                                int ctxStart = Math.max(0, i - 2);
+                                int ctxEnd = Math.min(lines.size() - 1, i + 2);
+                                StringBuilder ctx = new StringBuilder();
+                                for (int j = ctxStart; j <= ctxEnd; j++) {
+                                    String prefix = (j == i) ? ">>>" : "   ";
+                                    ctx.append(prefix).append(" ").append(j + 1).append(": ")
+                                       .append(lines.get(j)).append("\n");
+                                }
+                                match.addProperty("context", ctx.toString().trim());
+                                matches.add(match);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            return errorResult("Failed to search source code: " + e.getMessage());
+        }
+
+        JsonObject result = new JsonObject();
+        result.addProperty("query", query);
+        result.addProperty("scope", scope);
+        result.addProperty("total_matches", totalMatches);
+        result.addProperty("shown", matches.size());
+        result.add("matches", matches);
+        if (totalMatches == 0) {
+            result.addProperty("suggestion",
+                "No matches. Try related terms. Common keywords: crime, pollution, traffic, "
+                + "growth, demand, tax, power, score, budget, fire, police, landValue, density, "
+                + "zone, residential, commercial, industrial, valves, overlay, ramp");
+        }
+        return result;
+    }
+
+    private JsonObject executeReadEngineFile(JsonObject input) {
+        String className = input.get("class_name").getAsString();
+        String methodName = input.has("method") && !input.get("method").isJsonNull()
+                ? input.get("method").getAsString() : null;
+        int startLine = input.has("start_line") ? input.get("start_line").getAsInt() : -1;
+        int endLine = input.has("end_line") ? input.get("end_line").getAsInt() : -1;
+
+        if (!className.endsWith(".java")) className += ".java";
+
+        Path baseSrc = Paths.get("src", "main", "java", "micropolisj");
+        String[] subdirs = {"engine", "gui", "ai"};
+        Path filePath = null;
+        for (String sub : subdirs) {
+            Path candidate = baseSrc.resolve(sub).resolve(className);
+            if (Files.exists(candidate)) { filePath = candidate; break; }
+        }
+        if (filePath == null) {
+            String target = className;
+            for (String sub : subdirs) {
+                Path dir = baseSrc.resolve(sub);
+                if (!Files.exists(dir)) continue;
+                File[] found = dir.toFile().listFiles((d, n) -> n.equalsIgnoreCase(target));
+                if (found != null && found.length > 0) { filePath = found[0].toPath(); break; }
+            }
+        }
+        if (filePath == null) {
+            JsonObject r = new JsonObject();
+            r.addProperty("error", "Class not found: " + className.replace(".java", ""));
+            JsonArray available = new JsonArray();
+            for (String sub : subdirs) {
+                Path dir = baseSrc.resolve(sub);
+                if (!Files.exists(dir)) continue;
+                File[] files = dir.toFile().listFiles((d, n) -> n.endsWith(".java"));
+                if (files != null) {
+                    Arrays.sort(files);
+                    for (File f : files) available.add(sub + "/" + f.getName().replace(".java", ""));
+                }
+            }
+            r.add("available_classes", available);
+            return r;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(filePath);
+
+            if (methodName != null && !methodName.isEmpty()) {
+                return extractMethodFromSource(lines, methodName, filePath.getFileName().toString());
+            }
+
+            if (startLine > 0) {
+                if (endLine <= 0) endLine = startLine + 100;
+                int start = Math.max(0, startLine - 1);
+                int end = Math.min(lines.size(), endLine);
+                StringBuilder sb = new StringBuilder();
+                for (int i = start; i < end; i++) {
+                    sb.append(i + 1).append(": ").append(lines.get(i)).append("\n");
+                }
+                JsonObject r = new JsonObject();
+                r.addProperty("file", filePath.getFileName().toString());
+                r.addProperty("lines", (start + 1) + "-" + end);
+                r.addProperty("total_lines", lines.size());
+                r.addProperty("content", sb.toString());
+                return r;
+            }
+
+            int maxLines = 150;
+            int end = Math.min(lines.size(), maxLines);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < end; i++) {
+                sb.append(i + 1).append(": ").append(lines.get(i)).append("\n");
+            }
+
+            JsonObject r = new JsonObject();
+            r.addProperty("file", filePath.getFileName().toString());
+            r.addProperty("total_lines", lines.size());
+            r.addProperty("shown_lines", end);
+            r.addProperty("content", sb.toString());
+            if (lines.size() > maxLines) {
+                r.addProperty("truncated", true);
+                r.addProperty("hint", "File has " + lines.size() + " lines. Use 'method' to extract a specific method, or 'start_line'/'end_line' for a range.");
+            }
+
+            JsonArray members = new JsonArray();
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i).trim();
+                if (looksLikeMethodSignature(line)) {
+                    members.add((i + 1) + ": " + line.replaceAll("\\{\\s*$", "").trim());
+                }
+            }
+            if (members.size() > 0) r.add("members", members);
+            return r;
+
+        } catch (IOException e) {
+            return errorResult("Failed to read file: " + e.getMessage());
+        }
+    }
+
+    private JsonObject extractMethodFromSource(List<String> lines, String methodName, String fileName) {
+        int methodStart = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.trim().startsWith("//") || line.trim().startsWith("*")) continue;
+            if ((line.contains(methodName + "(") || line.contains(methodName + " ("))
+                    && !line.trim().startsWith("//") && !line.trim().startsWith("*")) {
+                methodStart = i;
+                break;
+            }
+        }
+        if (methodStart < 0) {
+            JsonObject r = new JsonObject();
+            r.addProperty("error", "Method '" + methodName + "' not found in " + fileName);
+            JsonArray suggestions = new JsonArray();
+            String lower = methodName.toLowerCase();
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i).trim();
+                if (line.toLowerCase().contains(lower) && line.contains("(")
+                        && !line.startsWith("//") && !line.startsWith("*")) {
+                    suggestions.add((i + 1) + ": " + line.replaceAll("\\{\\s*$", "").trim());
+                }
+            }
+            if (suggestions.size() > 0) r.add("similar", suggestions);
+            return r;
+        }
+
+        int braceCount = 0;
+        boolean foundBrace = false;
+        int methodEnd = methodStart;
+        for (int i = methodStart; i < lines.size(); i++) {
+            for (char c : lines.get(i).toCharArray()) {
+                if (c == '{') { braceCount++; foundBrace = true; }
+                if (c == '}') braceCount--;
+            }
+            if (foundBrace && braceCount == 0) { methodEnd = i; break; }
+        }
+
+        int contextStart = methodStart;
+        for (int i = methodStart - 1; i >= Math.max(0, methodStart - 15); i--) {
+            String trimmed = lines.get(i).trim();
+            if (trimmed.startsWith("/**") || trimmed.startsWith("*") || trimmed.startsWith("@")
+                    || trimmed.startsWith("//")) {
+                contextStart = i;
+            } else {
+                break;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = contextStart; i <= methodEnd; i++) {
+            sb.append(i + 1).append(": ").append(lines.get(i)).append("\n");
+        }
+
+        JsonObject r = new JsonObject();
+        r.addProperty("file", fileName);
+        r.addProperty("method", methodName);
+        r.addProperty("start_line", contextStart + 1);
+        r.addProperty("end_line", methodEnd + 1);
+        r.addProperty("content", sb.toString());
+        return r;
+    }
+
+    private boolean looksLikeMethodSignature(String line) {
+        if (line.isEmpty() || line.startsWith("//") || line.startsWith("*")
+                || line.startsWith("/*") || line.startsWith("import") || line.startsWith("package")) {
+            return false;
+        }
+        return (line.startsWith("public ") || line.startsWith("private ") || line.startsWith("protected ")
+                || line.startsWith("static ") || line.startsWith("void ") || line.startsWith("abstract ")
+                || line.startsWith("synchronized ") || line.startsWith("final "))
+                && line.contains("(");
     }
 
     private JsonObject errorResult(String message) {
@@ -653,6 +1242,34 @@ public class AIToolHandler {
             prop.addProperty("description", p[2]);
             properties.add(p[0], prop);
             required.add(p[0]);
+        }
+        inputSchema.add("properties", properties);
+        inputSchema.add("required", required);
+        tool.add("input_schema", inputSchema);
+        return tool;
+    }
+
+    private JsonObject makeToolWithOptional(String name, String description,
+            String[][] requiredParams, String[][] optionalParams) {
+        JsonObject tool = new JsonObject();
+        tool.addProperty("name", name);
+        tool.addProperty("description", description);
+        JsonObject inputSchema = new JsonObject();
+        inputSchema.addProperty("type", "object");
+        JsonObject properties = new JsonObject();
+        JsonArray required = new JsonArray();
+        for (String[] p : requiredParams) {
+            JsonObject prop = new JsonObject();
+            prop.addProperty("type", p[1]);
+            prop.addProperty("description", p[2]);
+            properties.add(p[0], prop);
+            required.add(p[0]);
+        }
+        for (String[] p : optionalParams) {
+            JsonObject prop = new JsonObject();
+            prop.addProperty("type", p[1]);
+            prop.addProperty("description", p[2]);
+            properties.add(p[0], prop);
         }
         inputSchema.add("properties", properties);
         inputSchema.add("required", required);

@@ -10,8 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -35,26 +38,66 @@ public class AIAssistant {
     private Consumer<String> onThinking;
     private Consumer<String> onAction;
     private Consumer<String> onError;
-    private Consumer<Void> onObjectivesChanged;
+    private Consumer<String> onObjectivesChanged;
+    private Runnable budgetDismisser;
+    private BooleanSupplier budgetDialogOpenChecker;
 
     public static class Objective {
         private final String text;
+        private final List<String> linkedMessageIds;
         private boolean completed;
 
         public Objective(String text) {
+            this(text, List.of());
+        }
+
+        public Objective(String text, List<String> linkedMessageIds) {
             this.text = text;
+            this.linkedMessageIds = new ArrayList<>(linkedMessageIds);
             this.completed = false;
         }
 
         public String getText() { return text; }
         public boolean isCompleted() { return completed; }
+        public List<String> getLinkedMessageIds() { return linkedMessageIds; }
     }
 
+    public static class ActionRecord {
+        final int turn;
+        final String toolName;
+        final String inputSummary;
+        final int scoreBefore;
+        final int popBefore;
+        final int fundsBefore;
+
+        ActionRecord(int turn, String toolName, String inputSummary,
+                     int scoreBefore, int popBefore, int fundsBefore) {
+            this.turn = turn;
+            this.toolName = toolName;
+            this.inputSummary = inputSummary;
+            this.scoreBefore = scoreBefore;
+            this.popBefore = popBefore;
+            this.fundsBefore = fundsBefore;
+        }
+    }
+
+    private static final int MAX_ACTION_HISTORY = 10;
+    private static final int REFLECTION_INTERVAL = 10;
+    private static final int MAX_REWARD_HISTORY = 20;
+    private final LinkedList<ActionRecord> actionHistory = new LinkedList<>();
+    private final LinkedList<Double> rewardHistory = new LinkedList<>();
+    private ReflectiveAgent reflectiveAgent;
+
+    private final ConcurrentLinkedQueue<String> pendingUserMessages = new ConcurrentLinkedQueue<>();
+
     private volatile boolean running = false;
+    private volatile boolean autoPlayActive = false;
+    private volatile int nextTurnDelayMs = 10_000;
     private int turnCount = 0;
 
     public AIAssistant() {
         this.client = new AnthropicClient();
+        this.reflectiveAgent = new ReflectiveAgent(client);
     }
 
     public void setEngine(Micropolis engine) {
@@ -74,6 +117,9 @@ public class AIAssistant {
 
     public void setOnThinking(Consumer<String> onThinking) {
         this.onThinking = onThinking;
+        if (reflectiveAgent != null) {
+            reflectiveAgent.setOnThinking(onThinking);
+        }
     }
 
     public void setOnAction(Consumer<String> onAction) {
@@ -82,6 +128,54 @@ public class AIAssistant {
 
     public void setOnError(Consumer<String> onError) {
         this.onError = onError;
+    }
+
+    public void setBudgetDismisser(Runnable dismisser) {
+        this.budgetDismisser = dismisser;
+    }
+
+    public void setBudgetDialogOpenChecker(BooleanSupplier checker) {
+        this.budgetDialogOpenChecker = checker;
+    }
+
+    public boolean dismissBudgetDialog() {
+        if (budgetDismisser != null && isBudgetDialogOpen()) {
+            budgetDismisser.run();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isBudgetDialogOpen() {
+        return budgetDialogOpenChecker != null && budgetDialogOpenChecker.getAsBoolean();
+    }
+
+    public void setAutoPlayActive(boolean active) {
+        this.autoPlayActive = active;
+    }
+
+    public boolean isAutoPlayActive() {
+        return autoPlayActive;
+    }
+
+    public void setNextTurnDelayMs(int delayMs) {
+        this.nextTurnDelayMs = Math.max(0, delayMs);
+    }
+
+    public int getNextTurnDelayMs() {
+        return nextTurnDelayMs;
+    }
+
+    public AIGameListener getListener() {
+        return listener;
+    }
+
+    public LinkedList<Double> getRewardHistory() {
+        return rewardHistory;
+    }
+
+    public GameStateObserver getObserver() {
+        return observer;
     }
 
     public boolean isConfigured() {
@@ -124,37 +218,146 @@ public class AIAssistant {
     }
 
     private void executeTurn(String userMessage) throws Exception {
-        String summaryJson = observer.getMinimalSummary().toString();
+        boolean hasCritical = listener.hasCriticalEvent();
+        nextTurnDelayMs = hasCritical ? 0 : 10_000;
+        JsonObject summary = observer.getMinimalSummary();
+        String summaryJson = summary.toString();
+
+        if (summary.has("reward")) {
+            rewardHistory.addLast(summary.get("reward").getAsDouble());
+            while (rewardHistory.size() > MAX_REWARD_HISTORY) {
+                rewardHistory.removeFirst();
+            }
+        }
         String structuredEvents = listener.drainStructuredMessages();
         listener.clearCriticalEvent();
+
+        boolean hasUrgentMessages = structuredEvents.contains("[CRITICAL]")
+            || structuredEvents.contains("[DISASTER]");
+        boolean hasDemandMessages = structuredEvents.contains("[DEMAND]")
+            || structuredEvents.contains("[PROBLEM]");
 
         StringBuilder userContent = new StringBuilder();
         userContent.append("[Turn ").append(turnCount).append("] ").append(summaryJson);
 
+        if (!structuredEvents.isEmpty()) {
+            userContent.append("\n\n[System Updates — READ THESE FIRST]\n");
+            userContent.append(structuredEvents);
+            userContent.append("[End System Updates]");
+        }
+
+        java.util.Set<String> coveredMessageIds = new java.util.HashSet<>();
         if (!currentObjectives.isEmpty() || !completedObjectives.isEmpty()) {
-            userContent.append("\n[Current Objectives]");
+            userContent.append("\n\n[Current Objectives]");
             for (int i = 0; i < currentObjectives.size(); i++) {
-                userContent.append("\n").append(i + 1).append(". ").append(currentObjectives.get(i).getText());
+                Objective obj = currentObjectives.get(i);
+                userContent.append("\n").append(i + 1).append(". ").append(obj.getText());
+                if (!obj.getLinkedMessageIds().isEmpty()) {
+                    userContent.append(" (covers: ").append(String.join(",", obj.getLinkedMessageIds())).append(")");
+                    coveredMessageIds.addAll(obj.getLinkedMessageIds());
+                }
             }
             if (!completedObjectives.isEmpty()) {
                 userContent.append("\n[Recently Completed]");
                 for (Objective obj : completedObjectives) {
                     userContent.append("\n- [DONE] ").append(obj.getText());
+                    coveredMessageIds.addAll(obj.getLinkedMessageIds());
                 }
             }
             userContent.append("\n[End Objectives]");
         }
 
-        if (!structuredEvents.isEmpty()) {
-            userContent.append("\n[System Updates]\n");
-            userContent.append(structuredEvents);
-            userContent.append("[End System Updates]");
+        if (!coveredMessageIds.isEmpty() && !structuredEvents.isEmpty()) {
+            List<String> allMsgIds = listener.getCurrentMessageIds();
+            List<String> uncoveredIds = new ArrayList<>();
+            for (String id : allMsgIds) {
+                if (!coveredMessageIds.contains(id)) {
+                    uncoveredIds.add(id);
+                }
+            }
+            if (!uncoveredIds.isEmpty()) {
+                userContent.append("\n[UNCOVERED Messages — these need new objectives: ")
+                    .append(String.join(", ", uncoveredIds)).append("]");
+            }
         }
 
-        if (userMessage != null && !userMessage.isEmpty()) {
-            userContent.append("\nUser: ").append(userMessage);
+        // Infrastructure diagnostics removed from auto-inject.
+        // Agent uses get_city_entities tool on demand instead.
+
+        String actionHist = formatActionHistory();
+        if (!actionHist.isEmpty()) {
+            userContent.append("\n").append(actionHist);
         }
-        userContent.append("\nUse get_* tools to fetch details you need, then take actions.");
+
+        List<String> allUserMessages = new ArrayList<>();
+        String queued;
+        while ((queued = pendingUserMessages.poll()) != null) {
+            allUserMessages.add(queued);
+        }
+        if (userMessage != null && !userMessage.isEmpty()) {
+            allUserMessages.add(userMessage);
+        }
+        if (!allUserMessages.isEmpty()) {
+            userContent.append("\n\n[USER MESSAGES — MUST become objectives]\n");
+            for (String msg : allUserMessages) {
+                userContent.append(">> ").append(msg).append("\n");
+            }
+            userContent.append("You MUST create or update objectives to address each user message above.\n");
+            userContent.append("[End User Messages]");
+        }
+
+        userContent.append("\n\n[Instructions]\n");
+
+        if (hasUrgentMessages) {
+            userContent.append("!! URGENT: System Updates contain CRITICAL or DISASTER events. ");
+            userContent.append("You MUST address these FIRST — they override all current objectives. ");
+            userContent.append("Replace or reprioritize your objectives to handle these emergencies. ");
+            userContent.append("Use end_turn('continue') to keep acting until the crisis is resolved.\n");
+        }
+
+        if (!structuredEvents.isEmpty()) {
+            userContent.append("STEP 1: Read every System Update message above. ");
+            userContent.append("Each message is a direct signal from citizens about what the city needs. ");
+            userContent.append("Repeated messages = unresolved urgent problems. ");
+            userContent.append("Translate the most pressing messages into concrete objectives.\n");
+        }
+
+        if (!currentObjectives.isEmpty()) {
+            userContent.append("STEP 2: Compare your current objectives against the System Updates. ");
+            userContent.append("Are your objectives still relevant? Do the System Updates reveal NEW problems your objectives don't cover? ");
+            userContent.append("If yes, call set_objectives to update them. Complete any that are done.\n");
+        } else {
+            userContent.append("STEP 2: You have NO objectives. Set 2-3 based on the most urgent System Updates or city state.\n");
+        }
+
+        userContent.append("STEP 3: Act on your highest-priority objective. Call get_city_entities to see ALL buildings, zones, and problems. Use render_map for spatial layout. Then take actions.\n");
+
+        if (!rewardHistory.isEmpty()) {
+            userContent.append("\n[Reward Trend] ");
+            int show = Math.min(rewardHistory.size(), 5);
+            userContent.append("Last ").append(show).append(" turns: ");
+            for (int i = rewardHistory.size() - show; i < rewardHistory.size(); i++) {
+                if (i > rewardHistory.size() - show) userContent.append(", ");
+                userContent.append(String.format("%.1f", rewardHistory.get(i)));
+            }
+            double avg = rewardHistory.stream().mapToDouble(d -> d).average().orElse(0);
+            userContent.append(String.format(" (avg: %.1f)", avg));
+            if (avg < -1.0) {
+                userContent.append(" !! DECLINING — consider changing strategy");
+            }
+            userContent.append("\n");
+        }
+
+        userContent.append("\nREFLECTION (think through this, then adjust objectives if needed):\n");
+        userContent.append("- Which objectives did I make progress on? Which are stalled?\n");
+        userContent.append("- Are any System Updates STILL unresolved from previous turns?\n");
+        userContent.append("- Is my reward trend positive or negative? Should I pivot?\n");
+
+        if (hasUrgentMessages || hasDemandMessages) {
+            userContent.append("\nSTEP 4: Call end_turn('continue') — there are unresolved problems requiring immediate follow-up.\n");
+        } else {
+            userContent.append("\nSTEP 4: Call end_turn('continue') if you have more work to do, or end_turn('wait') if the city is stable and you want the simulation to advance.\n");
+        }
 
         JsonObject userMsg = new JsonObject();
         userMsg.addProperty("role", "user");
@@ -232,16 +435,30 @@ public class AIAssistant {
         }
 
         trimHistory();
+
+        if (turnCount % REFLECTION_INTERVAL == 0 && turnCount > 0) {
+            try {
+                reflectiveAgent.runReflection(
+                    conversationHistory,
+                    currentObjectives,
+                    completedObjectives,
+                    rewardHistory,
+                    observer,
+                    turnCount
+                );
+            } catch (Exception e) {
+                emit(onError, "Reflection error: " + e.getMessage());
+            }
+        }
     }
 
     private void trimHistory() {
         while (conversationHistory.size() > MAX_HISTORY_MESSAGES) {
             conversationHistory.remove(0);
         }
-        // Ensure history starts with a plain user message (not tool results).
-        // Remove leading messages until we find a user message that contains
-        // regular text content (not tool_result blocks), because OpenAI requires
-        // tool role messages to follow an assistant message with tool_calls.
+        // Ensure history starts with a plain user message (not tool results)
+        // and that no assistant tool_call message is left without its
+        // corresponding tool_result follow-up.
         while (!conversationHistory.isEmpty()) {
             JsonObject first = conversationHistory.get(0);
             String role = first.get("role").getAsString();
@@ -249,6 +466,17 @@ public class AIAssistant {
                 break;
             }
             conversationHistory.remove(0);
+        }
+        // If the last message is an assistant message containing tool_use blocks,
+        // remove it (and any preceding orphaned assistant/tool_result chain) so
+        // the API never sees a tool_call without matching tool results.
+        while (!conversationHistory.isEmpty()) {
+            JsonObject last = conversationHistory.get(conversationHistory.size() - 1);
+            if ("assistant".equals(last.get("role").getAsString()) && hasToolUseBlocks(last)) {
+                conversationHistory.remove(conversationHistory.size() - 1);
+            } else {
+                break;
+            }
         }
     }
 
@@ -264,29 +492,44 @@ public class AIAssistant {
         return false;
     }
 
+    private boolean hasToolUseBlocks(JsonObject msg) {
+        JsonElement content = msg.get("content");
+        if (content == null || !content.isJsonArray()) return false;
+        for (JsonElement el : content.getAsJsonArray()) {
+            if (el.isJsonObject() && "tool_use".equals(
+                    el.getAsJsonObject().has("type") ? el.getAsJsonObject().get("type").getAsString() : "")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String buildSystemPrompt() {
         StringBuilder sb = new StringBuilder(SystemPrompt.PROMPT);
+
         try {
-            Path memoryPath = Paths.get("agent_memory.md");
-            if (Files.exists(memoryPath)) {
-                String memory = new String(Files.readAllBytes(memoryPath));
-                if (!memory.trim().isEmpty()) {
-                    sb.append("\n\n## Your Long-Term Memory (loaded automatically)\n");
-                    sb.append("This is your accumulated knowledge from past games. Use it to make better decisions.\n");
-                    sb.append("Update it with update_memory when you learn something new.\n\n");
-                    sb.append(memory);
+            Path reflectivePath = Paths.get("ai_data/reflective_prompt.md");
+            if (Files.exists(reflectivePath)) {
+                String additions = new String(Files.readAllBytes(reflectivePath));
+                if (!additions.trim().isEmpty()) {
+                    sb.append("\n\n## Strategic Additions (from self-reflection)\n");
+                    sb.append("These instructions were generated by your reflective meta-agent based on game performance analysis.\n");
+                    sb.append(additions);
                 }
             }
         } catch (IOException e) {
             // ignore
         }
+
         try {
-            Path logPath = Paths.get("ai_learnings.log");
-            if (Files.exists(logPath)) {
-                String learnings = new String(Files.readAllBytes(logPath));
-                if (!learnings.trim().isEmpty()) {
-                    sb.append("\n\n## Recent Turn-by-Turn Notes\n");
-                    sb.append(learnings);
+            Path memoryPath = Paths.get("ai_data/agent_memory.md");
+            if (Files.exists(memoryPath)) {
+                String memory = new String(Files.readAllBytes(memoryPath));
+                if (!memory.trim().isEmpty()) {
+                    sb.append("\n\n## Your Long-Term Memory (loaded automatically)\n");
+                    sb.append("This is your accumulated knowledge from past games. Use it to make better decisions.\n");
+                    sb.append("Use read_strategy_guide for detailed engine mechanics. Use read_learnings for recent observations.\n\n");
+                    sb.append(memory);
                 }
             }
         } catch (IOException e) {
@@ -308,8 +551,20 @@ public class AIAssistant {
         conversationHistory.clear();
         currentObjectives.clear();
         completedObjectives.clear();
+        actionHistory.clear();
+        rewardHistory.clear();
         turnCount = 0;
         fireObjectivesChanged();
+        try {
+            Path sessionPath = Paths.get("ai_data/session_notes.md");
+            if (Files.exists(sessionPath)) Files.delete(sessionPath);
+            Path reflectivePath = Paths.get("ai_data/reflective_prompt.md");
+            if (Files.exists(reflectivePath)) Files.delete(reflectivePath);
+            Path reflectionLog = Paths.get("ai_data/reflection_log.md");
+            if (Files.exists(reflectionLog)) Files.delete(reflectionLog);
+        } catch (IOException e) {
+            // ignore
+        }
     }
 
     public List<Objective> getObjectives() {
@@ -321,12 +576,18 @@ public class AIAssistant {
     }
 
     public void setObjectives(List<String> objectives) {
+        setObjectives(objectives, null);
+    }
+
+    public void setObjectives(List<String> objectives, List<List<String>> linkedMessageIds) {
         currentObjectives.clear();
         int limit = Math.min(objectives.size(), 5);
         for (int i = 0; i < limit; i++) {
             String obj = objectives.get(i).trim();
             if (!obj.isEmpty()) {
-                currentObjectives.add(new Objective(obj));
+                List<String> msgIds = (linkedMessageIds != null && i < linkedMessageIds.size())
+                    ? linkedMessageIds.get(i) : List.of();
+                currentObjectives.add(new Objective(obj, msgIds));
             }
         }
         fireObjectivesChanged();
@@ -343,12 +604,54 @@ public class AIAssistant {
         return true;
     }
 
-    public void setOnObjectivesChanged(Consumer<Void> listener) {
+    public void recordAction(String toolName, String inputSummary) {
+        if (engine == null) return;
+        ActionRecord rec = new ActionRecord(
+            turnCount, toolName, inputSummary,
+            engine.getEvaluation().getCityScore(),
+            engine.getCityPopulation(),
+            engine.getBudget().getTotalFunds()
+        );
+        actionHistory.addLast(rec);
+        while (actionHistory.size() > MAX_ACTION_HISTORY) {
+            actionHistory.removeFirst();
+        }
+    }
+
+    String formatActionHistory() {
+        if (actionHistory.isEmpty()) return "";
+        int curScore = engine.getEvaluation().getCityScore();
+        int curPop = engine.getCityPopulation();
+        int curFunds = engine.getBudget().getTotalFunds();
+
+        StringBuilder sb = new StringBuilder("[Recent Actions & Outcomes]\n");
+        for (ActionRecord r : actionHistory) {
+            sb.append("T").append(r.turn).append(": ").append(r.toolName)
+              .append("(").append(r.inputSummary).append(")")
+              .append(" -> score ").append(curScore - r.scoreBefore >= 0 ? "+" : "")
+              .append(curScore - r.scoreBefore)
+              .append(", pop ").append(curPop - r.popBefore >= 0 ? "+" : "")
+              .append(curPop - r.popBefore)
+              .append(", funds ").append(curFunds - r.fundsBefore >= 0 ? "+" : "")
+              .append(curFunds - r.fundsBefore)
+              .append("\n");
+        }
+        sb.append("[End Actions]");
+        return sb.toString();
+    }
+
+    public void setOnObjectivesChanged(Consumer<String> listener) {
         this.onObjectivesChanged = listener;
     }
 
     private void fireObjectivesChanged() {
         emit(onObjectivesChanged, null);
+    }
+
+    public void queueUserMessage(String message) {
+        if (message != null && !message.trim().isEmpty()) {
+            pendingUserMessages.add(message.trim());
+        }
     }
 
     private void emit(Consumer<String> handler, String message) {
