@@ -1,0 +1,5669 @@
+{
+  "pipeline_version": "neo_simcity_3d_v1",
+  "generated_at": "2026-04-01T18:49:27.587486+00:00",
+  "style_direction": "modern SimCity-inspired pseudo-3D refresh with preserved compatibility",
+  "sources": {
+    "tiles_rc": "src/main/resources/graphics/tiles.rc",
+    "sprite_kind_java": "src/main/java/micropolisj/engine/SpriteKind.java",
+    "extracted_images": "extracted_images"
+  },
+  "graphics": [
+    {
+      "asset_type": "graphics",
+      "name": "airport",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/airport.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/airport.png",
+      "target_path": "redesigned_assets/output/graphics/airport.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 36,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "coal",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/coal.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/coal.png",
+      "target_path": "redesigned_assets/output/graphics/coal.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 32,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "coal_smoke_frames",
+      "category": "smoke",
+      "source_path": "extracted_images/graphics/coal_smoke_frames.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/coal_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/coal_smoke_frames.png",
+      "size": [
+        256,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          14,
+          0
+        ],
+        [
+          14,
+          1
+        ],
+        [
+          15,
+          0
+        ],
+        [
+          15,
+          1
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on volumetric smoke and industrial plume animation frames."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "com_zones",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/com_zones.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/com_zones.png",
+      "target_path": "redesigned_assets/output/graphics/com_zones.png",
+      "size": [
+        48,
+        1008
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 189,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          19
+        ],
+        [
+          0,
+          20
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          24
+        ],
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          26
+        ],
+        [
+          0,
+          27
+        ],
+        [
+          0,
+          28
+        ],
+        [
+          0,
+          29
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          31
+        ],
+        [
+          0,
+          32
+        ],
+        [
+          0,
+          33
+        ],
+        [
+          0,
+          34
+        ],
+        [
+          0,
+          35
+        ],
+        [
+          0,
+          36
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          0,
+          38
+        ],
+        [
+          0,
+          39
+        ],
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          41
+        ],
+        [
+          0,
+          42
+        ],
+        [
+          0,
+          43
+        ],
+        [
+          0,
+          44
+        ],
+        [
+          0,
+          45
+        ],
+        [
+          0,
+          46
+        ],
+        [
+          0,
+          47
+        ],
+        [
+          0,
+          48
+        ],
+        [
+          0,
+          49
+        ],
+        [
+          0,
+          50
+        ],
+        [
+          0,
+          51
+        ],
+        [
+          0,
+          52
+        ],
+        [
+          0,
+          53
+        ],
+        [
+          0,
+          54
+        ],
+        [
+          0,
+          55
+        ],
+        [
+          0,
+          56
+        ],
+        [
+          0,
+          57
+        ],
+        [
+          0,
+          58
+        ],
+        [
+          0,
+          59
+        ],
+        [
+          0,
+          60
+        ],
+        [
+          0,
+          61
+        ],
+        [
+          0,
+          62
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          1,
+          14
+        ],
+        [
+          1,
+          15
+        ],
+        [
+          1,
+          16
+        ],
+        [
+          1,
+          17
+        ],
+        [
+          1,
+          18
+        ],
+        [
+          1,
+          19
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          1,
+          21
+        ],
+        [
+          1,
+          22
+        ],
+        [
+          1,
+          23
+        ],
+        [
+          1,
+          24
+        ],
+        [
+          1,
+          25
+        ],
+        [
+          1,
+          26
+        ],
+        [
+          1,
+          27
+        ],
+        [
+          1,
+          28
+        ],
+        [
+          1,
+          29
+        ],
+        [
+          1,
+          30
+        ],
+        [
+          1,
+          31
+        ],
+        [
+          1,
+          32
+        ],
+        [
+          1,
+          33
+        ],
+        [
+          1,
+          34
+        ],
+        [
+          1,
+          35
+        ],
+        [
+          1,
+          36
+        ],
+        [
+          1,
+          37
+        ],
+        [
+          1,
+          38
+        ],
+        [
+          1,
+          39
+        ],
+        [
+          1,
+          40
+        ],
+        [
+          1,
+          41
+        ],
+        [
+          1,
+          42
+        ],
+        [
+          1,
+          43
+        ],
+        [
+          1,
+          44
+        ],
+        [
+          1,
+          45
+        ],
+        [
+          1,
+          46
+        ],
+        [
+          1,
+          47
+        ],
+        [
+          1,
+          48
+        ],
+        [
+          1,
+          49
+        ],
+        [
+          1,
+          50
+        ],
+        [
+          1,
+          51
+        ],
+        [
+          1,
+          52
+        ],
+        [
+          1,
+          53
+        ],
+        [
+          1,
+          54
+        ],
+        [
+          1,
+          55
+        ],
+        [
+          1,
+          56
+        ],
+        [
+          1,
+          57
+        ],
+        [
+          1,
+          58
+        ],
+        [
+          1,
+          59
+        ],
+        [
+          1,
+          60
+        ],
+        [
+          1,
+          61
+        ],
+        [
+          1,
+          62
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          2,
+          13
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          16
+        ],
+        [
+          2,
+          17
+        ],
+        [
+          2,
+          18
+        ],
+        [
+          2,
+          19
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          2,
+          21
+        ],
+        [
+          2,
+          22
+        ],
+        [
+          2,
+          23
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          2,
+          25
+        ],
+        [
+          2,
+          26
+        ],
+        [
+          2,
+          27
+        ],
+        [
+          2,
+          28
+        ],
+        [
+          2,
+          29
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          31
+        ],
+        [
+          2,
+          32
+        ],
+        [
+          2,
+          33
+        ],
+        [
+          2,
+          34
+        ],
+        [
+          2,
+          35
+        ],
+        [
+          2,
+          36
+        ],
+        [
+          2,
+          37
+        ],
+        [
+          2,
+          38
+        ],
+        [
+          2,
+          39
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          41
+        ],
+        [
+          2,
+          42
+        ],
+        [
+          2,
+          43
+        ],
+        [
+          2,
+          44
+        ],
+        [
+          2,
+          45
+        ],
+        [
+          2,
+          46
+        ],
+        [
+          2,
+          47
+        ],
+        [
+          2,
+          48
+        ],
+        [
+          2,
+          49
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          51
+        ],
+        [
+          2,
+          52
+        ],
+        [
+          2,
+          53
+        ],
+        [
+          2,
+          54
+        ],
+        [
+          2,
+          55
+        ],
+        [
+          2,
+          56
+        ],
+        [
+          2,
+          57
+        ],
+        [
+          2,
+          58
+        ],
+        [
+          2,
+          59
+        ],
+        [
+          2,
+          60
+        ],
+        [
+          2,
+          61
+        ],
+        [
+          2,
+          62
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "firestation",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/firestation.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/firestation.png",
+      "target_path": "redesigned_assets/output/graphics/firestation.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 9,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "ind03_smoke_frames",
+      "category": "smoke",
+      "source_path": "extracted_images/graphics/ind03_smoke_frames.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/ind03_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind03_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 8,
+      "used_cells": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          1
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on volumetric smoke and industrial plume animation frames."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "ind04_smoke_frames",
+      "category": "smoke",
+      "source_path": "extracted_images/graphics/ind04_smoke_frames.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/ind04_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind04_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 8,
+      "used_cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on volumetric smoke and industrial plume animation frames."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "ind07_smoke_frames",
+      "category": "smoke",
+      "source_path": "extracted_images/graphics/ind07_smoke_frames.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/ind07_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind07_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 8,
+      "used_cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on volumetric smoke and industrial plume animation frames."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "ind08_smoke_frames",
+      "category": "smoke",
+      "source_path": "extracted_images/graphics/ind08_smoke_frames.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/ind08_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind08_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 8,
+      "used_cells": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          1
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on volumetric smoke and industrial plume animation frames."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "ind_zones",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/ind_zones.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/ind_zones.png",
+      "target_path": "redesigned_assets/output/graphics/ind_zones.png",
+      "size": [
+        48,
+        432
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 113,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          19
+        ],
+        [
+          0,
+          20
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          24
+        ],
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          26
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          1,
+          14
+        ],
+        [
+          1,
+          15
+        ],
+        [
+          1,
+          16
+        ],
+        [
+          1,
+          17
+        ],
+        [
+          1,
+          18
+        ],
+        [
+          1,
+          19
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          1,
+          21
+        ],
+        [
+          1,
+          22
+        ],
+        [
+          1,
+          23
+        ],
+        [
+          1,
+          24
+        ],
+        [
+          1,
+          25
+        ],
+        [
+          1,
+          26
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          2,
+          13
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          16
+        ],
+        [
+          2,
+          17
+        ],
+        [
+          2,
+          18
+        ],
+        [
+          2,
+          19
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          2,
+          21
+        ],
+        [
+          2,
+          22
+        ],
+        [
+          2,
+          23
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          2,
+          25
+        ],
+        [
+          2,
+          26
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "misc_animation",
+      "category": "animation",
+      "source_path": "extracted_images/graphics/misc_animation.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/misc_animation.png",
+      "target_path": "redesigned_assets/output/graphics/misc_animation.png",
+      "size": [
+        16,
+        2128
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 85,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          19
+        ],
+        [
+          0,
+          20
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          24
+        ],
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          26
+        ],
+        [
+          0,
+          27
+        ],
+        [
+          0,
+          28
+        ],
+        [
+          0,
+          29
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          31
+        ],
+        [
+          0,
+          32
+        ],
+        [
+          0,
+          33
+        ],
+        [
+          0,
+          34
+        ],
+        [
+          0,
+          35
+        ],
+        [
+          0,
+          36
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          0,
+          38
+        ],
+        [
+          0,
+          39
+        ],
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          41
+        ],
+        [
+          0,
+          42
+        ],
+        [
+          0,
+          43
+        ],
+        [
+          0,
+          44
+        ],
+        [
+          0,
+          45
+        ],
+        [
+          0,
+          46
+        ],
+        [
+          0,
+          47
+        ],
+        [
+          0,
+          48
+        ],
+        [
+          0,
+          49
+        ],
+        [
+          0,
+          50
+        ],
+        [
+          0,
+          51
+        ],
+        [
+          0,
+          52
+        ],
+        [
+          0,
+          53
+        ],
+        [
+          0,
+          54
+        ],
+        [
+          0,
+          55
+        ],
+        [
+          0,
+          56
+        ],
+        [
+          0,
+          105
+        ],
+        [
+          0,
+          106
+        ],
+        [
+          0,
+          107
+        ],
+        [
+          0,
+          108
+        ],
+        [
+          0,
+          109
+        ],
+        [
+          0,
+          110
+        ],
+        [
+          0,
+          111
+        ],
+        [
+          0,
+          112
+        ],
+        [
+          0,
+          113
+        ],
+        [
+          0,
+          114
+        ],
+        [
+          0,
+          115
+        ],
+        [
+          0,
+          116
+        ],
+        [
+          0,
+          117
+        ],
+        [
+          0,
+          118
+        ],
+        [
+          0,
+          119
+        ],
+        [
+          0,
+          120
+        ],
+        [
+          0,
+          121
+        ],
+        [
+          0,
+          122
+        ],
+        [
+          0,
+          123
+        ],
+        [
+          0,
+          124
+        ],
+        [
+          0,
+          125
+        ],
+        [
+          0,
+          126
+        ],
+        [
+          0,
+          127
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          129
+        ],
+        [
+          0,
+          130
+        ],
+        [
+          0,
+          131
+        ],
+        [
+          0,
+          132
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on animated utility and environmental effects."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "nuclear",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/nuclear.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/nuclear.png",
+      "target_path": "redesigned_assets/output/graphics/nuclear.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "police",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/police.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/police.png",
+      "target_path": "redesigned_assets/output/graphics/police.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 9,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "rails",
+      "category": "infrastructure",
+      "source_path": "extracted_images/graphics/rails.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/rails.png",
+      "target_path": "redesigned_assets/output/graphics/rails.png",
+      "size": [
+        16,
+        256
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on roads, rails, wires and layered traffic infrastructure."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "res_houses",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/res_houses.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/res_houses.png",
+      "target_path": "redesigned_assets/output/graphics/res_houses.png",
+      "size": [
+        16,
+        192
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 12,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "res_zones",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/res_zones.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/res_zones.png",
+      "target_path": "redesigned_assets/output/graphics/res_zones.png",
+      "size": [
+        48,
+        912
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 171,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          19
+        ],
+        [
+          0,
+          20
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          24
+        ],
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          26
+        ],
+        [
+          0,
+          27
+        ],
+        [
+          0,
+          28
+        ],
+        [
+          0,
+          29
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          31
+        ],
+        [
+          0,
+          32
+        ],
+        [
+          0,
+          33
+        ],
+        [
+          0,
+          34
+        ],
+        [
+          0,
+          35
+        ],
+        [
+          0,
+          36
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          0,
+          38
+        ],
+        [
+          0,
+          39
+        ],
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          41
+        ],
+        [
+          0,
+          42
+        ],
+        [
+          0,
+          43
+        ],
+        [
+          0,
+          44
+        ],
+        [
+          0,
+          45
+        ],
+        [
+          0,
+          46
+        ],
+        [
+          0,
+          47
+        ],
+        [
+          0,
+          48
+        ],
+        [
+          0,
+          49
+        ],
+        [
+          0,
+          50
+        ],
+        [
+          0,
+          51
+        ],
+        [
+          0,
+          52
+        ],
+        [
+          0,
+          53
+        ],
+        [
+          0,
+          54
+        ],
+        [
+          0,
+          55
+        ],
+        [
+          0,
+          56
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          1,
+          14
+        ],
+        [
+          1,
+          15
+        ],
+        [
+          1,
+          16
+        ],
+        [
+          1,
+          17
+        ],
+        [
+          1,
+          18
+        ],
+        [
+          1,
+          19
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          1,
+          21
+        ],
+        [
+          1,
+          22
+        ],
+        [
+          1,
+          23
+        ],
+        [
+          1,
+          24
+        ],
+        [
+          1,
+          25
+        ],
+        [
+          1,
+          26
+        ],
+        [
+          1,
+          27
+        ],
+        [
+          1,
+          28
+        ],
+        [
+          1,
+          29
+        ],
+        [
+          1,
+          30
+        ],
+        [
+          1,
+          31
+        ],
+        [
+          1,
+          32
+        ],
+        [
+          1,
+          33
+        ],
+        [
+          1,
+          34
+        ],
+        [
+          1,
+          35
+        ],
+        [
+          1,
+          36
+        ],
+        [
+          1,
+          37
+        ],
+        [
+          1,
+          38
+        ],
+        [
+          1,
+          39
+        ],
+        [
+          1,
+          40
+        ],
+        [
+          1,
+          41
+        ],
+        [
+          1,
+          42
+        ],
+        [
+          1,
+          43
+        ],
+        [
+          1,
+          44
+        ],
+        [
+          1,
+          45
+        ],
+        [
+          1,
+          46
+        ],
+        [
+          1,
+          47
+        ],
+        [
+          1,
+          48
+        ],
+        [
+          1,
+          49
+        ],
+        [
+          1,
+          50
+        ],
+        [
+          1,
+          51
+        ],
+        [
+          1,
+          52
+        ],
+        [
+          1,
+          53
+        ],
+        [
+          1,
+          54
+        ],
+        [
+          1,
+          55
+        ],
+        [
+          1,
+          56
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          2,
+          13
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          16
+        ],
+        [
+          2,
+          17
+        ],
+        [
+          2,
+          18
+        ],
+        [
+          2,
+          19
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          2,
+          21
+        ],
+        [
+          2,
+          22
+        ],
+        [
+          2,
+          23
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          2,
+          25
+        ],
+        [
+          2,
+          26
+        ],
+        [
+          2,
+          27
+        ],
+        [
+          2,
+          28
+        ],
+        [
+          2,
+          29
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          31
+        ],
+        [
+          2,
+          32
+        ],
+        [
+          2,
+          33
+        ],
+        [
+          2,
+          34
+        ],
+        [
+          2,
+          35
+        ],
+        [
+          2,
+          36
+        ],
+        [
+          2,
+          37
+        ],
+        [
+          2,
+          38
+        ],
+        [
+          2,
+          39
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          41
+        ],
+        [
+          2,
+          42
+        ],
+        [
+          2,
+          43
+        ],
+        [
+          2,
+          44
+        ],
+        [
+          2,
+          45
+        ],
+        [
+          2,
+          46
+        ],
+        [
+          2,
+          47
+        ],
+        [
+          2,
+          48
+        ],
+        [
+          2,
+          49
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          51
+        ],
+        [
+          2,
+          52
+        ],
+        [
+          2,
+          53
+        ],
+        [
+          2,
+          54
+        ],
+        [
+          2,
+          55
+        ],
+        [
+          2,
+          56
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "roads",
+      "category": "infrastructure",
+      "source_path": "extracted_images/graphics/roads.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/roads.png",
+      "target_path": "redesigned_assets/output/graphics/roads.png",
+      "size": [
+        16,
+        256
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 33,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          15
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on roads, rails, wires and layered traffic infrastructure."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "roadwire",
+      "category": "infrastructure",
+      "source_path": "extracted_images/graphics/roadwire.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/roadwire.png",
+      "target_path": "redesigned_assets/output/graphics/roadwire.png",
+      "size": [
+        16,
+        32
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 18,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on roads, rails, wires and layered traffic infrastructure."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "seaport",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/seaport.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/seaport.png",
+      "target_path": "redesigned_assets/output/graphics/seaport.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "stadium",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/stadium.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/stadium.png",
+      "target_path": "redesigned_assets/output/graphics/stadium.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "stadium2",
+      "category": "structure",
+      "source_path": "extracted_images/graphics/stadium2.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/stadium2.png",
+      "target_path": "redesigned_assets/output/graphics/stadium2.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on civic and city-building atlas tiles."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "terrain",
+      "category": "terrain",
+      "source_path": "extracted_images/graphics/terrain.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/terrain.png",
+      "target_path": "redesigned_assets/output/graphics/terrain.png",
+      "size": [
+        16,
+        1024
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 64,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          19
+        ],
+        [
+          0,
+          20
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          24
+        ],
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          26
+        ],
+        [
+          0,
+          27
+        ],
+        [
+          0,
+          28
+        ],
+        [
+          0,
+          29
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          31
+        ],
+        [
+          0,
+          32
+        ],
+        [
+          0,
+          33
+        ],
+        [
+          0,
+          34
+        ],
+        [
+          0,
+          35
+        ],
+        [
+          0,
+          36
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          0,
+          38
+        ],
+        [
+          0,
+          39
+        ],
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          41
+        ],
+        [
+          0,
+          42
+        ],
+        [
+          0,
+          43
+        ],
+        [
+          0,
+          44
+        ],
+        [
+          0,
+          45
+        ],
+        [
+          0,
+          46
+        ],
+        [
+          0,
+          47
+        ],
+        [
+          0,
+          48
+        ],
+        [
+          0,
+          49
+        ],
+        [
+          0,
+          50
+        ],
+        [
+          0,
+          51
+        ],
+        [
+          0,
+          52
+        ],
+        [
+          0,
+          53
+        ],
+        [
+          0,
+          54
+        ],
+        [
+          0,
+          55
+        ],
+        [
+          0,
+          56
+        ],
+        [
+          0,
+          57
+        ],
+        [
+          0,
+          58
+        ],
+        [
+          0,
+          59
+        ],
+        [
+          0,
+          60
+        ],
+        [
+          0,
+          61
+        ],
+        [
+          0,
+          62
+        ],
+        [
+          0,
+          63
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on terrain, water, forest and disaster terrain cells."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "traffic",
+      "category": "infrastructure",
+      "source_path": "extracted_images/graphics/traffic.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/traffic.png",
+      "target_path": "redesigned_assets/output/graphics/traffic.png",
+      "size": [
+        128,
+        256
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 120,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          12
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          12
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          12
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          12
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          12
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on roads, rails, wires and layered traffic infrastructure."
+    },
+    {
+      "asset_type": "graphics",
+      "name": "wires",
+      "category": "infrastructure",
+      "source_path": "extracted_images/graphics/wires.png",
+      "original_copy_path": "redesigned_assets/originals/graphics/wires.png",
+      "target_path": "redesigned_assets/output/graphics/wires.png",
+      "size": [
+        16,
+        256
+      ],
+      "mode": "RGBA",
+      "cell_size": 16,
+      "tile_refs": 16,
+      "used_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          15
+        ]
+      ],
+      "prompt": "Modernize this SimCity-compatible sprite sheet into polished late-90s city-builder art with stronger pseudo-3D depth, clean silhouettes, north-west lighting, readable shading, and preserved 16x16 atlas alignment. Focus on roads, rails, wires and layered traffic infrastructure."
+    }
+  ],
+  "sprites": [
+    {
+      "asset_type": "sprite",
+      "object_id": 1,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj1-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj1-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-0.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 5,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (5) and canvas size for object series obj1."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 1,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj1-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj1-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-1.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 5,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (5) and canvas size for object series obj1."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 1,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj1-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj1-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-2.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 5,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (5) and canvas size for object series obj1."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 1,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj1-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj1-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-3.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 5,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (5) and canvas size for object series obj1."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 1,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj1-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj1-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-4.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 5,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (5) and canvas size for object series obj1."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj2-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-0.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj2-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-1.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj2-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-2.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj2-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-3.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj2-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-4.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 5,
+      "source_path": "extracted_images/sprites/obj2-5.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-5.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 6,
+      "source_path": "extracted_images/sprites/obj2-6.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-6.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 2,
+      "frame": 7,
+      "source_path": "extracted_images/sprites/obj2-7.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj2-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-7.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj2."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj3-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-0.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj3-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-1.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 10,
+      "source_path": "extracted_images/sprites/obj3-10.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-10.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-10.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj3-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-2.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj3-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-3.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj3-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-4.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 5,
+      "source_path": "extracted_images/sprites/obj3-5.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-5.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 6,
+      "source_path": "extracted_images/sprites/obj3-6.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-6.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 7,
+      "source_path": "extracted_images/sprites/obj3-7.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-7.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 8,
+      "source_path": "extracted_images/sprites/obj3-8.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-8.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-8.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 3,
+      "frame": 9,
+      "source_path": "extracted_images/sprites/obj3-9.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj3-9.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-9.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 11,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (11) and canvas size for object series obj3."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj4-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-0.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj4-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-1.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj4-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-2.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj4-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-3.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj4-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-4.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 5,
+      "source_path": "extracted_images/sprites/obj4-5.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-5.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 6,
+      "source_path": "extracted_images/sprites/obj4-6.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-6.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 4,
+      "frame": 7,
+      "source_path": "extracted_images/sprites/obj4-7.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj4-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-7.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 8,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (8) and canvas size for object series obj4."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj5-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-0.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj5-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-1.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 10,
+      "source_path": "extracted_images/sprites/obj5-10.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-10.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-10.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 11,
+      "source_path": "extracted_images/sprites/obj5-11.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-11.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-11.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 12,
+      "source_path": "extracted_images/sprites/obj5-12.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-12.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-12.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 13,
+      "source_path": "extracted_images/sprites/obj5-13.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-13.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-13.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 14,
+      "source_path": "extracted_images/sprites/obj5-14.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-14.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-14.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 15,
+      "source_path": "extracted_images/sprites/obj5-15.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-15.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-15.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj5-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-2.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj5-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-3.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj5-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-4.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 5,
+      "source_path": "extracted_images/sprites/obj5-5.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-5.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 6,
+      "source_path": "extracted_images/sprites/obj5-6.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-6.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 7,
+      "source_path": "extracted_images/sprites/obj5-7.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-7.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 8,
+      "source_path": "extracted_images/sprites/obj5-8.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-8.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-8.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 5,
+      "frame": 9,
+      "source_path": "extracted_images/sprites/obj5-9.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj5-9.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-9.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 16,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (16) and canvas size for object series obj5."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 6,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj6-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj6-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-0.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 3,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (3) and canvas size for object series obj6."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 6,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj6-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj6-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-1.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 3,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (3) and canvas size for object series obj6."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 6,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj6-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj6-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-2.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 3,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (3) and canvas size for object series obj6."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj7-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-0.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj7-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-1.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj7-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-2.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj7-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-3.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 4,
+      "source_path": "extracted_images/sprites/obj7-4.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-4.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 7,
+      "frame": 5,
+      "source_path": "extracted_images/sprites/obj7-5.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj7-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-5.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "expected_frames": 6,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (6) and canvas size for object series obj7."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 8,
+      "frame": 0,
+      "source_path": "extracted_images/sprites/obj8-0.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj8-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-0.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 4,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (4) and canvas size for object series obj8."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 8,
+      "frame": 1,
+      "source_path": "extracted_images/sprites/obj8-1.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj8-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-1.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 4,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (4) and canvas size for object series obj8."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 8,
+      "frame": 2,
+      "source_path": "extracted_images/sprites/obj8-2.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj8-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-2.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 4,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (4) and canvas size for object series obj8."
+    },
+    {
+      "asset_type": "sprite",
+      "object_id": 8,
+      "frame": 3,
+      "source_path": "extracted_images/sprites/obj8-3.png",
+      "original_copy_path": "redesigned_assets/originals/sprites/obj8-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-3.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "expected_frames": 4,
+      "prompt": "Modernize this SimCity-compatible sprite animation into a richer late-90s city-builder look with more volume, cleaner material separation, north-west lighting and consistent animation silhouettes. Keep exact frame count (4) and canvas size for object series obj8."
+    }
+  ],
+  "icons": [
+    {
+      "asset_type": "icon",
+      "name": "airport",
+      "source_path": "extracted_images/icons/airport.png",
+      "original_copy_path": "redesigned_assets/originals/icons/airport.png",
+      "target_path": "redesigned_assets/output/icons/airport.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "coal",
+      "source_path": "extracted_images/icons/coal.png",
+      "original_copy_path": "redesigned_assets/originals/icons/coal.png",
+      "target_path": "redesigned_assets/output/icons/coal.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "com",
+      "source_path": "extracted_images/icons/com.png",
+      "original_copy_path": "redesigned_assets/originals/icons/com.png",
+      "target_path": "redesigned_assets/output/icons/com.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "demandg",
+      "source_path": "extracted_images/icons/demandg.png",
+      "original_copy_path": "redesigned_assets/originals/icons/demandg.png",
+      "target_path": "redesigned_assets/output/icons/demandg.png",
+      "size": [
+        39,
+        47
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "fire",
+      "source_path": "extracted_images/icons/fire.png",
+      "original_copy_path": "redesigned_assets/originals/icons/fire.png",
+      "target_path": "redesigned_assets/output/icons/fire.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grcom",
+      "source_path": "extracted_images/icons/grcom.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grcom.png",
+      "target_path": "redesigned_assets/output/icons/grcom.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grcomhi",
+      "source_path": "extracted_images/icons/grcomhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grcomhi.png",
+      "target_path": "redesigned_assets/output/icons/grcomhi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grcrim",
+      "source_path": "extracted_images/icons/grcrim.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grcrim.png",
+      "target_path": "redesigned_assets/output/icons/grcrim.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grcrimhi",
+      "source_path": "extracted_images/icons/grcrimhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grcrimhi.png",
+      "target_path": "redesigned_assets/output/icons/grcrimhi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grind",
+      "source_path": "extracted_images/icons/grind.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grind.png",
+      "target_path": "redesigned_assets/output/icons/grind.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grindhi",
+      "source_path": "extracted_images/icons/grindhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grindhi.png",
+      "target_path": "redesigned_assets/output/icons/grindhi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grmony",
+      "source_path": "extracted_images/icons/grmony.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grmony.png",
+      "target_path": "redesigned_assets/output/icons/grmony.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grmonyhi",
+      "source_path": "extracted_images/icons/grmonyhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grmonyhi.png",
+      "target_path": "redesigned_assets/output/icons/grmonyhi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grpoll",
+      "source_path": "extracted_images/icons/grpoll.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grpoll.png",
+      "target_path": "redesigned_assets/output/icons/grpoll.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grpollhi",
+      "source_path": "extracted_images/icons/grpollhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grpollhi.png",
+      "target_path": "redesigned_assets/output/icons/grpollhi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grres",
+      "source_path": "extracted_images/icons/grres.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grres.png",
+      "target_path": "redesigned_assets/output/icons/grres.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "grreshi",
+      "source_path": "extracted_images/icons/grreshi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/grreshi.png",
+      "target_path": "redesigned_assets/output/icons/grreshi.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icairp",
+      "source_path": "extracted_images/icons/icairp.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icairp.png",
+      "target_path": "redesigned_assets/output/icons/icairp.png",
+      "size": [
+        58,
+        58
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icairphi",
+      "source_path": "extracted_images/icons/icairphi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icairphi.png",
+      "target_path": "redesigned_assets/output/icons/icairphi.png",
+      "size": [
+        58,
+        58
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "iccoal",
+      "source_path": "extracted_images/icons/iccoal.png",
+      "original_copy_path": "redesigned_assets/originals/icons/iccoal.png",
+      "target_path": "redesigned_assets/output/icons/iccoal.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "iccoalhi",
+      "source_path": "extracted_images/icons/iccoalhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/iccoalhi.png",
+      "target_path": "redesigned_assets/output/icons/iccoalhi.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "iccom",
+      "source_path": "extracted_images/icons/iccom.png",
+      "original_copy_path": "redesigned_assets/originals/icons/iccom.png",
+      "target_path": "redesigned_assets/output/icons/iccom.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "iccomhi",
+      "source_path": "extracted_images/icons/iccomhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/iccomhi.png",
+      "target_path": "redesigned_assets/output/icons/iccomhi.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icdozr",
+      "source_path": "extracted_images/icons/icdozr.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icdozr.png",
+      "target_path": "redesigned_assets/output/icons/icdozr.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icdozrhi",
+      "source_path": "extracted_images/icons/icdozrhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icdozrhi.png",
+      "target_path": "redesigned_assets/output/icons/icdozrhi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icfire",
+      "source_path": "extracted_images/icons/icfire.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icfire.png",
+      "target_path": "redesigned_assets/output/icons/icfire.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icfirehi",
+      "source_path": "extracted_images/icons/icfirehi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icfirehi.png",
+      "target_path": "redesigned_assets/output/icons/icfirehi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icind",
+      "source_path": "extracted_images/icons/icind.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icind.png",
+      "target_path": "redesigned_assets/output/icons/icind.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icindhi",
+      "source_path": "extracted_images/icons/icindhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icindhi.png",
+      "target_path": "redesigned_assets/output/icons/icindhi.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icnuc",
+      "source_path": "extracted_images/icons/icnuc.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icnuc.png",
+      "target_path": "redesigned_assets/output/icons/icnuc.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icnuchi",
+      "source_path": "extracted_images/icons/icnuchi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icnuchi.png",
+      "target_path": "redesigned_assets/output/icons/icnuchi.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icpark",
+      "source_path": "extracted_images/icons/icpark.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icpark.png",
+      "target_path": "redesigned_assets/output/icons/icpark.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icparkhi",
+      "source_path": "extracted_images/icons/icparkhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icparkhi.png",
+      "target_path": "redesigned_assets/output/icons/icparkhi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icpol",
+      "source_path": "extracted_images/icons/icpol.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icpol.png",
+      "target_path": "redesigned_assets/output/icons/icpol.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icpolhi",
+      "source_path": "extracted_images/icons/icpolhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icpolhi.png",
+      "target_path": "redesigned_assets/output/icons/icpolhi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icqry",
+      "source_path": "extracted_images/icons/icqry.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icqry.png",
+      "target_path": "redesigned_assets/output/icons/icqry.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icqryhi",
+      "source_path": "extracted_images/icons/icqryhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icqryhi.png",
+      "target_path": "redesigned_assets/output/icons/icqryhi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icrail",
+      "source_path": "extracted_images/icons/icrail.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icrail.png",
+      "target_path": "redesigned_assets/output/icons/icrail.png",
+      "size": [
+        56,
+        24
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icrailhi",
+      "source_path": "extracted_images/icons/icrailhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icrailhi.png",
+      "target_path": "redesigned_assets/output/icons/icrailhi.png",
+      "size": [
+        56,
+        24
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icres",
+      "source_path": "extracted_images/icons/icres.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icres.png",
+      "target_path": "redesigned_assets/output/icons/icres.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icreshi",
+      "source_path": "extracted_images/icons/icreshi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icreshi.png",
+      "target_path": "redesigned_assets/output/icons/icreshi.png",
+      "size": [
+        34,
+        50
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icroad",
+      "source_path": "extracted_images/icons/icroad.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icroad.png",
+      "target_path": "redesigned_assets/output/icons/icroad.png",
+      "size": [
+        56,
+        24
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icroadhi",
+      "source_path": "extracted_images/icons/icroadhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icroadhi.png",
+      "target_path": "redesigned_assets/output/icons/icroadhi.png",
+      "size": [
+        56,
+        24
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icseap",
+      "source_path": "extracted_images/icons/icseap.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icseap.png",
+      "target_path": "redesigned_assets/output/icons/icseap.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icseaphi",
+      "source_path": "extracted_images/icons/icseaphi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icseaphi.png",
+      "target_path": "redesigned_assets/output/icons/icseaphi.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icstad",
+      "source_path": "extracted_images/icons/icstad.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icstad.png",
+      "target_path": "redesigned_assets/output/icons/icstad.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icstadhi",
+      "source_path": "extracted_images/icons/icstadhi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icstadhi.png",
+      "target_path": "redesigned_assets/output/icons/icstadhi.png",
+      "size": [
+        42,
+        42
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icwire",
+      "source_path": "extracted_images/icons/icwire.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icwire.png",
+      "target_path": "redesigned_assets/output/icons/icwire.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "icwirehi",
+      "source_path": "extracted_images/icons/icwirehi.png",
+      "original_copy_path": "redesigned_assets/originals/icons/icwirehi.png",
+      "target_path": "redesigned_assets/output/icons/icwirehi.png",
+      "size": [
+        34,
+        34
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "ind",
+      "source_path": "extracted_images/icons/ind.png",
+      "original_copy_path": "redesigned_assets/originals/icons/ind.png",
+      "target_path": "redesigned_assets/output/icons/ind.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "legendmm",
+      "source_path": "extracted_images/icons/legendmm.png",
+      "original_copy_path": "redesigned_assets/originals/icons/legendmm.png",
+      "target_path": "redesigned_assets/output/icons/legendmm.png",
+      "size": [
+        93,
+        14
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "legendpm",
+      "source_path": "extracted_images/icons/legendpm.png",
+      "original_copy_path": "redesigned_assets/originals/icons/legendpm.png",
+      "target_path": "redesigned_assets/output/icons/legendpm.png",
+      "size": [
+        93,
+        14
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "micropolism",
+      "source_path": "extracted_images/icons/micropolism.png",
+      "original_copy_path": "redesigned_assets/originals/icons/micropolism.png",
+      "target_path": "redesigned_assets/output/icons/micropolism.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "nuclear",
+      "source_path": "extracted_images/icons/nuclear.png",
+      "original_copy_path": "redesigned_assets/originals/icons/nuclear.png",
+      "target_path": "redesigned_assets/output/icons/nuclear.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "police",
+      "source_path": "extracted_images/icons/police.png",
+      "original_copy_path": "redesigned_assets/originals/icons/police.png",
+      "target_path": "redesigned_assets/output/icons/police.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "res",
+      "source_path": "extracted_images/icons/res.png",
+      "original_copy_path": "redesigned_assets/originals/icons/res.png",
+      "target_path": "redesigned_assets/output/icons/res.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "seaport",
+      "source_path": "extracted_images/icons/seaport.png",
+      "original_copy_path": "redesigned_assets/originals/icons/seaport.png",
+      "target_path": "redesigned_assets/output/icons/seaport.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    },
+    {
+      "asset_type": "icon",
+      "name": "stadium",
+      "source_path": "extracted_images/icons/stadium.png",
+      "original_copy_path": "redesigned_assets/originals/icons/stadium.png",
+      "target_path": "redesigned_assets/output/icons/stadium.png",
+      "size": [
+        64,
+        64
+      ],
+      "mode": "RGBA",
+      "prompt": "Icons are copied unchanged in this first pass to keep the runtime footprint stable."
+    }
+  ]
+}

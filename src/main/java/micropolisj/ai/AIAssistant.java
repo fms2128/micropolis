@@ -30,9 +30,25 @@ public class AIAssistant {
     private final AnthropicClient client;
 
     private final List<JsonObject> conversationHistory = new ArrayList<>();
+    private final List<Objective> currentObjectives = new ArrayList<>();
+    private final List<Objective> completedObjectives = new ArrayList<>();
     private Consumer<String> onThinking;
     private Consumer<String> onAction;
     private Consumer<String> onError;
+    private Consumer<Void> onObjectivesChanged;
+
+    public static class Objective {
+        private final String text;
+        private boolean completed;
+
+        public Objective(String text) {
+            this.text = text;
+            this.completed = false;
+        }
+
+        public String getText() { return text; }
+        public boolean isCompleted() { return completed; }
+    }
 
     private volatile boolean running = false;
     private int turnCount = 0;
@@ -47,7 +63,7 @@ public class AIAssistant {
         }
         this.engine = engine;
         this.observer = new GameStateObserver(engine);
-        this.toolHandler = new AIToolHandler(engine, observer);
+        this.toolHandler = new AIToolHandler(engine, observer, this);
         this.listener = new AIGameListener();
         engine.addListener(this.listener);
     }
@@ -108,20 +124,37 @@ public class AIAssistant {
     }
 
     private void executeTurn(String userMessage) throws Exception {
-        String stateJson = observer.getFullStateText();
-        String events = listener.drainMessages();
+        String summaryJson = observer.getMinimalSummary().toString();
+        String structuredEvents = listener.drainStructuredMessages();
         listener.clearCriticalEvent();
 
         StringBuilder userContent = new StringBuilder();
-        userContent.append("[Turn ").append(turnCount).append("] Current city state:\n");
-        userContent.append(stateJson);
-        if (!events.isEmpty()) {
-            userContent.append("\n\nRecent events: ").append(events);
+        userContent.append("[Turn ").append(turnCount).append("] ").append(summaryJson);
+
+        if (!currentObjectives.isEmpty() || !completedObjectives.isEmpty()) {
+            userContent.append("\n[Current Objectives]");
+            for (int i = 0; i < currentObjectives.size(); i++) {
+                userContent.append("\n").append(i + 1).append(". ").append(currentObjectives.get(i).getText());
+            }
+            if (!completedObjectives.isEmpty()) {
+                userContent.append("\n[Recently Completed]");
+                for (Objective obj : completedObjectives) {
+                    userContent.append("\n- [DONE] ").append(obj.getText());
+                }
+            }
+            userContent.append("\n[End Objectives]");
         }
+
+        if (!structuredEvents.isEmpty()) {
+            userContent.append("\n[System Updates]\n");
+            userContent.append(structuredEvents);
+            userContent.append("[End System Updates]");
+        }
+
         if (userMessage != null && !userMessage.isEmpty()) {
-            userContent.append("\n\nUser request: ").append(userMessage);
+            userContent.append("\nUser: ").append(userMessage);
         }
-        userContent.append("\n\nAnalyze the city state and take appropriate actions to grow and improve the city.");
+        userContent.append("\nUse get_* tools to fetch details you need, then take actions.");
 
         JsonObject userMsg = new JsonObject();
         userMsg.addProperty("role", "user");
@@ -234,12 +267,25 @@ public class AIAssistant {
     private String buildSystemPrompt() {
         StringBuilder sb = new StringBuilder(SystemPrompt.PROMPT);
         try {
+            Path memoryPath = Paths.get("agent_memory.md");
+            if (Files.exists(memoryPath)) {
+                String memory = new String(Files.readAllBytes(memoryPath));
+                if (!memory.trim().isEmpty()) {
+                    sb.append("\n\n## Your Long-Term Memory (loaded automatically)\n");
+                    sb.append("This is your accumulated knowledge from past games. Use it to make better decisions.\n");
+                    sb.append("Update it with update_memory when you learn something new.\n\n");
+                    sb.append(memory);
+                }
+            }
+        } catch (IOException e) {
+            // ignore
+        }
+        try {
             Path logPath = Paths.get("ai_learnings.log");
             if (Files.exists(logPath)) {
                 String learnings = new String(Files.readAllBytes(logPath));
                 if (!learnings.trim().isEmpty()) {
-                    sb.append("\n\n## Your Past Learnings (from previous turns)\n");
-                    sb.append("These are observations you recorded. Use them to make better decisions:\n");
+                    sb.append("\n\n## Recent Turn-by-Turn Notes\n");
                     sb.append(learnings);
                 }
             }
@@ -260,7 +306,49 @@ public class AIAssistant {
 
     public void clearHistory() {
         conversationHistory.clear();
+        currentObjectives.clear();
+        completedObjectives.clear();
         turnCount = 0;
+        fireObjectivesChanged();
+    }
+
+    public List<Objective> getObjectives() {
+        return new ArrayList<>(currentObjectives);
+    }
+
+    public List<Objective> getCompletedObjectives() {
+        return new ArrayList<>(completedObjectives);
+    }
+
+    public void setObjectives(List<String> objectives) {
+        currentObjectives.clear();
+        int limit = Math.min(objectives.size(), 5);
+        for (int i = 0; i < limit; i++) {
+            String obj = objectives.get(i).trim();
+            if (!obj.isEmpty()) {
+                currentObjectives.add(new Objective(obj));
+            }
+        }
+        fireObjectivesChanged();
+    }
+
+    public boolean completeObjective(int index) {
+        if (index < 0 || index >= currentObjectives.size()) {
+            return false;
+        }
+        Objective obj = currentObjectives.remove(index);
+        obj.completed = true;
+        completedObjectives.add(obj);
+        fireObjectivesChanged();
+        return true;
+    }
+
+    public void setOnObjectivesChanged(Consumer<Void> listener) {
+        this.onObjectivesChanged = listener;
+    }
+
+    private void fireObjectivesChanged() {
+        emit(onObjectivesChanged, null);
     }
 
     private void emit(Consumer<String> handler, String message) {

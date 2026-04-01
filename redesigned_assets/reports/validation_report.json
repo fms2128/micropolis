@@ -1,0 +1,2163 @@
+{
+  "pipeline_version": "neo_simcity_3d_v1",
+  "validated_at": "2026-04-01T18:49:30.280853+00:00",
+  "graphics": [
+    {
+      "source_path": "extracted_images/graphics/airport.png",
+      "target_path": "redesigned_assets/output/graphics/airport.png",
+      "source_size": [
+        96,
+        96
+      ],
+      "target_size": [
+        96,
+        96
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/coal.png",
+      "target_path": "redesigned_assets/output/graphics/coal.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/coal_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/coal_smoke_frames.png",
+      "source_size": [
+        256,
+        64
+      ],
+      "target_size": [
+        256,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/com_zones.png",
+      "target_path": "redesigned_assets/output/graphics/com_zones.png",
+      "source_size": [
+        48,
+        1008
+      ],
+      "target_size": [
+        48,
+        1008
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/firestation.png",
+      "target_path": "redesigned_assets/output/graphics/firestation.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/ind03_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind03_smoke_frames.png",
+      "source_size": [
+        192,
+        48
+      ],
+      "target_size": [
+        192,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/ind04_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind04_smoke_frames.png",
+      "source_size": [
+        192,
+        48
+      ],
+      "target_size": [
+        192,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/ind07_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind07_smoke_frames.png",
+      "source_size": [
+        192,
+        48
+      ],
+      "target_size": [
+        192,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/ind08_smoke_frames.png",
+      "target_path": "redesigned_assets/output/graphics/ind08_smoke_frames.png",
+      "source_size": [
+        192,
+        48
+      ],
+      "target_size": [
+        192,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/ind_zones.png",
+      "target_path": "redesigned_assets/output/graphics/ind_zones.png",
+      "source_size": [
+        48,
+        432
+      ],
+      "target_size": [
+        48,
+        432
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/misc_animation.png",
+      "target_path": "redesigned_assets/output/graphics/misc_animation.png",
+      "source_size": [
+        16,
+        2128
+      ],
+      "target_size": [
+        16,
+        2128
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/nuclear.png",
+      "target_path": "redesigned_assets/output/graphics/nuclear.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/police.png",
+      "target_path": "redesigned_assets/output/graphics/police.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/rails.png",
+      "target_path": "redesigned_assets/output/graphics/rails.png",
+      "source_size": [
+        16,
+        256
+      ],
+      "target_size": [
+        16,
+        256
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/res_houses.png",
+      "target_path": "redesigned_assets/output/graphics/res_houses.png",
+      "source_size": [
+        16,
+        192
+      ],
+      "target_size": [
+        16,
+        192
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/res_zones.png",
+      "target_path": "redesigned_assets/output/graphics/res_zones.png",
+      "source_size": [
+        48,
+        912
+      ],
+      "target_size": [
+        48,
+        912
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/roads.png",
+      "target_path": "redesigned_assets/output/graphics/roads.png",
+      "source_size": [
+        16,
+        256
+      ],
+      "target_size": [
+        16,
+        256
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/roadwire.png",
+      "target_path": "redesigned_assets/output/graphics/roadwire.png",
+      "source_size": [
+        16,
+        32
+      ],
+      "target_size": [
+        16,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/seaport.png",
+      "target_path": "redesigned_assets/output/graphics/seaport.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/stadium.png",
+      "target_path": "redesigned_assets/output/graphics/stadium.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/stadium2.png",
+      "target_path": "redesigned_assets/output/graphics/stadium2.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/terrain.png",
+      "target_path": "redesigned_assets/output/graphics/terrain.png",
+      "source_size": [
+        16,
+        1024
+      ],
+      "target_size": [
+        16,
+        1024
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/traffic.png",
+      "target_path": "redesigned_assets/output/graphics/traffic.png",
+      "source_size": [
+        128,
+        256
+      ],
+      "target_size": [
+        128,
+        256
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/graphics/wires.png",
+      "target_path": "redesigned_assets/output/graphics/wires.png",
+      "source_size": [
+        16,
+        256
+      ],
+      "target_size": [
+        16,
+        256
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    }
+  ],
+  "sprites": [
+    {
+      "source_path": "extracted_images/sprites/obj1-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-0.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj1-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-1.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj1-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-2.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj1-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-3.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj1-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj1-4.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-0.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-1.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-2.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-3.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-4.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-5.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-6.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj2-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj2-7.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-0.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-1.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-10.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-10.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-2.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-3.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-4.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-5.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-6.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-7.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-8.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-8.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj3-9.png",
+      "target_path": "redesigned_assets/output/sprites/obj3-9.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-0.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-1.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-2.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-3.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-4.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-5.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-6.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj4-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj4-7.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-0.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-1.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-10.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-10.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-11.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-11.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-12.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-12.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-13.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-13.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-14.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-14.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-15.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-15.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-2.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-3.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-4.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-5.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-6.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-6.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-7.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-7.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-8.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-8.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj5-9.png",
+      "target_path": "redesigned_assets/output/sprites/obj5-9.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj6-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-0.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj6-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-1.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj6-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj6-2.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-0.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-1.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-2.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-3.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-4.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-4.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj7-5.png",
+      "target_path": "redesigned_assets/output/sprites/obj7-5.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj8-0.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-0.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj8-1.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-1.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj8-2.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-2.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    },
+    {
+      "source_path": "extracted_images/sprites/obj8-3.png",
+      "target_path": "redesigned_assets/output/sprites/obj8-3.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": true
+    }
+  ],
+  "icons": [
+    {
+      "source_path": "extracted_images/icons/airport.png",
+      "target_path": "redesigned_assets/output/icons/airport.png",
+      "source_size": [
+        96,
+        96
+      ],
+      "target_size": [
+        96,
+        96
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/coal.png",
+      "target_path": "redesigned_assets/output/icons/coal.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/com.png",
+      "target_path": "redesigned_assets/output/icons/com.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/demandg.png",
+      "target_path": "redesigned_assets/output/icons/demandg.png",
+      "source_size": [
+        39,
+        47
+      ],
+      "target_size": [
+        39,
+        47
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/fire.png",
+      "target_path": "redesigned_assets/output/icons/fire.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grcom.png",
+      "target_path": "redesigned_assets/output/icons/grcom.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grcomhi.png",
+      "target_path": "redesigned_assets/output/icons/grcomhi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grcrim.png",
+      "target_path": "redesigned_assets/output/icons/grcrim.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grcrimhi.png",
+      "target_path": "redesigned_assets/output/icons/grcrimhi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grind.png",
+      "target_path": "redesigned_assets/output/icons/grind.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grindhi.png",
+      "target_path": "redesigned_assets/output/icons/grindhi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grmony.png",
+      "target_path": "redesigned_assets/output/icons/grmony.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grmonyhi.png",
+      "target_path": "redesigned_assets/output/icons/grmonyhi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grpoll.png",
+      "target_path": "redesigned_assets/output/icons/grpoll.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grpollhi.png",
+      "target_path": "redesigned_assets/output/icons/grpollhi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grres.png",
+      "target_path": "redesigned_assets/output/icons/grres.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/grreshi.png",
+      "target_path": "redesigned_assets/output/icons/grreshi.png",
+      "source_size": [
+        32,
+        32
+      ],
+      "target_size": [
+        32,
+        32
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icairp.png",
+      "target_path": "redesigned_assets/output/icons/icairp.png",
+      "source_size": [
+        58,
+        58
+      ],
+      "target_size": [
+        58,
+        58
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icairphi.png",
+      "target_path": "redesigned_assets/output/icons/icairphi.png",
+      "source_size": [
+        58,
+        58
+      ],
+      "target_size": [
+        58,
+        58
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/iccoal.png",
+      "target_path": "redesigned_assets/output/icons/iccoal.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/iccoalhi.png",
+      "target_path": "redesigned_assets/output/icons/iccoalhi.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/iccom.png",
+      "target_path": "redesigned_assets/output/icons/iccom.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/iccomhi.png",
+      "target_path": "redesigned_assets/output/icons/iccomhi.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icdozr.png",
+      "target_path": "redesigned_assets/output/icons/icdozr.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icdozrhi.png",
+      "target_path": "redesigned_assets/output/icons/icdozrhi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icfire.png",
+      "target_path": "redesigned_assets/output/icons/icfire.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icfirehi.png",
+      "target_path": "redesigned_assets/output/icons/icfirehi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icind.png",
+      "target_path": "redesigned_assets/output/icons/icind.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icindhi.png",
+      "target_path": "redesigned_assets/output/icons/icindhi.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icnuc.png",
+      "target_path": "redesigned_assets/output/icons/icnuc.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icnuchi.png",
+      "target_path": "redesigned_assets/output/icons/icnuchi.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icpark.png",
+      "target_path": "redesigned_assets/output/icons/icpark.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icparkhi.png",
+      "target_path": "redesigned_assets/output/icons/icparkhi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icpol.png",
+      "target_path": "redesigned_assets/output/icons/icpol.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icpolhi.png",
+      "target_path": "redesigned_assets/output/icons/icpolhi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icqry.png",
+      "target_path": "redesigned_assets/output/icons/icqry.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icqryhi.png",
+      "target_path": "redesigned_assets/output/icons/icqryhi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icrail.png",
+      "target_path": "redesigned_assets/output/icons/icrail.png",
+      "source_size": [
+        56,
+        24
+      ],
+      "target_size": [
+        56,
+        24
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icrailhi.png",
+      "target_path": "redesigned_assets/output/icons/icrailhi.png",
+      "source_size": [
+        56,
+        24
+      ],
+      "target_size": [
+        56,
+        24
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icres.png",
+      "target_path": "redesigned_assets/output/icons/icres.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icreshi.png",
+      "target_path": "redesigned_assets/output/icons/icreshi.png",
+      "source_size": [
+        34,
+        50
+      ],
+      "target_size": [
+        34,
+        50
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icroad.png",
+      "target_path": "redesigned_assets/output/icons/icroad.png",
+      "source_size": [
+        56,
+        24
+      ],
+      "target_size": [
+        56,
+        24
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icroadhi.png",
+      "target_path": "redesigned_assets/output/icons/icroadhi.png",
+      "source_size": [
+        56,
+        24
+      ],
+      "target_size": [
+        56,
+        24
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icseap.png",
+      "target_path": "redesigned_assets/output/icons/icseap.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icseaphi.png",
+      "target_path": "redesigned_assets/output/icons/icseaphi.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icstad.png",
+      "target_path": "redesigned_assets/output/icons/icstad.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icstadhi.png",
+      "target_path": "redesigned_assets/output/icons/icstadhi.png",
+      "source_size": [
+        42,
+        42
+      ],
+      "target_size": [
+        42,
+        42
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icwire.png",
+      "target_path": "redesigned_assets/output/icons/icwire.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/icwirehi.png",
+      "target_path": "redesigned_assets/output/icons/icwirehi.png",
+      "source_size": [
+        34,
+        34
+      ],
+      "target_size": [
+        34,
+        34
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/ind.png",
+      "target_path": "redesigned_assets/output/icons/ind.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/legendmm.png",
+      "target_path": "redesigned_assets/output/icons/legendmm.png",
+      "source_size": [
+        93,
+        14
+      ],
+      "target_size": [
+        93,
+        14
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/legendpm.png",
+      "target_path": "redesigned_assets/output/icons/legendpm.png",
+      "source_size": [
+        93,
+        14
+      ],
+      "target_size": [
+        93,
+        14
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/micropolism.png",
+      "target_path": "redesigned_assets/output/icons/micropolism.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/nuclear.png",
+      "target_path": "redesigned_assets/output/icons/nuclear.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/police.png",
+      "target_path": "redesigned_assets/output/icons/police.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/res.png",
+      "target_path": "redesigned_assets/output/icons/res.png",
+      "source_size": [
+        48,
+        48
+      ],
+      "target_size": [
+        48,
+        48
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/seaport.png",
+      "target_path": "redesigned_assets/output/icons/seaport.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    },
+    {
+      "source_path": "extracted_images/icons/stadium.png",
+      "target_path": "redesigned_assets/output/icons/stadium.png",
+      "source_size": [
+        64,
+        64
+      ],
+      "target_size": [
+        64,
+        64
+      ],
+      "source_mode": "RGBA",
+      "target_mode": "RGBA",
+      "changed": false
+    }
+  ],
+  "summary": {
+    "graphics_checked": 24,
+    "sprites_checked": 61,
+    "icons_checked": 58,
+    "graphics_changed": 24,
+    "sprites_changed": 61,
+    "failures": []
+  }
+}

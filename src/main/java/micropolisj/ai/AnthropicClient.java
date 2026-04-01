@@ -105,11 +105,19 @@ public class AnthropicClient {
         return JsonParser.parseString(response.body()).getAsJsonObject();
     }
 
+    private boolean useMaxCompletionTokens() {
+        return model.startsWith("o1") || model.startsWith("o3") || model.startsWith("gpt-5");
+    }
+
     private JsonObject sendOpenAIRequest(String systemPrompt, JsonArray messages, JsonArray tools) throws Exception {
         JsonArray oaiMessages = convertMessagesToOpenAI(systemPrompt, messages);
         JsonObject body = new JsonObject();
         body.addProperty("model", model);
-        body.addProperty("max_tokens", MAX_TOKENS);
+        if (useMaxCompletionTokens()) {
+            body.addProperty("max_completion_tokens", MAX_TOKENS);
+        } else {
+            body.addProperty("max_tokens", MAX_TOKENS);
+        }
         body.add("messages", oaiMessages);
         if (tools != null && tools.size() > 0) {
             body.add("tools", convertToolsToOpenAI(tools));

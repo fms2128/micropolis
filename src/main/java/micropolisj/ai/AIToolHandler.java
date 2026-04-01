@@ -19,13 +19,17 @@ import java.util.*;
 public class AIToolHandler {
 
     private static final String LOG_FILE = "ai_learnings.log";
+    private static final String MEMORY_FILE = "agent_memory.md";
+    private static final String STRATEGY_FILE = "game_strategy_guide.md";
 
     private final Micropolis engine;
     private final GameStateObserver observer;
+    private final AIAssistant assistant;
 
-    public AIToolHandler(Micropolis engine, GameStateObserver observer) {
+    public AIToolHandler(Micropolis engine, GameStateObserver observer, AIAssistant assistant) {
         this.engine = engine;
         this.observer = observer;
+        this.assistant = assistant;
     }
 
     public JsonArray getToolDefinitions() {
@@ -88,8 +92,26 @@ public class AIToolHandler {
             param("x", "integer", "Center X"), param("y", "integer", "Center Y"),
             param("radius", "integer", "Radius in tiles (recommend 3-8)")
         ));
-        tools.add(makeTool("get_budget_details",
-            "Get detailed budget breakdown including tax income, funding requests and actual funding for each department."
+        tools.add(makeTool("get_overview",
+            "Get city overview: population, date, funds, score, city class, approval rating, game speed, map dimensions."
+        ));
+        tools.add(makeTool("get_budget",
+            "Get detailed budget: total funds, tax rate, tax income, road/fire/police funding requests vs actual funding."
+        ));
+        tools.add(makeTool("get_evaluation",
+            "Get city evaluation: score, population trends, approval rating, assessed value, and top citizen problems with severity."
+        ));
+        tools.add(makeTool("get_infrastructure",
+            "Get infrastructure counts: residential/commercial/industrial zones, powered vs unpowered, roads, rails, police/fire stations, hospitals, power plants, etc."
+        ));
+        tools.add(makeTool("get_demand",
+            "Get demand valves for residential/commercial/industrial (-2000 to +2000), whether each is capped, and current population per type."
+        ));
+        tools.add(makeTool("get_averages",
+            "Get city-wide averages: crime, pollution, land value, traffic, and effectiveness of road/police/fire services."
+        ));
+        tools.add(makeTool("get_map_overview",
+            "Get compressed map overview: 12x10 sector grid showing dominant tile type, development %, empty %, and unpowered zones per sector. Good for finding where to build."
         ));
         tools.add(makeTool("find_empty_area",
             "Scan the entire map to find a contiguous rectangular area of empty (dirt) tiles. Returns the top-left corner of the best area found, preferring areas near existing roads. Use BEFORE placing buildings/zones to find valid locations. For zones use 3x3, for powerplant/stadium/seaport use 4x4, for airport use 6x6.",
@@ -97,12 +119,35 @@ public class AIToolHandler {
             param("height", "integer", "Required height in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)")
         ));
         tools.add(makeTool("write_learning",
-            "Record a learning or observation about what works or doesn't work in the game. These notes persist across turns and help you avoid repeating mistakes. Write down: what you tried, what happened, and what to do differently. Be specific about coordinates, tile types, and tool behaviors.",
+            "Record a quick one-line observation to the learnings log. For structured long-term knowledge, prefer update_memory instead.",
             param("category", "string", "Category: placement_rules, strategy, terrain, tools, bugs, tips"),
             param("observation", "string", "What you observed or learned. Be specific and actionable.")
         ));
         tools.add(makeTool("read_learnings",
-            "Read all previously recorded learnings and observations. Call this at the start of each session or when you're stuck to review past insights."
+            "Read all previously recorded learnings from the log. For your structured cheatsheet, use read_memory instead."
+        ));
+        tools.add(makeTool("read_memory",
+            "Read your long-term memory cheatsheet (agent_memory.md). This contains your accumulated knowledge about what strategies work, what doesn't, placement rules, financial tips, and your current best strategy. READ THIS at the start of every new game session and when the reward signal turns negative."
+        ));
+        tools.add(makeTool("read_strategy_guide",
+            "Read the game strategy guide (game_strategy_guide.md). Contains exact formulas, thresholds, and causal relationships extracted from the engine source code: zone growth mechanics, demand valve calculations, scoring system, overlay systems, costs, and strategic implications. Read this when you need to understand WHY something is happening or to plan optimal build order."
+        ));
+        tools.add(makeTool("update_memory",
+            "Update a section in your long-term memory cheatsheet. Use this to record durable strategic knowledge you've confirmed over multiple turns. This is your most valuable tool for getting better over time. Sections: 'Strategies That Work', 'Strategies That Don't Work', 'Placement Rules Learned', 'Financial Management', 'Common Mistakes', 'Map Reading Tips', 'Current Best Strategy'.",
+            param("section", "string", "Section name exactly as listed (e.g. 'Strategies That Work')"),
+            param("entry", "string", "The knowledge to add. Be specific and actionable (e.g. 'Placing 3 residential zones before any industrial leads to higher early growth')"),
+            param("replace", "string", "Set to 'true' to replace the entire section content, 'false' to append a new bullet point. Default: false.")
+        ));
+        tools.add(makeTool("set_objectives",
+            "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. When the situation changes, use this to set entirely new objectives. To mark an existing objective as done, use complete_objective instead.",
+            param("objectives", "string", "Semicolon-separated list of 1-5 short-term objectives. E.g. 'Power all zones; Reach 500 population; Build residential away from industry'")
+        ));
+        tools.add(makeTool("complete_objective",
+            "Mark an objective as completed by its 1-based index. The objective moves to the 'completed' list and remains visible in the UI. Use this when you've achieved a goal, then optionally set_objectives to add new ones.",
+            param("index", "integer", "1-based index of the objective to mark as completed (as shown in [Current Objectives])")
+        ));
+        tools.add(makeTool("get_objectives",
+            "Read your current short-term objectives and recently completed ones."
         ));
         return tools;
     }
@@ -123,10 +168,22 @@ public class AIToolHandler {
                 case "set_speed": return executeSetSpeed(input);
                 case "query_zone": return executeQueryZone(input);
                 case "inspect_area": return executeInspectArea(input);
-                case "get_budget_details": return executeGetBudget();
+                case "get_overview": return observer.getOverview();
+                case "get_budget": return observer.getBudgetInfo();
+                case "get_evaluation": return observer.getEvaluation();
+                case "get_infrastructure": return observer.getInfrastructure();
+                case "get_demand": return observer.getDemand();
+                case "get_averages": return observer.getAverages();
+                case "get_map_overview": return executeGetMapOverview();
                 case "find_empty_area": return executeFindEmptyArea(input);
                 case "write_learning": return executeWriteLearning(input);
                 case "read_learnings": return executeReadLearnings();
+                case "read_memory": return executeReadMemory();
+                case "read_strategy_guide": return executeReadStrategyGuide();
+                case "update_memory": return executeUpdateMemory(input);
+                case "set_objectives": return executeSetObjectives(input);
+                case "complete_objective": return executeCompleteObjective(input);
+                case "get_objectives": return executeGetObjectives();
                 default:
                     result.addProperty("error", "Unknown tool: " + toolName);
             }
@@ -275,15 +332,27 @@ public class AIToolHandler {
         return observer.inspectArea(x, y, radius);
     }
 
-    private JsonObject executeGetBudget() {
-        return observer.getBudgetInfo();
+    private JsonObject executeGetMapOverview() {
+        JsonObject result = new JsonObject();
+        result.add("sectors", observer.getMapSectors());
+        return result;
     }
 
     private JsonObject applyTool(MicropolisTool tool, int x, int y) {
         if (!engine.testBounds(x, y)) return errorResult("Coordinates (" + x + "," + y + ") out of bounds. Map is 120x100.");
 
-        ToolStroke stroke = tool.beginStroke(engine, x, y);
-        stroke.dragTo(x, y);
+        // The engine's getBounds() subtracts 1 from x,y for tools with size >= 3,
+        // treating the passed coordinate as the center rather than top-left.
+        // Offset by +1 so the AI's "top-left" semantics work correctly.
+        int engineX = x;
+        int engineY = y;
+        if (tool.getSize() >= 3) {
+            engineX = x + 1;
+            engineY = y + 1;
+        }
+
+        ToolStroke stroke = tool.beginStroke(engine, engineX, engineY);
+        stroke.dragTo(engineX, engineY);
         ToolResult tr = stroke.apply();
 
         JsonObject result = toolResultToJson(tr, tool.name() + " at (" + x + "," + y + ")");
@@ -416,6 +485,151 @@ public class AIToolHandler {
         } catch (IOException e) {
             return errorResult("Failed to read learnings: " + e.getMessage());
         }
+    }
+
+    private JsonObject executeReadMemory() {
+        try {
+            Path p = Paths.get(MEMORY_FILE);
+            if (!Files.exists(p)) {
+                JsonObject r = new JsonObject();
+                r.addProperty("memory", "No memory file found. It will be created when you first call update_memory.");
+                return r;
+            }
+            String content = new String(Files.readAllBytes(p));
+            JsonObject r = new JsonObject();
+            r.addProperty("memory", content);
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to read memory: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeReadStrategyGuide() {
+        try {
+            Path p = Paths.get(STRATEGY_FILE);
+            if (!Files.exists(p)) {
+                JsonObject r = new JsonObject();
+                r.addProperty("strategy_guide", "No strategy guide found. The file game_strategy_guide.md is missing from the project root.");
+                return r;
+            }
+            String content = new String(Files.readAllBytes(p));
+            JsonObject r = new JsonObject();
+            r.addProperty("strategy_guide", content);
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to read strategy guide: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeUpdateMemory(JsonObject input) {
+        String section = input.get("section").getAsString();
+        String entry = input.get("entry").getAsString();
+        boolean replace = input.has("replace") && "true".equalsIgnoreCase(input.get("replace").getAsString());
+
+        try {
+            Path p = Paths.get(MEMORY_FILE);
+            String content;
+            if (Files.exists(p)) {
+                content = new String(Files.readAllBytes(p));
+            } else {
+                content = "# Agent Memory - Micropolis AI Cheatsheet\n\n";
+            }
+
+            String sectionHeader = "## " + section;
+            int headerIdx = content.indexOf(sectionHeader);
+
+            if (headerIdx < 0) {
+                content = content + "\n" + sectionHeader + "\n\n- " + entry + "\n";
+            } else {
+                int contentStart = content.indexOf('\n', headerIdx);
+                if (contentStart < 0) contentStart = content.length();
+                contentStart++;
+
+                int nextSection = content.indexOf("\n## ", contentStart);
+                if (nextSection < 0) nextSection = content.length();
+
+                if (replace) {
+                    String before = content.substring(0, contentStart);
+                    String after = content.substring(nextSection);
+                    content = before + "\n" + entry + "\n" + after;
+                } else {
+                    String sectionContent = content.substring(contentStart, nextSection);
+                    String trimmed = sectionContent.trim();
+                    String newEntry = "- " + entry;
+
+                    String before = content.substring(0, contentStart);
+                    String after = content.substring(nextSection);
+                    if (trimmed.isEmpty()) {
+                        content = before + "\n" + newEntry + "\n" + after;
+                    } else {
+                        content = before + sectionContent.stripTrailing() + "\n" + newEntry + "\n" + after;
+                    }
+                }
+            }
+
+            Files.write(p, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            JsonObject r = new JsonObject();
+            r.addProperty("success", true);
+            r.addProperty("message", "Memory updated: [" + section + "] " + (replace ? "replaced" : "appended"));
+            return r;
+        } catch (IOException e) {
+            return errorResult("Failed to update memory: " + e.getMessage());
+        }
+    }
+
+    private JsonObject executeSetObjectives(JsonObject input) {
+        String raw = input.get("objectives").getAsString();
+        String[] parts = raw.split(";");
+        List<String> objectives = new ArrayList<>();
+        for (String p : parts) {
+            String trimmed = p.trim();
+            if (!trimmed.isEmpty()) objectives.add(trimmed);
+        }
+        if (objectives.isEmpty()) {
+            return errorResult("Provide at least one objective.");
+        }
+        assistant.setObjectives(objectives);
+        JsonObject r = new JsonObject();
+        r.addProperty("success", true);
+        r.addProperty("active_count", objectives.size());
+        JsonArray arr = new JsonArray();
+        for (String o : objectives) arr.add(o);
+        r.add("objectives", arr);
+        return r;
+    }
+
+    private JsonObject executeCompleteObjective(JsonObject input) {
+        int index = input.get("index").getAsInt();
+        int zeroBasedIndex = index - 1;
+        List<AIAssistant.Objective> current = assistant.getObjectives();
+        if (zeroBasedIndex < 0 || zeroBasedIndex >= current.size()) {
+            return errorResult("Invalid index " + index + ". You have " + current.size() + " active objectives (1-" + current.size() + ").");
+        }
+        String completedText = current.get(zeroBasedIndex).getText();
+        assistant.completeObjective(zeroBasedIndex);
+        JsonObject r = new JsonObject();
+        r.addProperty("success", true);
+        r.addProperty("completed", completedText);
+        r.addProperty("remaining_active", assistant.getObjectives().size());
+        return r;
+    }
+
+    private JsonObject executeGetObjectives() {
+        List<AIAssistant.Objective> active = assistant.getObjectives();
+        List<AIAssistant.Objective> completed = assistant.getCompletedObjectives();
+        JsonObject r = new JsonObject();
+        JsonArray activeArr = new JsonArray();
+        for (AIAssistant.Objective o : active) activeArr.add(o.getText());
+        r.add("active", activeArr);
+        r.addProperty("active_count", active.size());
+        JsonArray completedArr = new JsonArray();
+        for (AIAssistant.Objective o : completed) completedArr.add(o.getText());
+        r.add("completed", completedArr);
+        r.addProperty("completed_count", completed.size());
+        if (active.isEmpty() && completed.isEmpty()) {
+            r.addProperty("message", "No objectives set. Use set_objectives to define your short-term goals.");
+        }
+        return r;
     }
 
     private JsonObject errorResult(String message) {

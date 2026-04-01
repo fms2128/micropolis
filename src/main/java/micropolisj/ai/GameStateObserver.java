@@ -19,6 +19,10 @@ public class GameStateObserver {
 
     private final Micropolis engine;
 
+    private int prevScore = -1;
+    private int prevPopulation = -1;
+    private int prevFunds = -1;
+
     public GameStateObserver(Micropolis engine) {
         this.engine = engine;
     }
@@ -37,6 +41,71 @@ public class GameStateObserver {
 
     public String getFullStateText() {
         return getFullState().toString();
+    }
+
+    /**
+     * Returns a minimal summary for the turn prompt - just the essentials
+     * so the AI knows what to focus on without wasting tokens.
+     */
+    public JsonObject getMinimalSummary() {
+        int curScore = engine.getEvaluation().getCityScore();
+        int curPop = engine.getCityPopulation();
+        int curFunds = engine.getBudget().getTotalFunds();
+
+        JsonObject s = new JsonObject();
+        s.addProperty("population", curPop);
+        s.addProperty("funds", curFunds);
+        s.addProperty("score", curScore);
+        int year = 1900 + engine.getCityTime() / 48;
+        int month = (engine.getCityTime() % 48) / 4 + 1;
+        s.addProperty("date", String.format("%d-%02d", year, month));
+        s.addProperty("res_demand", engine.getResValve());
+        s.addProperty("com_demand", engine.getComValve());
+        s.addProperty("ind_demand", engine.getIndValve());
+        s.addProperty("powered_zones", engine.getPoweredZoneCount());
+        s.addProperty("unpowered_zones", engine.getUnpoweredZoneCount());
+
+        if (prevScore >= 0) {
+            int deltaScore = curScore - prevScore;
+            int deltaPop = curPop - prevPopulation;
+            int deltaFunds = curFunds - prevFunds;
+
+            s.addProperty("delta_score", deltaScore);
+            s.addProperty("delta_population", deltaPop);
+            s.addProperty("delta_funds", deltaFunds);
+
+            double reward = (deltaScore * 2.0) + (deltaPop / 100.0) + (deltaFunds / 500.0);
+            s.addProperty("reward", Math.round(reward * 100.0) / 100.0);
+        }
+
+        BudgetNumbers bn = engine.generateBudget();
+        int monthlyExpenses = bn.getRoadFunded() + bn.getFireFunded() + bn.getPoliceFunded();
+        int monthlyIncome = bn.getTaxIncome();
+        s.addProperty("monthly_income", monthlyIncome);
+        s.addProperty("monthly_expenses", monthlyExpenses);
+        int netCashflow = monthlyIncome - monthlyExpenses;
+        s.addProperty("net_cashflow", netCashflow);
+        if (monthlyExpenses > 0) {
+            s.addProperty("runway_months", curFunds / Math.max(1, monthlyExpenses));
+        }
+
+        prevScore = curScore;
+        prevPopulation = curPop;
+        prevFunds = curFunds;
+
+        CityEval eval = engine.getEvaluation();
+        CityProblem[] problems = eval.getProblemOrder();
+        if (problems.length > 0) {
+            JsonArray topProblems = new JsonArray();
+            for (int i = 0; i < Math.min(3, problems.length); i++) {
+                Integer votes = eval.getProblemVotes().get(problems[i]);
+                if (votes != null && votes > 0) {
+                    topProblems.add(problems[i].name() + " (" + votes + "%)");
+                }
+            }
+            if (topProblems.size() > 0) s.add("top_problems", topProblems);
+        }
+        return s;
     }
 
     public JsonObject getOverview() {

@@ -110,6 +110,8 @@ public class MainWindow extends JFrame
 	private final EvaluationPane evaluationPane;
 	private final GraphsPane graphsPane;
 	private final AIAssistantPanel aiPanel;
+	private final AgentMemoryDialog agentMemoryDialog;
+	private final ObjectivesDialog objectivesDialog;
 	private final Map<MapState, JMenuItem> mapStateMenuItems = new EnumMap<>(MapState.class);
 	private File currentFile;
 	private Micropolis engine;
@@ -261,6 +263,9 @@ public class MainWindow extends JFrame
 		aiAssistant.setEngine(engine);
 		aiPanel = new AIAssistantPanel(aiAssistant);
 		add(aiPanel, BorderLayout.LINE_END);
+
+		agentMemoryDialog = new AgentMemoryDialog(this);
+		objectivesDialog = new ObjectivesDialog(this, aiAssistant);
 
 		pack();
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -663,6 +668,18 @@ public class MainWindow extends JFrame
 		setupKeys(menuItem, "menu.windows.graph");
 		menuItem.addActionListener(wrapActionListener(
 				ev -> onViewGraphClicked()));
+		windowsMenu.add(menuItem);
+
+		menuItem = new JMenuItem(strings.getString("menu.windows.agent_memory"));
+		setupKeys(menuItem, "menu.windows.agent_memory");
+		menuItem.addActionListener(wrapActionListener(
+				ev -> onViewAgentMemoryClicked()));
+		windowsMenu.add(menuItem);
+
+		menuItem = new JMenuItem(strings.getString("menu.windows.objectives"));
+		setupKeys(menuItem, "menu.windows.objectives");
+		menuItem.addActionListener(wrapActionListener(
+				ev -> onViewObjectivesClicked()));
 		windowsMenu.add(menuItem);
 
 		JMenu helpMenu = new JMenu(strings.getString("menu.help"));
@@ -1267,6 +1284,16 @@ public class MainWindow extends JFrame
 	private void onViewGraphClicked()
 	{
 		graphsPane.setVisible(true);
+	}
+
+	private void onViewAgentMemoryClicked()
+	{
+		agentMemoryDialog.setVisible(true);
+	}
+
+	private void onViewObjectivesClicked()
+	{
+		objectivesDialog.setVisible(true);
 	}
 
 	private void showAutoBudget()

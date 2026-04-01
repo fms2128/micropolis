@@ -21,6 +21,7 @@ public enum LLMProvider {
                 };
             case OPENAI:
                 return new String[]{
+                    "gpt-5.4",
                     "gpt-4o",
                     "gpt-4o-mini",
                     "o3-mini",

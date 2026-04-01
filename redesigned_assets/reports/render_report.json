@@ -1,0 +1,771 @@
+{
+  "graphics": [
+    {
+      "name": "airport",
+      "source": "extracted_images/graphics/airport.png",
+      "target": "redesigned_assets/output/graphics/airport.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "name": "coal",
+      "source": "extracted_images/graphics/coal.png",
+      "target": "redesigned_assets/output/graphics/coal.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "coal_smoke_frames",
+      "source": "extracted_images/graphics/coal_smoke_frames.png",
+      "target": "redesigned_assets/output/graphics/coal_smoke_frames.png",
+      "size": [
+        256,
+        64
+      ]
+    },
+    {
+      "name": "com_zones",
+      "source": "extracted_images/graphics/com_zones.png",
+      "target": "redesigned_assets/output/graphics/com_zones.png",
+      "size": [
+        48,
+        1008
+      ]
+    },
+    {
+      "name": "firestation",
+      "source": "extracted_images/graphics/firestation.png",
+      "target": "redesigned_assets/output/graphics/firestation.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "ind03_smoke_frames",
+      "source": "extracted_images/graphics/ind03_smoke_frames.png",
+      "target": "redesigned_assets/output/graphics/ind03_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ]
+    },
+    {
+      "name": "ind04_smoke_frames",
+      "source": "extracted_images/graphics/ind04_smoke_frames.png",
+      "target": "redesigned_assets/output/graphics/ind04_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ]
+    },
+    {
+      "name": "ind07_smoke_frames",
+      "source": "extracted_images/graphics/ind07_smoke_frames.png",
+      "target": "redesigned_assets/output/graphics/ind07_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ]
+    },
+    {
+      "name": "ind08_smoke_frames",
+      "source": "extracted_images/graphics/ind08_smoke_frames.png",
+      "target": "redesigned_assets/output/graphics/ind08_smoke_frames.png",
+      "size": [
+        192,
+        48
+      ]
+    },
+    {
+      "name": "ind_zones",
+      "source": "extracted_images/graphics/ind_zones.png",
+      "target": "redesigned_assets/output/graphics/ind_zones.png",
+      "size": [
+        48,
+        432
+      ]
+    },
+    {
+      "name": "misc_animation",
+      "source": "extracted_images/graphics/misc_animation.png",
+      "target": "redesigned_assets/output/graphics/misc_animation.png",
+      "size": [
+        16,
+        2128
+      ]
+    },
+    {
+      "name": "nuclear",
+      "source": "extracted_images/graphics/nuclear.png",
+      "target": "redesigned_assets/output/graphics/nuclear.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "police",
+      "source": "extracted_images/graphics/police.png",
+      "target": "redesigned_assets/output/graphics/police.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "rails",
+      "source": "extracted_images/graphics/rails.png",
+      "target": "redesigned_assets/output/graphics/rails.png",
+      "size": [
+        16,
+        256
+      ]
+    },
+    {
+      "name": "res_houses",
+      "source": "extracted_images/graphics/res_houses.png",
+      "target": "redesigned_assets/output/graphics/res_houses.png",
+      "size": [
+        16,
+        192
+      ]
+    },
+    {
+      "name": "res_zones",
+      "source": "extracted_images/graphics/res_zones.png",
+      "target": "redesigned_assets/output/graphics/res_zones.png",
+      "size": [
+        48,
+        912
+      ]
+    },
+    {
+      "name": "roads",
+      "source": "extracted_images/graphics/roads.png",
+      "target": "redesigned_assets/output/graphics/roads.png",
+      "size": [
+        16,
+        256
+      ]
+    },
+    {
+      "name": "roadwire",
+      "source": "extracted_images/graphics/roadwire.png",
+      "target": "redesigned_assets/output/graphics/roadwire.png",
+      "size": [
+        16,
+        32
+      ]
+    },
+    {
+      "name": "seaport",
+      "source": "extracted_images/graphics/seaport.png",
+      "target": "redesigned_assets/output/graphics/seaport.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "stadium",
+      "source": "extracted_images/graphics/stadium.png",
+      "target": "redesigned_assets/output/graphics/stadium.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "stadium2",
+      "source": "extracted_images/graphics/stadium2.png",
+      "target": "redesigned_assets/output/graphics/stadium2.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "terrain",
+      "source": "extracted_images/graphics/terrain.png",
+      "target": "redesigned_assets/output/graphics/terrain.png",
+      "size": [
+        16,
+        1024
+      ]
+    },
+    {
+      "name": "traffic",
+      "source": "extracted_images/graphics/traffic.png",
+      "target": "redesigned_assets/output/graphics/traffic.png",
+      "size": [
+        128,
+        256
+      ]
+    },
+    {
+      "name": "wires",
+      "source": "extracted_images/graphics/wires.png",
+      "target": "redesigned_assets/output/graphics/wires.png",
+      "size": [
+        16,
+        256
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "name": "obj1-0.png",
+      "source": "extracted_images/sprites/obj1-0.png",
+      "target": "redesigned_assets/output/sprites/obj1-0.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj1-1.png",
+      "source": "extracted_images/sprites/obj1-1.png",
+      "target": "redesigned_assets/output/sprites/obj1-1.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj1-2.png",
+      "source": "extracted_images/sprites/obj1-2.png",
+      "target": "redesigned_assets/output/sprites/obj1-2.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj1-3.png",
+      "source": "extracted_images/sprites/obj1-3.png",
+      "target": "redesigned_assets/output/sprites/obj1-3.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj1-4.png",
+      "source": "extracted_images/sprites/obj1-4.png",
+      "target": "redesigned_assets/output/sprites/obj1-4.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-0.png",
+      "source": "extracted_images/sprites/obj2-0.png",
+      "target": "redesigned_assets/output/sprites/obj2-0.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-1.png",
+      "source": "extracted_images/sprites/obj2-1.png",
+      "target": "redesigned_assets/output/sprites/obj2-1.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-2.png",
+      "source": "extracted_images/sprites/obj2-2.png",
+      "target": "redesigned_assets/output/sprites/obj2-2.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-3.png",
+      "source": "extracted_images/sprites/obj2-3.png",
+      "target": "redesigned_assets/output/sprites/obj2-3.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-4.png",
+      "source": "extracted_images/sprites/obj2-4.png",
+      "target": "redesigned_assets/output/sprites/obj2-4.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-5.png",
+      "source": "extracted_images/sprites/obj2-5.png",
+      "target": "redesigned_assets/output/sprites/obj2-5.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-6.png",
+      "source": "extracted_images/sprites/obj2-6.png",
+      "target": "redesigned_assets/output/sprites/obj2-6.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj2-7.png",
+      "source": "extracted_images/sprites/obj2-7.png",
+      "target": "redesigned_assets/output/sprites/obj2-7.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj3-0.png",
+      "source": "extracted_images/sprites/obj3-0.png",
+      "target": "redesigned_assets/output/sprites/obj3-0.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-1.png",
+      "source": "extracted_images/sprites/obj3-1.png",
+      "target": "redesigned_assets/output/sprites/obj3-1.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-10.png",
+      "source": "extracted_images/sprites/obj3-10.png",
+      "target": "redesigned_assets/output/sprites/obj3-10.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-2.png",
+      "source": "extracted_images/sprites/obj3-2.png",
+      "target": "redesigned_assets/output/sprites/obj3-2.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-3.png",
+      "source": "extracted_images/sprites/obj3-3.png",
+      "target": "redesigned_assets/output/sprites/obj3-3.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-4.png",
+      "source": "extracted_images/sprites/obj3-4.png",
+      "target": "redesigned_assets/output/sprites/obj3-4.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-5.png",
+      "source": "extracted_images/sprites/obj3-5.png",
+      "target": "redesigned_assets/output/sprites/obj3-5.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-6.png",
+      "source": "extracted_images/sprites/obj3-6.png",
+      "target": "redesigned_assets/output/sprites/obj3-6.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-7.png",
+      "source": "extracted_images/sprites/obj3-7.png",
+      "target": "redesigned_assets/output/sprites/obj3-7.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-8.png",
+      "source": "extracted_images/sprites/obj3-8.png",
+      "target": "redesigned_assets/output/sprites/obj3-8.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj3-9.png",
+      "source": "extracted_images/sprites/obj3-9.png",
+      "target": "redesigned_assets/output/sprites/obj3-9.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-0.png",
+      "source": "extracted_images/sprites/obj4-0.png",
+      "target": "redesigned_assets/output/sprites/obj4-0.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-1.png",
+      "source": "extracted_images/sprites/obj4-1.png",
+      "target": "redesigned_assets/output/sprites/obj4-1.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-2.png",
+      "source": "extracted_images/sprites/obj4-2.png",
+      "target": "redesigned_assets/output/sprites/obj4-2.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-3.png",
+      "source": "extracted_images/sprites/obj4-3.png",
+      "target": "redesigned_assets/output/sprites/obj4-3.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-4.png",
+      "source": "extracted_images/sprites/obj4-4.png",
+      "target": "redesigned_assets/output/sprites/obj4-4.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-5.png",
+      "source": "extracted_images/sprites/obj4-5.png",
+      "target": "redesigned_assets/output/sprites/obj4-5.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-6.png",
+      "source": "extracted_images/sprites/obj4-6.png",
+      "target": "redesigned_assets/output/sprites/obj4-6.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj4-7.png",
+      "source": "extracted_images/sprites/obj4-7.png",
+      "target": "redesigned_assets/output/sprites/obj4-7.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-0.png",
+      "source": "extracted_images/sprites/obj5-0.png",
+      "target": "redesigned_assets/output/sprites/obj5-0.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-1.png",
+      "source": "extracted_images/sprites/obj5-1.png",
+      "target": "redesigned_assets/output/sprites/obj5-1.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-10.png",
+      "source": "extracted_images/sprites/obj5-10.png",
+      "target": "redesigned_assets/output/sprites/obj5-10.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-11.png",
+      "source": "extracted_images/sprites/obj5-11.png",
+      "target": "redesigned_assets/output/sprites/obj5-11.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-12.png",
+      "source": "extracted_images/sprites/obj5-12.png",
+      "target": "redesigned_assets/output/sprites/obj5-12.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-13.png",
+      "source": "extracted_images/sprites/obj5-13.png",
+      "target": "redesigned_assets/output/sprites/obj5-13.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-14.png",
+      "source": "extracted_images/sprites/obj5-14.png",
+      "target": "redesigned_assets/output/sprites/obj5-14.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-15.png",
+      "source": "extracted_images/sprites/obj5-15.png",
+      "target": "redesigned_assets/output/sprites/obj5-15.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-2.png",
+      "source": "extracted_images/sprites/obj5-2.png",
+      "target": "redesigned_assets/output/sprites/obj5-2.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-3.png",
+      "source": "extracted_images/sprites/obj5-3.png",
+      "target": "redesigned_assets/output/sprites/obj5-3.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-4.png",
+      "source": "extracted_images/sprites/obj5-4.png",
+      "target": "redesigned_assets/output/sprites/obj5-4.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-5.png",
+      "source": "extracted_images/sprites/obj5-5.png",
+      "target": "redesigned_assets/output/sprites/obj5-5.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-6.png",
+      "source": "extracted_images/sprites/obj5-6.png",
+      "target": "redesigned_assets/output/sprites/obj5-6.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-7.png",
+      "source": "extracted_images/sprites/obj5-7.png",
+      "target": "redesigned_assets/output/sprites/obj5-7.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-8.png",
+      "source": "extracted_images/sprites/obj5-8.png",
+      "target": "redesigned_assets/output/sprites/obj5-8.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj5-9.png",
+      "source": "extracted_images/sprites/obj5-9.png",
+      "target": "redesigned_assets/output/sprites/obj5-9.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj6-0.png",
+      "source": "extracted_images/sprites/obj6-0.png",
+      "target": "redesigned_assets/output/sprites/obj6-0.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj6-1.png",
+      "source": "extracted_images/sprites/obj6-1.png",
+      "target": "redesigned_assets/output/sprites/obj6-1.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj6-2.png",
+      "source": "extracted_images/sprites/obj6-2.png",
+      "target": "redesigned_assets/output/sprites/obj6-2.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-0.png",
+      "source": "extracted_images/sprites/obj7-0.png",
+      "target": "redesigned_assets/output/sprites/obj7-0.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-1.png",
+      "source": "extracted_images/sprites/obj7-1.png",
+      "target": "redesigned_assets/output/sprites/obj7-1.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-2.png",
+      "source": "extracted_images/sprites/obj7-2.png",
+      "target": "redesigned_assets/output/sprites/obj7-2.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-3.png",
+      "source": "extracted_images/sprites/obj7-3.png",
+      "target": "redesigned_assets/output/sprites/obj7-3.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-4.png",
+      "source": "extracted_images/sprites/obj7-4.png",
+      "target": "redesigned_assets/output/sprites/obj7-4.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj7-5.png",
+      "source": "extracted_images/sprites/obj7-5.png",
+      "target": "redesigned_assets/output/sprites/obj7-5.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "obj8-0.png",
+      "source": "extracted_images/sprites/obj8-0.png",
+      "target": "redesigned_assets/output/sprites/obj8-0.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj8-1.png",
+      "source": "extracted_images/sprites/obj8-1.png",
+      "target": "redesigned_assets/output/sprites/obj8-1.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj8-2.png",
+      "source": "extracted_images/sprites/obj8-2.png",
+      "target": "redesigned_assets/output/sprites/obj8-2.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "obj8-3.png",
+      "source": "extracted_images/sprites/obj8-3.png",
+      "target": "redesigned_assets/output/sprites/obj8-3.png",
+      "size": [
+        32,
+        32
+      ]
+    }
+  ]
+}
