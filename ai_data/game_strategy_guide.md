@@ -2,7 +2,7 @@
 
 > Source-of-truth reference for AI agents. Every number comes directly from the engine source code.
 > Use this to reason about cause-and-effect before spending money or placing tiles.
-> For experiential learnings (what worked/failed in past games), see `agent_memory.md`.
+> Use the strategic_plan tool to generate objectives aligned with these mechanics.
 
 ---
 
@@ -604,6 +604,5 @@ reward_trend      = 0.3 * instant + 0.7 * previous (smoothed EMA — shows long-
 ## 13. Reference
 
 - **Source files:** `Micropolis.java`, `MapScanner.java`, `TrafficGen.java`, `CityEval.java`, `MicropolisTool.java`
-- **Experiential memory:** `ai_data/agent_memory.md` — records what strategies worked or failed in actual games
 - **System prompt:** `SystemPrompt.java` — defines the agent's interface, available tools, and reward formula
 - **Session notes:** `ai_data/session_notes.md` — map-specific tactical notes (reset each game)

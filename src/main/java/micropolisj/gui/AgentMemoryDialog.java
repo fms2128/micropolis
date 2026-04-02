@@ -12,14 +12,14 @@ import java.util.ResourceBundle;
 public class AgentMemoryDialog extends JDialog {
 
 	private static final ResourceBundle strings = MainWindow.strings;
-	private static final Path MEMORY_FILE = Paths.get("agent_memory.md");
+	private static final Path STRATEGY_FILE = Paths.get("ai_data", "game_strategy_guide.md");
 
 	private final JTextArea textArea;
 	private final JLabel statusLabel;
 
 	public AgentMemoryDialog(Frame owner) {
 		super(owner, strings.getString("menu.windows.agent_memory"), false);
-		setSize(600, 500);
+		setSize(700, 600);
 		setLocationRelativeTo(owner);
 
 		JPanel content = new JPanel(new BorderLayout(0, 4));
@@ -59,11 +59,11 @@ public class AgentMemoryDialog extends JDialog {
 
 	private void loadFile() {
 		try {
-			if (Files.exists(MEMORY_FILE)) {
-				String text = new String(Files.readAllBytes(MEMORY_FILE));
+			if (Files.exists(STRATEGY_FILE)) {
+				String text = new String(Files.readAllBytes(STRATEGY_FILE));
 				textArea.setText(text);
 				textArea.setCaretPosition(0);
-				statusLabel.setText(MEMORY_FILE.toAbsolutePath().toString());
+				statusLabel.setText(STRATEGY_FILE.toAbsolutePath().toString());
 			} else {
 				textArea.setText(strings.getString("agent_memory.not_found"));
 				statusLabel.setText(" ");

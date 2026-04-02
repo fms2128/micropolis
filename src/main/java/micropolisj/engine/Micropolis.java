@@ -2514,6 +2514,16 @@ public class Micropolis
 		return gameLevel;
 	}
 
+	public int getTaxEffect()
+	{
+		return taxEffect;
+	}
+
+	public void forcePowerScan()
+	{
+		checkPowerMap();
+	}
+
 	public int getCenterMassX()
 	{
 		return centerMassX;

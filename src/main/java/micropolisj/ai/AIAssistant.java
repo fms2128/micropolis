@@ -87,6 +87,7 @@ public class AIAssistant {
     private final LinkedList<ActionRecord> actionHistory = new LinkedList<>();
     private final LinkedList<Double> rewardHistory = new LinkedList<>();
     private ReflectiveAgent reflectiveAgent;
+    private final ActivityLogger activityLogger = new ActivityLogger();
 
     private final ConcurrentLinkedQueue<String> pendingUserMessages = new ConcurrentLinkedQueue<>();
 
@@ -108,6 +109,8 @@ public class AIAssistant {
         this.observer = new GameStateObserver(engine);
         this.toolHandler = new AIToolHandler(engine, observer, this);
         this.listener = new AIGameListener();
+        this.listener.setActivityLogger(activityLogger);
+        this.listener.setEngine(engine);
         engine.addListener(this.listener);
     }
 
@@ -178,6 +181,10 @@ public class AIAssistant {
         return observer;
     }
 
+    public ActivityLogger getActivityLogger() {
+        return activityLogger;
+    }
+
     public boolean isConfigured() {
         return client.isConfigured() && engine != null;
     }
@@ -223,6 +230,20 @@ public class AIAssistant {
         JsonObject summary = observer.getMinimalSummary();
         String summaryJson = summary.toString();
 
+        JsonObject preState = new JsonObject();
+        preState.addProperty("population", engine.getCityPopulation());
+        preState.addProperty("funds", engine.getBudget().getTotalFunds());
+        preState.addProperty("score", engine.getEvaluation().getCityScore());
+        preState.addProperty("res_demand", engine.getResValve());
+        preState.addProperty("com_demand", engine.getComValve());
+        preState.addProperty("ind_demand", engine.getIndValve());
+        preState.addProperty("powered_zones", engine.getPoweredZoneCount());
+        preState.addProperty("unpowered_zones", engine.getUnpoweredZoneCount());
+        preState.addProperty("crime", engine.getCrimeAverage());
+        preState.addProperty("pollution", engine.getPollutionAverage());
+        preState.addProperty("traffic", engine.getTrafficAverage());
+        preState.addProperty("road_effect", engine.getRoadEffect());
+
         if (summary.has("reward")) {
             rewardHistory.addLast(summary.get("reward").getAsDouble());
             while (rewardHistory.size() > MAX_REWARD_HISTORY) {
@@ -231,6 +252,8 @@ public class AIAssistant {
         }
         String structuredEvents = listener.drainStructuredMessages();
         listener.clearCriticalEvent();
+
+        activityLogger.logTurnStart(turnCount, preState, structuredEvents);
 
         boolean hasUrgentMessages = structuredEvents.contains("[CRITICAL]")
             || structuredEvents.contains("[DISASTER]");
@@ -301,6 +324,7 @@ public class AIAssistant {
             userContent.append("\n\n[USER MESSAGES — MUST become objectives]\n");
             for (String msg : allUserMessages) {
                 userContent.append(">> ").append(msg).append("\n");
+                activityLogger.logEvent("USER_MESSAGE", msg);
             }
             userContent.append("You MUST create or update objectives to address each user message above.\n");
             userContent.append("[End User Messages]");
@@ -361,6 +385,7 @@ public class AIAssistant {
             String text = LLMClient.extractText(response);
             if (!text.isEmpty()) {
                 emit(onThinking, text);
+                activityLogger.logAgentThinking(turnCount, text);
             }
 
             if (!"tool_use".equals(stopReason) || !LLMClient.hasToolUse(response)) {
@@ -381,12 +406,41 @@ public class AIAssistant {
 
                 JsonObject result = toolHandler.executeTool(toolName, input);
 
-                emit(onAction, "Result: " + result.toString());
+                if (result.has("_image_base64")) {
+                    emit(onAction, "Result: [screenshot captured]");
+                } else {
+                    emit(onAction, "Result: " + result.toString());
+                }
 
                 JsonObject toolResult = new JsonObject();
                 toolResult.addProperty("type", "tool_result");
                 toolResult.addProperty("tool_use_id", toolId);
-                toolResult.addProperty("content", result.toString());
+
+                if (result.has("_image_base64")) {
+                    String imgBase64 = result.remove("_image_base64").getAsString();
+                    String mediaType = result.has("_image_media_type")
+                        ? result.remove("_image_media_type").getAsString() : "image/png";
+
+                    JsonArray contentBlocks = new JsonArray();
+
+                    JsonObject imgBlock = new JsonObject();
+                    imgBlock.addProperty("type", "image");
+                    JsonObject source = new JsonObject();
+                    source.addProperty("type", "base64");
+                    source.addProperty("media_type", mediaType);
+                    source.addProperty("data", imgBase64);
+                    imgBlock.add("source", source);
+                    contentBlocks.add(imgBlock);
+
+                    JsonObject txtBlock = new JsonObject();
+                    txtBlock.addProperty("type", "text");
+                    txtBlock.addProperty("text", result.toString());
+                    contentBlocks.add(txtBlock);
+
+                    toolResult.add("content", contentBlocks);
+                } else {
+                    toolResult.addProperty("content", result.toString());
+                }
                 toolResults.add(toolResult);
             }
 
@@ -398,6 +452,37 @@ public class AIAssistant {
 
             toolRounds++;
         }
+
+        // Log turn end with post-state, reward breakdown, and objectives
+        JsonObject postState = new JsonObject();
+        postState.addProperty("population", engine.getCityPopulation());
+        postState.addProperty("funds", engine.getBudget().getTotalFunds());
+        postState.addProperty("score", engine.getEvaluation().getCityScore());
+        postState.addProperty("res_demand", engine.getResValve());
+        postState.addProperty("com_demand", engine.getComValve());
+        postState.addProperty("ind_demand", engine.getIndValve());
+        postState.addProperty("powered_zones", engine.getPoweredZoneCount());
+        postState.addProperty("unpowered_zones", engine.getUnpoweredZoneCount());
+        postState.addProperty("crime", engine.getCrimeAverage());
+        postState.addProperty("pollution", engine.getPollutionAverage());
+        postState.addProperty("traffic", engine.getTrafficAverage());
+        postState.addProperty("road_effect", engine.getRoadEffect());
+
+        JsonObject rewardInfo = null;
+        if (summary.has("reward")) {
+            rewardInfo = new JsonObject();
+            if (summary.has("reward_score")) rewardInfo.addProperty("score_component", summary.get("reward_score").getAsDouble());
+            if (summary.has("reward_pop")) rewardInfo.addProperty("pop_component", summary.get("reward_pop").getAsDouble());
+            if (summary.has("reward_funds")) rewardInfo.addProperty("funds_component", summary.get("reward_funds").getAsDouble());
+            if (summary.has("reward_structural")) rewardInfo.addProperty("structural_component", summary.get("reward_structural").getAsDouble());
+            rewardInfo.addProperty("instant", summary.get("reward").getAsDouble());
+            if (summary.has("reward_trend")) rewardInfo.addProperty("trend", summary.get("reward_trend").getAsDouble());
+        }
+
+        List<String> objTexts = new ArrayList<>();
+        for (Objective obj : currentObjectives) objTexts.add(obj.getText());
+
+        activityLogger.logTurnEnd(turnCount, postState, rewardInfo, objTexts, null);
 
         trimHistory();
 
@@ -474,35 +559,7 @@ public class AIAssistant {
     }
 
     private String buildSystemPrompt() {
-        // Returns the base system prompt only.
-        // Reflective prompt additions and agent memory loading are disabled.
-        // To re-enable, uncomment the blocks below.
         return SystemPrompt.PROMPT;
-
-        /*
-        StringBuilder sb = new StringBuilder(SystemPrompt.PROMPT);
-        try {
-            Path reflectivePath = Paths.get("ai_data/reflective_prompt.md");
-            if (Files.exists(reflectivePath)) {
-                String additions = new String(Files.readAllBytes(reflectivePath));
-                if (!additions.trim().isEmpty()) {
-                    sb.append("\n\n## Strategic Additions (from self-reflection)\n");
-                    sb.append(additions);
-                }
-            }
-        } catch (IOException e) { }
-        try {
-            Path memoryPath = Paths.get("ai_data/agent_memory.md");
-            if (Files.exists(memoryPath)) {
-                String memory = new String(Files.readAllBytes(memoryPath));
-                if (!memory.trim().isEmpty()) {
-                    sb.append("\n\n## Your Long-Term Memory\n");
-                    sb.append(memory);
-                }
-            }
-        } catch (IOException e) { }
-        return sb.toString();
-        */
     }
 
     public boolean shouldTrigger(int simStepsSinceLastTurn, int triggerInterval) {
@@ -521,6 +578,7 @@ public class AIAssistant {
         actionHistory.clear();
         rewardHistory.clear();
         turnCount = 0;
+        activityLogger.reset();
         fireObjectivesChanged();
         try {
             Path sessionPath = Paths.get("ai_data/session_notes.md");
@@ -558,6 +616,13 @@ public class AIAssistant {
             }
         }
         fireObjectivesChanged();
+
+        JsonArray objArr = new JsonArray();
+        for (Objective o : currentObjectives) objArr.add(o.getText());
+        JsonObject snapshot = new JsonObject();
+        snapshot.add("objectives", objArr);
+        snapshot.addProperty("count", currentObjectives.size());
+        activityLogger.logSnapshot("OBJECTIVES_SET", snapshot);
     }
 
     public boolean completeObjective(int index) {
@@ -568,6 +633,13 @@ public class AIAssistant {
         obj.completed = true;
         completedObjectives.add(obj);
         fireObjectivesChanged();
+
+        JsonObject snapshot = new JsonObject();
+        snapshot.addProperty("completed_objective", obj.getText());
+        snapshot.addProperty("remaining_active", currentObjectives.size());
+        snapshot.addProperty("total_completed", completedObjectives.size());
+        activityLogger.logSnapshot("OBJECTIVE_COMPLETED", snapshot);
+
         return true;
     }
 

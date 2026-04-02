@@ -1,2 +1,3 @@
 .gradle
 build
+ai_data/activity_log*.jsonl

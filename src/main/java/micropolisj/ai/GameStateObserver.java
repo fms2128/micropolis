@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import micropolisj.engine.*;
 
+import java.util.*;
+
 /**
  * Observes the Micropolis engine and produces structured JSON
  * summaries for the AI assistant. Compresses the 120x100 tile map
@@ -954,7 +956,7 @@ public class GameStateObserver {
     }
 
     private JsonArray getFinancialHistoryData() {
-        java.util.List<FinancialHistory> fh = engine.getFinancialHistory();
+        List<FinancialHistory> fh = engine.getFinancialHistory();
         JsonArray arr = new JsonArray();
         int limit = Math.min(fh.size(), 20);
         for (int i = 0; i < limit; i++) {
@@ -970,5 +972,383 @@ public class GameStateObserver {
             arr.add(e);
         }
         return arr;
+    }
+
+    // ── connect_power: BFS to find nearest powered tile and build wire path ──
+
+    private static final int[][] BFS_DIRS = {{0,-1},{1,0},{0,1},{-1,0}};
+
+    /**
+     * Finds the nearest powered tile from an unpowered zone and builds a
+     * power line path connecting them. Uses BFS outward from the target zone,
+     * walking through empty/tree/road tiles until a powered tile is reached.
+     * Automatically places wires (and wire+road crossings) along the path.
+     */
+    public JsonObject connectPower(int targetX, int targetY) {
+        JsonObject result = new JsonObject();
+
+        if (!engine.testBounds(targetX, targetY)) {
+            result.addProperty("success", false);
+            result.addProperty("error", "Coordinates out of bounds");
+            return result;
+        }
+
+        char targetTile = engine.getTile(targetX, targetY);
+
+        // Find zone center if user clicked on a non-center tile of a zone
+        int cx = targetX, cy = targetY;
+        if (!TileConstants.isZoneCenter(targetTile)) {
+            int[] center = findNearestZoneCenter(targetX, targetY, 3);
+            if (center != null) {
+                cx = center[0];
+                cy = center[1];
+                targetTile = engine.getTile(cx, cy);
+            }
+        }
+
+        if (engine.isTilePowered(cx, cy) && TileConstants.isZoneCenter(engine.getTile(cx, cy))) {
+            result.addProperty("success", true);
+            result.addProperty("message", "Zone at (" + cx + "," + cy + ") is already powered.");
+            return result;
+        }
+
+        // BFS from target zone outward to find the nearest powered tile
+        int w = engine.getWidth();
+        int h = engine.getHeight();
+        boolean[][] visited = new boolean[h][w];
+        int[][] parentX = new int[h][w];
+        int[][] parentY = new int[h][w];
+        for (int[] row : parentX) Arrays.fill(row, -1);
+        for (int[] row : parentY) Arrays.fill(row, -1);
+
+        Deque<int[]> queue = new ArrayDeque<>();
+        queue.add(new int[]{cx, cy});
+        visited[cy][cx] = true;
+
+        int poweredX = -1, poweredY = -1;
+        int maxSearchDist = 60;
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int x = cur[0], y = cur[1];
+
+            int dist = Math.abs(x - cx) + Math.abs(y - cy);
+            if (dist > maxSearchDist) continue;
+
+            if (x != cx || y != cy) {
+                char t = engine.getTile(x, y);
+                if (engine.isTilePowered(x, y) && (TileConstants.isZoneCenter(t)
+                        || TileConstants.isConductive(t))) {
+                    poweredX = x;
+                    poweredY = y;
+                    break;
+                }
+            }
+
+            for (int[] d : BFS_DIRS) {
+                int nx = x + d[0], ny = y + d[1];
+                if (!engine.testBounds(nx, ny) || visited[ny][nx]) continue;
+                visited[ny][nx] = true;
+
+                char nt = engine.getTile(nx, ny);
+                // Can traverse: empty, trees, roads, power lines, zones, rail
+                boolean canTraverse = nt == 0
+                        || (nt >= 21 && nt <= 43) // trees
+                        || (nt >= 64 && nt < 240)  // road, power line, rail
+                        || (nt >= 240);             // zones/buildings
+                // Cannot traverse water
+                if (nt >= 2 && nt <= 20) canTraverse = false;
+
+                if (canTraverse) {
+                    parentX[ny][nx] = x;
+                    parentY[ny][nx] = y;
+                    queue.add(new int[]{nx, ny});
+                }
+            }
+        }
+
+        if (poweredX < 0) {
+            result.addProperty("success", false);
+            result.addProperty("error", "No powered tile found within " + maxSearchDist
+                + " tiles of (" + cx + "," + cy + "). Ensure a power plant exists and is connected.");
+            return result;
+        }
+
+        // Trace path back from powered tile to target
+        List<int[]> path = new ArrayList<>();
+        int px = poweredX, py = poweredY;
+        while (px != cx || py != cy) {
+            path.add(new int[]{px, py});
+            int ppx = parentX[py][px];
+            int ppy = parentY[py][px];
+            px = ppx;
+            py = ppy;
+        }
+        Collections.reverse(path);
+
+        // Build wires along the path where needed
+        int wiresBuilt = 0;
+        int cost = 0;
+        List<String> actions = new ArrayList<>();
+
+        for (int[] tile : path) {
+            int tx = tile[0], ty = tile[1];
+            char t = engine.getTile(tx, ty);
+
+            if (TileConstants.isConductive(t)) {
+                continue;
+            }
+
+            boolean isRoad = (t >= 64 && t < 208);
+            boolean isRail = (t >= 224 && t < 240);
+            boolean isEmpty = (t == 0 || (t >= 21 && t <= 43));
+
+            if (isEmpty || isRoad || isRail) {
+                int wireCost = forceWireCrossing(tx, ty);
+                if (wireCost >= 0) {
+                    wiresBuilt++;
+                    cost += wireCost;
+                    String label = isRoad ? "road_crossing" : isRail ? "rail_crossing" : "wire";
+                    actions.add(label + " at (" + tx + "," + ty + ")");
+                } else {
+                    actions.add("FAILED wire at (" + tx + "," + ty + ")");
+                }
+            }
+        }
+
+        // Force an immediate power scan so the result reflects actual state
+        engine.forcePowerScan();
+
+        boolean nowPowered = engine.isTilePowered(cx, cy);
+        result.addProperty("success", nowPowered);
+        result.addProperty("target_zone", "(" + cx + "," + cy + ")");
+        result.addProperty("connected_to", "(" + poweredX + "," + poweredY + ")");
+        result.addProperty("path_length", path.size());
+        result.addProperty("wires_built", wiresBuilt);
+        result.addProperty("cost", cost);
+        result.addProperty("funds_remaining", engine.getBudget().getTotalFunds());
+
+        if (!actions.isEmpty()) {
+            JsonArray actArr = new JsonArray();
+            for (String a : actions) actArr.add(a);
+            result.add("actions", actArr);
+        }
+
+        result.addProperty("target_now_powered", nowPowered);
+        if (!nowPowered && wiresBuilt > 0) {
+            result.addProperty("note", "Wires built but zone still not powered. "
+                + "There may be a gap in the power chain or insufficient plant capacity.");
+        }
+
+        return result;
+    }
+
+    /**
+     * Forces a conductive wire/crossing at the given tile.
+     * Handles road junction tiles by bulldozing and rebuilding.
+     * @return cost spent (0 if already conductive, 5 for plain wire,
+     *         6-16 for junction rebuild), or -1 on failure.
+     */
+    public int forceWireCrossing(int x, int y) {
+        char t = engine.getTile(x, y);
+        if (TileConstants.isConductive(t)) return 0;
+
+        ToolStroke ws = MicropolisTool.WIRE.beginStroke(engine, x, y);
+        ws.dragTo(x, y);
+        if (ws.apply() == ToolResult.SUCCESS) return 5;
+
+        if (t >= 64 && t < 208) {
+            ToolStroke bs = MicropolisTool.BULLDOZER.beginStroke(engine, x, y);
+            bs.dragTo(x, y);
+            if (bs.apply() == ToolResult.SUCCESS) {
+                ws = MicropolisTool.WIRE.beginStroke(engine, x, y);
+                ws.dragTo(x, y);
+                if (ws.apply() == ToolResult.SUCCESS) {
+                    ToolStroke rs = MicropolisTool.ROADS.beginStroke(engine, x, y);
+                    rs.dragTo(x, y);
+                    return (rs.apply() == ToolResult.SUCCESS) ? 16 : 6;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int[] findNearestZoneCenter(int x, int y, int radius) {
+        for (int r = 0; r <= radius; r++) {
+            for (int dy = -r; dy <= r; dy++) {
+                for (int dx = -r; dx <= r; dx++) {
+                    if (Math.abs(dx) != r && Math.abs(dy) != r) continue;
+                    int nx = x + dx, ny = y + dy;
+                    if (engine.testBounds(nx, ny) && TileConstants.isZoneCenter(engine.getTile(nx, ny))) {
+                        return new int[]{nx, ny};
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // ── analyze_demand: compute demand breakdown matching setValves() ──
+
+    /**
+     * Replicates the engine's setValves() formula and returns a detailed
+     * breakdown of WHY each demand valve is at its current level, plus
+     * actionable recommendations.
+     */
+    public JsonObject analyzeDemand() {
+        JsonObject result = new JsonObject();
+        History hist = engine.getHistory();
+
+        double normResPop = engine.getResPop() / 8.0;
+        int totalPop = (int) (normResPop + engine.getComPop() + engine.getIndPop());
+
+        double employment = normResPop != 0.0
+                ? (hist.getCom()[1] + hist.getInd()[1]) / normResPop : 1;
+        double migration = normResPop * (employment - 1);
+        double births = normResPop * 0.02;
+        double projectedResPop = normResPop + migration + births;
+
+        double temp = hist.getCom()[1] + hist.getInd()[1];
+        double laborBase = temp != 0.0 ? hist.getRes()[1] / temp : 1;
+        laborBase = Math.max(0.0, Math.min(1.3, laborBase));
+
+        double internalMarket = (normResPop + engine.getComPop() + engine.getIndPop()) / 3.7;
+        double projectedComPop = internalMarket * laborBase;
+
+        int gameLevel = engine.getGameLevel();
+        double diffMult;
+        switch (gameLevel) {
+            case 0: diffMult = 1.2; break;
+            case 1: diffMult = 1.1; break;
+            case 2: diffMult = 0.98; break;
+            default: diffMult = 1.0;
+        }
+        double projectedIndPop = Math.max(5.0, engine.getIndPop() * laborBase * diffMult);
+
+        int taxEffect = engine.getTaxEffect();
+        int taxIdx = Math.min(taxEffect + gameLevel, 20);
+        int[] taxTable = {200, 150, 120, 100, 80, 50, 30, 0, -10, -40, -100,
+                -150, -200, -250, -300, -350, -400, -450, -500, -550, -600};
+        int taxStimulus = taxTable[taxIdx];
+
+        // Residential breakdown
+        JsonObject res = new JsonObject();
+        res.addProperty("valve", engine.getResValve());
+        res.addProperty("employment_ratio", round2(employment));
+        res.addProperty("migration", round2(migration));
+        res.addProperty("births", round2(births));
+        double resRatio = normResPop != 0 ? Math.min(2.0, projectedResPop / normResPop) : 1.3;
+        double resDelta = (resRatio - 1) * 600 + taxStimulus;
+        res.addProperty("projected_ratio", round2(resRatio));
+        res.addProperty("velocity_per_cycle", round2(resDelta));
+        res.addProperty("tax_stimulus", taxStimulus);
+        res.addProperty("capped", engine.isResCap());
+        if (engine.isResCap()) {
+            res.addProperty("cap_reason", "resPop > 500 and no Stadium. Valve clamped to 0.");
+        }
+        int resCapDist = 500 - engine.getResPop();
+        if (resCapDist > 0 && !engine.isResCap()) {
+            res.addProperty("distance_to_cap", resCapDist);
+            res.addProperty("cap_action", "Build Stadium ($5000) before resPop reaches 500");
+        }
+        if (resDelta > 50) res.addProperty("trend", "rising");
+        else if (resDelta < -50) res.addProperty("trend", "falling");
+        else res.addProperty("trend", "stable");
+        result.add("residential", res);
+
+        // Commercial breakdown
+        JsonObject com = new JsonObject();
+        com.addProperty("valve", engine.getComValve());
+        com.addProperty("labor_base", round2(laborBase));
+        com.addProperty("internal_market", round2(internalMarket));
+        com.addProperty("projected_com_pop", round2(projectedComPop));
+        com.addProperty("actual_com_pop", engine.getComPop());
+        double comRatio = engine.getComPop() != 0
+                ? Math.min(2.0, projectedComPop / engine.getComPop()) : projectedComPop;
+        double comDelta = (comRatio - 1) * 600 + taxStimulus;
+        com.addProperty("projected_ratio", round2(Math.min(2.0, comRatio)));
+        com.addProperty("velocity_per_cycle", round2(comDelta));
+        com.addProperty("tax_stimulus", taxStimulus);
+        com.addProperty("capped", engine.isComCap());
+        if (engine.isComCap()) {
+            com.addProperty("cap_reason", "comPop > 100 and no Airport. Valve clamped to 0.");
+        }
+        int comCapDist = 100 - engine.getComPop();
+        if (comCapDist > 0 && !engine.isComCap()) {
+            com.addProperty("distance_to_cap", comCapDist);
+            com.addProperty("cap_action", "Build Airport ($10000) before comPop reaches 100");
+        }
+        if (comDelta > 50) com.addProperty("trend", "rising");
+        else if (comDelta < -50) com.addProperty("trend", "falling");
+        else com.addProperty("trend", "stable");
+        result.add("commercial", com);
+
+        // Industrial breakdown
+        JsonObject ind = new JsonObject();
+        ind.addProperty("valve", engine.getIndValve());
+        ind.addProperty("labor_base", round2(laborBase));
+        ind.addProperty("difficulty_multiplier", diffMult);
+        ind.addProperty("projected_ind_pop", round2(projectedIndPop));
+        ind.addProperty("actual_ind_pop", engine.getIndPop());
+        double indRatio = engine.getIndPop() != 0
+                ? Math.min(2.0, projectedIndPop / engine.getIndPop()) : projectedIndPop;
+        double indDelta = (indRatio - 1) * 600 + taxStimulus;
+        ind.addProperty("projected_ratio", round2(Math.min(2.0, indRatio)));
+        ind.addProperty("velocity_per_cycle", round2(indDelta));
+        ind.addProperty("tax_stimulus", taxStimulus);
+        ind.addProperty("capped", engine.isIndCap());
+        if (engine.isIndCap()) {
+            ind.addProperty("cap_reason", "indPop > 70 and no Seaport. Valve clamped to 0.");
+        }
+        int indCapDist = 70 - engine.getIndPop();
+        if (indCapDist > 0 && !engine.isIndCap()) {
+            ind.addProperty("distance_to_cap", indCapDist);
+            ind.addProperty("cap_action", "Build Seaport ($3000) before indPop reaches 70");
+        }
+        if (indDelta > 50) ind.addProperty("trend", "rising");
+        else if (indDelta < -50) ind.addProperty("trend", "falling");
+        else ind.addProperty("trend", "stable");
+        result.add("industrial", ind);
+
+        // Zone ratio analysis
+        JsonObject ratios = new JsonObject();
+        int resPop = engine.getResPop();
+        int comPop = engine.getComPop();
+        int indPop = engine.getIndPop();
+        ratios.addProperty("res_pop", resPop);
+        ratios.addProperty("com_pop", comPop);
+        ratios.addProperty("ind_pop", indPop);
+        if (comPop + indPop > 0) {
+            double jobRatio = (double) resPop / ((comPop + indPop) * 8);
+            ratios.addProperty("unemployment_ratio", round2(jobRatio));
+            if (jobRatio > 1.2) {
+                ratios.addProperty("unemployment_warning",
+                    "More workers than jobs. Build commercial or industrial zones.");
+            }
+        }
+        result.add("zone_ratios", ratios);
+
+        // Build recommendation
+        StringBuilder rec = new StringBuilder();
+        int highestValve = Math.max(engine.getResValve(),
+                Math.max(engine.getComValve(), engine.getIndValve()));
+        if (highestValve == engine.getResValve() && engine.getResValve() > 0) {
+            rec.append("Residential demand is highest — build residential zones. ");
+        } else if (highestValve == engine.getIndValve() && engine.getIndValve() > 0) {
+            rec.append("Industrial demand is highest — build industrial zones at map edges. ");
+        } else if (highestValve == engine.getComValve() && engine.getComValve() > 0) {
+            rec.append("Commercial demand is highest — build commercial zones near city center. ");
+        }
+        if (engine.getResValve() < -500 && engine.getComValve() < -500 && engine.getIndValve() < -500) {
+            rec.append("All valves negative — lower taxes or wait for growth to catch up. ");
+        }
+        if (taxStimulus < -100) {
+            rec.append("Tax rate is suppressing growth (stimulus=" + taxStimulus + "). Consider lowering taxes. ");
+        }
+        if (rec.length() > 0) {
+            result.addProperty("recommendation", rec.toString().trim());
+        }
+
+        return result;
     }
 }

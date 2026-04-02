@@ -19,8 +19,6 @@ import java.util.*;
 public class AIToolHandler {
 
     private static final String AI_DATA_DIR = "ai_data";
-    private static final String LOG_FILE = AI_DATA_DIR + "/ai_learnings.log";
-    private static final String MEMORY_FILE = AI_DATA_DIR + "/agent_memory.md";
     private static final String STRATEGY_FILE = AI_DATA_DIR + "/game_strategy_guide.md";
     private static final String SESSION_FILE = AI_DATA_DIR + "/session_notes.md";
 
@@ -135,6 +133,22 @@ public class AIToolHandler {
             + "zones without road access. Returns a prioritized issue list with exact coordinates. "
             + "For a full city overview including all buildings and zone counts, prefer get_city_entities instead."
         ));
+        tools.add(makeTool("connect_power",
+            "Automatically connect an unpowered zone to the power grid. "
+            + "Uses BFS to find the nearest powered tile, then builds a wire path connecting them. "
+            + "Handles road crossings automatically (places wire+road crossing tiles). "
+            + "Use this instead of manually building power lines — it finds the optimal path. "
+            + "Call diagnose_infrastructure or get_city_entities first to find unpowered zone coordinates.",
+            param("x", "integer", "X coordinate of the unpowered zone (or nearby tile)"),
+            param("y", "integer", "Y coordinate of the unpowered zone (or nearby tile)")
+        ));
+        tools.add(makeTool("analyze_demand",
+            "Detailed demand analysis that replicates the engine's valve formula. "
+            + "Returns for each zone type (R/C/I): current valve, employment ratio, migration, "
+            + "labor base, projected vs actual population, tax stimulus effect, growth cap status "
+            + "and distance to cap, trend direction, and actionable recommendations. "
+            + "Use this BEFORE deciding what to build — it tells you WHY demand is what it is."
+        ));
         tools.add(makeToolWithOptional("render_map",
             "Render a visual ASCII map of an area. Returns 3 layered views: terrain, zones (uppercase=powered, lowercase=UNPOWERED), "
             + "and infrastructure (roads/power/buildings). Much easier to read than inspect_area. "
@@ -153,16 +167,20 @@ public class AIToolHandler {
             param("height", "integer", "Required height in tiles (e.g. 3 for zones, 4 for powerplant, 6 for airport)")
         ));
         tools.add(makeToolWithOptional("plan_city_block",
-            "Plan and build an entire city block in one call. Places a rectangular grid of zones "
-            + "with roads automatically laid out using the optimal strip pattern:\n"
-            + "  [Zone strip]  [Zone strip]  <- 2 rows of zones touching (power flows between them)\n"
-            + "  ===== ROAD =====            <- 1 road row (serves both strips above and below)\n"
-            + "  [Zone strip]  [Zone strip]  <- 2 more rows touching\n"
-            + "Each zone is 3x3. Roads are placed between every pair of strips. "
-            + "Power wires are automatically built across each road row so power propagates through the entire block. "
-            + "You still need to connect one zone in the block to a power plant via power line. "
-            + "Returns a summary of zones placed, roads built, and any failures. "
-            + "Use find_empty_area first to find a location with enough space.",
+            "Plan and build a proper CITY BLOCK in one call. Creates zones with roads on ALL 4 sides "
+            + "(like a real city block) plus internal roads between zone strips:\n"
+            + "       ====== ROAD (top) ======\n"
+            + "  ROAD [Zone strip][Zone strip] ROAD\n"
+            + "  ROAD [Zone strip][Zone strip] ROAD\n"
+            + "       ====== ROAD (internal) ==\n"
+            + "  ROAD [Zone strip][Zone strip] ROAD\n"
+            + "  ROAD [Zone strip][Zone strip] ROAD\n"
+            + "       ====== ROAD (bottom) ====\n"
+            + "Each zone is 3x3. Perimeter roads on all sides create proper network connectivity. "
+            + "Power wires bridge each road row so power propagates through the block. "
+            + "Needs 1-tile margin on each side for perimeter roads (x >= 1, y >= 1). "
+            + "Use connect_power to wire the block to a power plant afterward. "
+            + "Use find_empty_area(blockWidth+2, blockHeight+2) to find a valid spot.",
             new String[][] {
                 param("zone_type", "string", "Zone type: residential, commercial, or industrial"),
                 param("x", "integer", "Top-left X coordinate of the block"),
@@ -173,17 +191,17 @@ public class AIToolHandler {
                 param("rows", "integer", "Number of zone rows/strips (1-10, default 2). Roads are auto-placed between every pair."),
             }
         ));
-        // Memory/learning tools disabled — agent plays with a clean slate each session.
-        // The execution code is preserved below; only tool definitions are hidden from the LLM.
-        /*
-        tools.add(makeTool("write_learning", ...));
-        tools.add(makeTool("read_learnings", ...));
-        tools.add(makeTool("consolidate_learnings", ...));
-        tools.add(makeTool("read_memory", ...));
-        tools.add(makeTool("update_memory", ...));
-        */
         tools.add(makeTool("read_strategy_guide",
-            "Read the game strategy guide with detailed engine mechanics, formulas, zone growth rules, scoring system, costs, and strategic tips. Highly recommended at game start."
+            "Read the full game strategy guide with detailed engine mechanics, formulas, zone growth rules, "
+            + "scoring system, costs, and strategic tips. Contains the source-of-truth for all game mechanics."
+        ));
+        tools.add(makeTool("strategic_plan",
+            "YOUR PRIMARY PLANNING TOOL. Analyzes current game state against the strategy guide and generates "
+            + "a concrete action plan with specific objectives. Returns: game phase assessment, priority analysis "
+            + "based on engine mechanics, recommended objectives with EXACT tools to use, cost estimates, and "
+            + "verification criteria for each objective. "
+            + "ALWAYS call this: (1) at game start, (2) after completing all objectives, (3) after major events/disasters, "
+            + "(4) when reward trend is declining. Then use set_objectives with the suggested objectives."
         ));
         tools.add(makeToolWithOptional("set_objectives",
             "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. "
@@ -202,8 +220,17 @@ public class AIToolHandler {
             }
         ));
         tools.add(makeTool("complete_objective",
-            "Mark an objective as completed by its 1-based index. The objective moves to the 'completed' list and remains visible in the UI. Use this when you've achieved a goal, then optionally set_objectives to add new ones.",
-            param("index", "integer", "1-based index of the objective to mark as completed (as shown in [Current Objectives])")
+            "Mark an objective as completed ONLY after verifying it is truly achieved. "
+            + "You MUST provide verification evidence explaining HOW you confirmed the objective is done. "
+            + "The tool returns current game metrics so you can cross-check. "
+            + "WRONG: completing 'Power all zones' without checking unpowered_zones count. "
+            + "RIGHT: completing 'Power all zones' after get_city_entities shows unpowered_zones=0. "
+            + "If verification is weak, the objective stays active.",
+            param("index", "integer", "1-based index of the objective to mark as completed"),
+            param("verification", "string",
+                "How you verified this objective is complete. Must reference a specific check you performed "
+                + "(e.g. 'get_city_entities shows 0 unpowered zones', 'render_map confirms road network at x,y', "
+                + "'get_demand shows res_valve=+800 after building 6 residential zones').")
         ));
         tools.add(makeTool("get_objectives",
             "Read your current short-term objectives and recently completed ones."
@@ -219,6 +246,13 @@ public class AIToolHandler {
         ));
         tools.add(makeTool("dismiss_budget",
             "Close the budget dialog window if it is currently open. The budget dialog pops up at the end of each fiscal year (when auto-budget is off) and pauses the game until dismissed. Call this after reviewing/adjusting budget settings to resume the game."
+        ));
+        tools.add(makeTool("capture_map_screenshot",
+            "Capture a visual screenshot of the ENTIRE city map as a PNG image. "
+            + "Returns a 960x800 pixel image showing all tiles, roads, zones, buildings, terrain, and water. "
+            + "Use this to visually inspect your city layout, verify building placement, check road connectivity, "
+            + "and get an overall sense of how the city looks. Much more intuitive than ASCII render_map. "
+            + "Costs nothing and has no side effects."
         ));
         tools.add(makeTool("end_turn",
             "Signal how to proceed after this turn. Call this as the LAST tool in every auto-play turn. "
@@ -258,7 +292,7 @@ public class AIToolHandler {
     private static final java.util.Set<String> TRACKED_ACTIONS = java.util.Set.of(
         "place_zone", "place_building", "build_road", "build_rail",
         "build_power_line", "bulldoze", "place_park", "set_tax_rate", "set_budget",
-        "plan_city_block"
+        "plan_city_block", "connect_power"
     );
 
     private String summarizeInput(String toolName, JsonObject input) {
@@ -276,6 +310,8 @@ public class AIToolHandler {
             case "plan_city_block":
                 return input.get("zone_type").getAsString() + " " + input.get("cols") + "x"
                     + (input.has("rows") ? input.get("rows") : "2") + " at " + input.get("x") + "," + input.get("y");
+            case "connect_power":
+                return input.get("x") + "," + input.get("y");
             default:
                 return input.get("x") + "," + input.get("y");
         }
@@ -286,6 +322,33 @@ public class AIToolHandler {
             assistant.recordAction(toolName, summarizeInput(toolName, input));
         }
 
+        int fundsBefore = engine.getBudget().getTotalFunds();
+        int scoreBefore = engine.getEvaluation().getCityScore();
+        int popBefore = engine.getCityPopulation();
+        long startTime = System.currentTimeMillis();
+
+        JsonObject result = executeToolInternal(toolName, input);
+
+        long duration = System.currentTimeMillis() - startTime;
+        int fundsAfter = engine.getBudget().getTotalFunds();
+
+        ActivityLogger logger = assistant.getActivityLogger();
+        if (logger != null && LOGGED_TOOLS.contains(toolName)) {
+            logger.logToolCall(toolName, input, result, duration,
+                fundsBefore, fundsAfter, scoreBefore, popBefore);
+        }
+
+        return result;
+    }
+
+    private static final java.util.Set<String> LOGGED_TOOLS = java.util.Set.of(
+        "place_zone", "place_building", "build_road", "build_rail",
+        "build_power_line", "bulldoze", "place_park", "set_tax_rate", "set_budget",
+        "plan_city_block", "connect_power", "set_speed", "set_objectives", "complete_objective",
+        "end_turn"
+    );
+
+    private JsonObject executeToolInternal(String toolName, JsonObject input) {
         JsonObject result = new JsonObject();
         try {
             switch (toolName) {
@@ -311,20 +374,19 @@ public class AIToolHandler {
                 case "get_history": return executeGetHistory(input);
                 case "get_city_entities": return observer.getCityEntities();
                 case "diagnose_infrastructure": return observer.diagnoseInfrastructure();
+                case "connect_power": return executeConnectPower(input);
+                case "analyze_demand": return observer.analyzeDemand();
                 case "render_map": return executeRenderMap(input);
                 case "find_empty_area": return executeFindEmptyArea(input);
                 case "plan_city_block": return executePlanCityBlock(input);
-                case "write_learning": return executeWriteLearning(input);
-                case "read_learnings": return executeReadLearnings();
-                case "consolidate_learnings": return executeConsolidateLearnings(input);
-                case "read_memory": return executeReadMemory();
                 case "read_strategy_guide": return executeReadStrategyGuide();
-                case "update_memory": return executeUpdateMemory(input);
+                case "strategic_plan": return executeStrategicPlan();
                 case "set_objectives": return executeSetObjectives(input);
                 case "complete_objective": return executeCompleteObjective(input);
                 case "get_objectives": return executeGetObjectives();
                 case "write_session_note": return executeWriteSessionNote(input);
                 case "read_session_notes": return executeReadSessionNotes();
+                case "capture_map_screenshot": return executeCaptureMapScreenshot();
                 case "dismiss_budget": return executeDismissBudget();
                 case "end_turn": return executeEndTurn(input);
                 case "search_engine_code": return executeSearchEngineCode(input);
@@ -381,7 +443,26 @@ public class AIToolHandler {
         ToolStroke stroke = tool.beginStroke(engine, x1, y1);
         stroke.dragTo(x2, y2);
         ToolResult tr = stroke.apply();
+
+        if (tool == MicropolisTool.WIRE) {
+            fixWireGaps(x1, y1, x2, y2);
+        }
+
         return toolResultToJson(tr, tool.name() + " from (" + x1 + "," + y1 + ") to (" + x2 + "," + y2 + ")");
+    }
+
+    private void fixWireGaps(int x1, int y1, int x2, int y2) {
+        if (Math.abs(x2 - x1) >= Math.abs(y2 - y1)) {
+            int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+            for (int x = minX; x <= maxX; x++) {
+                observer.forceWireCrossing(x, y1);
+            }
+        } else {
+            int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+            for (int y = minY; y <= maxY; y++) {
+                observer.forceWireCrossing(x1, y);
+            }
+        }
     }
 
     private JsonObject executeBulldoze(JsonObject input) {
@@ -604,6 +685,12 @@ public class AIToolHandler {
         return observer.renderMapArea(x, y, radius);
     }
 
+    private JsonObject executeConnectPower(JsonObject input) {
+        int x = input.get("x").getAsInt();
+        int y = input.get("y").getAsInt();
+        return observer.connectPower(x, y);
+    }
+
     private JsonObject executeFindEmptyArea(JsonObject input) {
         int w = input.get("width").getAsInt();
         int h = input.get("height").getAsInt();
@@ -655,14 +742,16 @@ public class AIToolHandler {
         int blockWidth = cols * 3;
         int blockHeight = curY - y;
 
-        if (x < 0 || y < 0 || x + blockWidth > 120 || curY > 100) {
+        if (x < 1 || y < 1 || x + blockWidth >= 120 || curY >= 100) {
             return errorResult("Block " + blockWidth + "x" + blockHeight
-                + " at (" + x + "," + y + ") exceeds map bounds (120x100)."
-                + " Use find_empty_area(" + blockWidth + "," + blockHeight + ") to find a valid spot.");
+                + " at (" + x + "," + y + ") needs 1-tile margin for perimeter roads."
+                + " Valid range: x=1.." + (119 - blockWidth) + ", y=1.." + (99 - blockHeight) + "."
+                + " Use find_empty_area(" + (blockWidth + 2) + "," + (blockHeight + 2) + ") to find a valid spot.");
         }
 
+        int perimeterLength = 2 * (blockWidth + 2) + 2 * blockHeight;
         int estimatedCost = (rows * cols * 100) + (roadYPositions.size() * blockWidth * 10)
-            + (roadYPositions.size() * 5);
+            + (roadYPositions.size() * 5) + (perimeterLength * 10);
         if (engine.getBudget().getTotalFunds() < estimatedCost) {
             return errorResult("Estimated cost ~$" + estimatedCost
                 + " exceeds funds $" + engine.getBudget().getTotalFunds()
@@ -685,6 +774,7 @@ public class AIToolHandler {
             }
         }
 
+        // Internal roads between zone strips
         for (int roadY : roadYPositions) {
             ToolStroke stroke = MicropolisTool.ROADS.beginStroke(engine, x, roadY);
             stroke.dragTo(x + blockWidth - 1, roadY);
@@ -696,20 +786,74 @@ public class AIToolHandler {
             }
 
             int wireX = x + (blockWidth / 2);
-            ToolStroke wireStroke = MicropolisTool.WIRE.beginStroke(engine, wireX, roadY);
-            wireStroke.dragTo(wireX, roadY);
-            ToolResult wtr = wireStroke.apply();
-            if (wtr == ToolResult.SUCCESS) wires++;
+            if (observer.forceWireCrossing(wireX, roadY) >= 0) wires++;
         }
+
+        // Perimeter roads around the entire block for proper road network
+        int perimRoads = 0;
+        int topRoadY = y - 1;
+        int bottomRoadY = curY;
+        int leftRoadX = x - 1;
+        int rightRoadX = x + blockWidth;
+
+        // Top road
+        if (topRoadY >= 0) {
+            int rxStart = Math.max(0, leftRoadX);
+            int rxEnd = Math.min(119, rightRoadX);
+            ToolStroke ts = MicropolisTool.ROADS.beginStroke(engine, rxStart, topRoadY);
+            ts.dragTo(rxEnd, topRoadY);
+            if (ts.apply() == ToolResult.SUCCESS) {
+                perimRoads += rxEnd - rxStart + 1;
+                int wx = x + blockWidth / 2;
+                if (observer.forceWireCrossing(wx, topRoadY) >= 0) wires++;
+            }
+        }
+        // Bottom road
+        if (bottomRoadY < 100) {
+            int rxStart = Math.max(0, leftRoadX);
+            int rxEnd = Math.min(119, rightRoadX);
+            ToolStroke ts = MicropolisTool.ROADS.beginStroke(engine, rxStart, bottomRoadY);
+            ts.dragTo(rxEnd, bottomRoadY);
+            if (ts.apply() == ToolResult.SUCCESS) {
+                perimRoads += rxEnd - rxStart + 1;
+                int wx = x + blockWidth / 2;
+                if (observer.forceWireCrossing(wx, bottomRoadY) >= 0) wires++;
+            }
+        }
+        // Left road
+        if (leftRoadX >= 0) {
+            int ryStart = Math.max(0, topRoadY);
+            int ryEnd = Math.min(99, bottomRoadY);
+            ToolStroke ts = MicropolisTool.ROADS.beginStroke(engine, leftRoadX, ryStart);
+            ts.dragTo(leftRoadX, ryEnd);
+            if (ts.apply() == ToolResult.SUCCESS) {
+                perimRoads += ryEnd - ryStart + 1;
+            }
+        }
+        // Right road
+        if (rightRoadX < 120) {
+            int ryStart = Math.max(0, topRoadY);
+            int ryEnd = Math.min(99, bottomRoadY);
+            ToolStroke ts = MicropolisTool.ROADS.beginStroke(engine, rightRoadX, ryStart);
+            ts.dragTo(rightRoadX, ryEnd);
+            if (ts.apply() == ToolResult.SUCCESS) {
+                perimRoads += ryEnd - ryStart + 1;
+            }
+        }
+
+        roadTiles += perimRoads;
 
         JsonObject r = new JsonObject();
         r.addProperty("success", zonesFailed == 0);
         r.addProperty("zones_placed", zonesPlaced);
         r.addProperty("zones_failed", zonesFailed);
-        r.addProperty("road_tiles", roadTiles);
+        r.addProperty("road_tiles_internal", roadTiles - perimRoads);
+        r.addProperty("road_tiles_perimeter", perimRoads);
+        r.addProperty("road_tiles_total", roadTiles);
         r.addProperty("power_wires", wires);
         r.addProperty("block_size", blockWidth + "x" + blockHeight + " tiles");
         r.addProperty("block_position", "(" + x + "," + y + ") to (" + (x + blockWidth - 1) + "," + (curY - 1) + ")");
+        r.addProperty("road_perimeter", "(" + leftRoadX + "," + topRoadY + ") to (" + rightRoadX + "," + bottomRoadY + ")");
         r.addProperty("funds_remaining", engine.getBudget().getTotalFunds());
 
         StringBuilder layout = new StringBuilder();
@@ -718,11 +862,15 @@ public class AIToolHandler {
             layout.append("strip ").append(i).append(": y=").append(sy).append("-").append(sy + 2);
             if (i < stripYPositions.size() - 1) layout.append(", ");
         }
-        layout.append(" | roads: ");
+        layout.append(" | internal roads: ");
         for (int i = 0; i < roadYPositions.size(); i++) {
             layout.append("y=").append(roadYPositions.get(i));
             if (i < roadYPositions.size() - 1) layout.append(", ");
         }
+        layout.append(" | perimeter: top=").append(topRoadY)
+              .append(" bottom=").append(bottomRoadY)
+              .append(" left=").append(leftRoadX)
+              .append(" right=").append(rightRoadX);
         r.addProperty("layout", layout.toString());
 
         if (!failures.isEmpty()) {
@@ -733,8 +881,9 @@ public class AIToolHandler {
             r.add("failures", failArr);
         }
 
-        r.addProperty("next_step", "Connect a power plant to any zone in this block via power line. "
-            + "Power will propagate through all touching zones; wires already bridge the road rows.");
+        r.addProperty("next_step", "Connect a power plant to any zone in this block via power line or use connect_power. "
+            + "Power will propagate through all touching zones; wires already bridge the road rows. "
+            + "The block has perimeter roads on all 4 sides for proper network connectivity.");
 
         return r;
     }
@@ -745,118 +894,6 @@ public class AIToolHandler {
         ToolStroke stroke = tool.beginStroke(engine, engineX, engineY);
         stroke.dragTo(engineX, engineY);
         return stroke.apply();
-    }
-
-    private JsonObject executeWriteLearning(JsonObject input) {
-        String category = input.get("category").getAsString();
-        String observation = input.get("observation").getAsString();
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String entry = "[" + timestamp + "] [" + category + "] " + observation;
-
-        try {
-            Path p = Paths.get(LOG_FILE);
-            List<String> existingInCategory = new ArrayList<>();
-            int totalLines = 0;
-            if (Files.exists(p)) {
-                List<String> allLines = Files.readAllLines(p);
-                totalLines = allLines.size();
-                String tag = "[" + category + "]";
-                for (String line : allLines) {
-                    if (line.contains(tag)) {
-                        existingInCategory.add(line);
-                    }
-                }
-            }
-
-            if (totalLines >= 40) {
-                return errorResult("Learnings log has " + totalLines + " entries (max 40). "
-                    + "You MUST call consolidate_learnings first to merge redundant entries before adding new ones. "
-                    + "Aim for ~15 consolidated entries.");
-            }
-
-            Files.write(p,
-                (entry + System.lineSeparator()).getBytes(),
-                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            JsonObject r = new JsonObject();
-            r.addProperty("success", true);
-            r.addProperty("message", "Learning recorded: " + category);
-            r.addProperty("total_entries", totalLines + 1);
-            r.addProperty("entries_in_category", existingInCategory.size() + 1);
-
-            if (totalLines > 25) {
-                r.addProperty("consolidation_hint",
-                    "The learnings log has " + (totalLines + 1) + " entries. "
-                    + "Consider calling consolidate_learnings soon to keep the log focused (blocked at 40).");
-            }
-
-            if (!existingInCategory.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                int show = Math.min(existingInCategory.size(), 5);
-                for (int i = existingInCategory.size() - show; i < existingInCategory.size(); i++) {
-                    sb.append(existingInCategory.get(i)).append("\n");
-                }
-                r.addProperty("recent_in_category", sb.toString().trim());
-            }
-            return r;
-        } catch (IOException e) {
-            return errorResult("Failed to write learning: " + e.getMessage());
-        }
-    }
-
-    private JsonObject executeReadLearnings() {
-        try {
-            Path p = Paths.get(LOG_FILE);
-            if (!Files.exists(p)) {
-                JsonObject r = new JsonObject();
-                r.addProperty("learnings", "No learnings recorded yet. Use write_learning to record observations.");
-                return r;
-            }
-            String content = new String(Files.readAllBytes(p));
-            JsonObject r = new JsonObject();
-            r.addProperty("learnings", content);
-            r.addProperty("count", content.split(System.lineSeparator()).length);
-            return r;
-        } catch (IOException e) {
-            return errorResult("Failed to read learnings: " + e.getMessage());
-        }
-    }
-
-    private JsonObject executeConsolidateLearnings(JsonObject input) {
-        String consolidated = input.get("consolidated_content").getAsString();
-        try {
-            Path p = Paths.get(LOG_FILE);
-            int oldCount = 0;
-            if (Files.exists(p)) {
-                oldCount = Files.readAllLines(p).size();
-            }
-            Files.write(p, consolidated.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            int newCount = consolidated.split("\n").length;
-            JsonObject r = new JsonObject();
-            r.addProperty("success", true);
-            r.addProperty("old_entry_count", oldCount);
-            r.addProperty("new_entry_count", newCount);
-            r.addProperty("message", "Learnings consolidated: " + oldCount + " -> " + newCount + " entries.");
-            return r;
-        } catch (IOException e) {
-            return errorResult("Failed to consolidate learnings: " + e.getMessage());
-        }
-    }
-
-    private JsonObject executeReadMemory() {
-        try {
-            Path p = Paths.get(MEMORY_FILE);
-            if (!Files.exists(p)) {
-                JsonObject r = new JsonObject();
-                r.addProperty("memory", "No memory file found. It will be created when you first call update_memory.");
-                return r;
-            }
-            String content = new String(Files.readAllBytes(p));
-            JsonObject r = new JsonObject();
-            r.addProperty("memory", content);
-            return r;
-        } catch (IOException e) {
-            return errorResult("Failed to read memory: " + e.getMessage());
-        }
     }
 
     private JsonObject executeReadStrategyGuide() {
@@ -876,94 +913,309 @@ public class AIToolHandler {
         }
     }
 
-    private JsonObject executeUpdateMemory(JsonObject input) {
-        String section = input.get("section").getAsString();
-        String entry = input.get("entry").getAsString();
-        boolean replace = input.has("replace") && "true".equalsIgnoreCase(input.get("replace").getAsString());
+    private JsonObject executeStrategicPlan() {
+        JsonObject r = new JsonObject();
 
-        try {
-            Path p = Paths.get(MEMORY_FILE);
-            String content;
-            if (Files.exists(p)) {
-                content = new String(Files.readAllBytes(p));
-            } else {
-                content = "# Agent Memory - Micropolis AI Cheatsheet\n\n";
-            }
+        int pop = engine.getCityPopulation();
+        int resPop = engine.getResPop();
+        int comPop = engine.getComPop();
+        int indPop = engine.getIndPop();
+        int funds = engine.getBudget().getTotalFunds();
+        int score = engine.getEvaluation().getCityScore();
+        int resValve = engine.getResValve();
+        int comValve = engine.getComValve();
+        int indValve = engine.getIndValve();
+        int poweredZones = engine.getPoweredZoneCount();
+        int unpoweredZones = engine.getUnpoweredZoneCount();
+        int crime = engine.getCrimeAverage();
+        int pollution = engine.getPollutionAverage();
+        int traffic = engine.getTrafficAverage();
+        int roadEffect = engine.getRoadEffect();
+        int policeEffect = engine.getPoliceEffect();
+        int fireEffect = engine.getFireEffect();
+        boolean resCap = engine.isResCap();
+        boolean comCap = engine.isComCap();
+        boolean indCap = engine.isIndCap();
+        int totalZones = poweredZones + unpoweredZones;
 
-            String sectionHeader = "## " + section;
-            int headerIdx = content.indexOf(sectionHeader);
-
-            String previousSectionContent = "";
-            int entryCount = 0;
-
-            if (headerIdx >= 0) {
-                int contentStart = content.indexOf('\n', headerIdx);
-                if (contentStart < 0) contentStart = content.length();
-                contentStart++;
-                int nextSection = content.indexOf("\n## ", contentStart);
-                if (nextSection < 0) nextSection = content.length();
-                previousSectionContent = content.substring(contentStart, nextSection).trim();
-                for (String line : previousSectionContent.split("\n")) {
-                    if (line.trim().startsWith("- ")) entryCount++;
-                }
-            }
-
-            if (!replace && entryCount >= 15) {
-                return errorResult("Section '" + section + "' has " + entryCount + " entries (max 15). "
-                    + "Use replace='true' to consolidate before adding more. "
-                    + "Merge similar entries, remove turn-specific details, keep ~8-12 high-quality generalizations.");
-            }
-
-            if (headerIdx < 0) {
-                content = content + "\n" + sectionHeader + "\n\n- " + entry + "\n";
-            } else {
-                int contentStart = content.indexOf('\n', headerIdx);
-                if (contentStart < 0) contentStart = content.length();
-                contentStart++;
-
-                int nextSection = content.indexOf("\n## ", contentStart);
-                if (nextSection < 0) nextSection = content.length();
-
-                if (replace) {
-                    String before = content.substring(0, contentStart);
-                    String after = content.substring(nextSection);
-                    content = before + "\n" + entry + "\n" + after;
-                } else {
-                    String sectionContent = content.substring(contentStart, nextSection);
-                    String trimmed = sectionContent.trim();
-                    String newEntry = "- " + entry;
-
-                    String before = content.substring(0, contentStart);
-                    String after = content.substring(nextSection);
-                    if (trimmed.isEmpty()) {
-                        content = before + "\n" + newEntry + "\n" + after;
-                    } else {
-                        content = before + sectionContent.stripTrailing() + "\n" + newEntry + "\n" + after;
-                    }
-                }
-            }
-
-            Files.write(p, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            JsonObject r = new JsonObject();
-            r.addProperty("success", true);
-            r.addProperty("message", "Memory updated: [" + section + "] " + (replace ? "replaced" : "appended"));
-            r.addProperty("entry_count", replace ? -1 : entryCount + 1);
-
-            if (!previousSectionContent.isEmpty()) {
-                r.addProperty("previous_section_content", previousSectionContent);
-            }
-
-            if (!replace && entryCount >= 10) {
-                r.addProperty("consolidation_hint",
-                    "Section '" + section + "' now has " + (entryCount + 1) + " entries. "
-                    + "Consider using replace='true' to rewrite this section with consolidated, "
-                    + "generalized knowledge. Remove turn-specific details and merge similar entries. "
-                    + "Aim for ~8-12 high-quality entries per section.");
-            }
-            return r;
-        } catch (IOException e) {
-            return errorResult("Failed to update memory: " + e.getMessage());
+        String phase;
+        if (totalZones == 0) {
+            phase = "BOOTSTRAP";
+        } else if (pop < 2000) {
+            phase = "EARLY";
+        } else if (pop < 10000) {
+            phase = "MID";
+        } else {
+            phase = "LATE";
         }
+        r.addProperty("game_phase", phase);
+
+        JsonObject metrics = new JsonObject();
+        metrics.addProperty("population", pop);
+        metrics.addProperty("funds", funds);
+        metrics.addProperty("score", score);
+        metrics.addProperty("total_zones", totalZones);
+        metrics.addProperty("powered_zones", poweredZones);
+        metrics.addProperty("unpowered_zones", unpoweredZones);
+        metrics.addProperty("res_valve", resValve);
+        metrics.addProperty("com_valve", comValve);
+        metrics.addProperty("ind_valve", indValve);
+        metrics.addProperty("crime_avg", crime);
+        metrics.addProperty("pollution_avg", pollution);
+        metrics.addProperty("traffic_avg", traffic);
+        metrics.addProperty("road_effect", roadEffect);
+        metrics.addProperty("police_effect", policeEffect);
+        metrics.addProperty("fire_effect", fireEffect);
+        r.add("current_metrics", metrics);
+
+        JsonArray priorities = new JsonArray();
+        JsonArray objectives = new JsonArray();
+        int objCount = 0;
+
+        // P0: Bootstrap — no zones at all
+        if (totalZones == 0) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 0);
+            p.addProperty("issue", "City has no zones — need to bootstrap");
+            p.addProperty("strategy_ref", "Priority Order: Power first, then road access, then zones");
+            priorities.add(p);
+
+            if (funds >= 5000) {
+                addObjective(objectives, ++objCount,
+                    "Build nuclear power plant at map edge",
+                    "find_empty_area(4,4) → place_building(nuclear, x, y)",
+                    5000, "get_infrastructure shows 1 nuclear plant");
+            } else if (funds >= 3000) {
+                addObjective(objectives, ++objCount,
+                    "Build coal power plant at map edge",
+                    "find_empty_area(4,4) → place_building(powerplant, x, y)",
+                    3000, "get_infrastructure shows 1 coal plant");
+            }
+
+            int blockCost = Math.min(funds - 5000, 2000);
+            if (blockCost >= 800) {
+                addObjective(objectives, ++objCount,
+                    "Build first residential neighborhood near power plant",
+                    "plan_city_block(residential, x, y, 3, 2) → connect_power(x, y)",
+                    800, "get_city_entities shows residential zones, all powered");
+                addObjective(objectives, ++objCount,
+                    "Build first industrial zone at map edge (away from residential)",
+                    "plan_city_block(industrial, x, y, 2, 2) → connect_power(x, y)",
+                    600, "get_city_entities shows industrial zones, all powered");
+            }
+        }
+
+        // P1: Unpowered zones — critical
+        if (unpoweredZones > 0) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 1);
+            p.addProperty("issue", unpoweredZones + " unpowered zones — zscore=-500, no growth possible");
+            p.addProperty("strategy_ref", "Power → Growth: Without power, zscore=-500. Nothing else matters.");
+            priorities.add(p);
+
+            if (objCount < 5) {
+                addObjective(objectives, ++objCount,
+                    "Connect all " + unpoweredZones + " unpowered zones to the power grid",
+                    "get_city_entities (find unpowered coords) → connect_power(x, y) for each",
+                    unpoweredZones * 20, "get_city_entities shows unpowered_zones=0");
+            }
+        }
+
+        // P2: Road effect below max
+        if (roadEffect < 32 && totalZones > 0) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 2);
+            p.addProperty("issue", "roadEffect=" + roadEffect + "/32 — directly subtracts from score");
+            p.addProperty("strategy_ref", "Fund roads to roadEffect=32. Below this, direct score subtraction.");
+            priorities.add(p);
+
+            if (objCount < 5) {
+                addObjective(objectives, ++objCount,
+                    "Fix road funding: set road maintenance to 100%",
+                    "set_budget(100, police_pct, fire_pct)",
+                    0, "get_averages shows road_effect=32");
+            }
+        }
+
+        // P3: Growth caps approaching or active
+        if (resCap && objCount < 5) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 3);
+            p.addProperty("issue", "Residential growth CAPPED — no stadium (resPop=" + resPop + ">500). Score penalty -15%");
+            p.addProperty("strategy_ref", "Build Stadium when resPop > 500. Each cap = -15% score.");
+            priorities.add(p);
+            addObjective(objectives, ++objCount,
+                "Build stadium to lift residential growth cap",
+                "find_empty_area(4,4) → place_building(stadium, x, y) → connect_power(x, y)",
+                5000, "get_demand shows res_capped=false");
+        }
+        if (indCap && objCount < 5) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 3);
+            p.addProperty("issue", "Industrial growth CAPPED — no seaport (indPop=" + indPop + ">70). Score penalty -15%");
+            priorities.add(p);
+            addObjective(objectives, ++objCount,
+                "Build seaport to lift industrial growth cap",
+                "find_empty_area(4,4) near water → place_building(seaport, x, y)",
+                3000, "get_demand shows ind_capped=false");
+        }
+        if (comCap && objCount < 5) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 3);
+            p.addProperty("issue", "Commercial growth CAPPED — no airport (comPop=" + comPop + ">100). Score penalty -15%");
+            priorities.add(p);
+            addObjective(objectives, ++objCount,
+                "Build airport to lift commercial growth cap",
+                "find_empty_area(6,6) → place_building(airport, x, y) → connect_power(x, y)",
+                10000, "get_demand shows com_capped=false");
+        }
+
+        // Approaching caps (not yet active)
+        if (!resCap && resPop > 400 && resPop <= 500 && objCount < 5) {
+            addObjective(objectives, ++objCount,
+                "Build stadium SOON — resPop=" + resPop + ", cap activates at 500",
+                "find_empty_area(4,4) → place_building(stadium, x, y)",
+                5000, "get_infrastructure shows stadium count >= 1");
+        }
+        if (!indCap && indPop > 55 && indPop <= 70 && objCount < 5) {
+            addObjective(objectives, ++objCount,
+                "Build seaport SOON — indPop=" + indPop + ", cap activates at 70",
+                "find_empty_area(4,4) near water → place_building(seaport, x, y)",
+                3000, "get_infrastructure shows seaport count >= 1");
+        }
+        if (!comCap && comPop > 80 && comPop <= 100 && objCount < 5) {
+            addObjective(objectives, ++objCount,
+                "Build airport SOON — comPop=" + comPop + ", cap activates at 100",
+                "find_empty_area(6,6) → place_building(airport, x, y)",
+                10000, "get_infrastructure shows airport count >= 1");
+        }
+
+        // P4: High crime without police
+        if (crime > 80 && policeEffect < 500 && objCount < 5) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 4);
+            p.addProperty("issue", "High crime (" + crime + ") with low police effect (" + policeEffect + ")");
+            p.addProperty("strategy_ref", "Crime = 128 - landValue + popDensity - policeEffect. Police stations every ~15 tiles.");
+            priorities.add(p);
+            addObjective(objectives, ++objCount,
+                "Build police station in high-crime area to reduce crime",
+                "get_city_entities (find dense area) → find_empty_area(3,3) → place_building(police, x, y) → connect_power(x, y)",
+                500, "get_averages shows crime_avg decreased or policeEffect increased");
+        }
+
+        // P5: High pollution
+        if (pollution > 60 && objCount < 5) {
+            JsonObject p = new JsonObject();
+            p.addProperty("priority", 5);
+            p.addProperty("issue", "High pollution (" + pollution + ") — triggers monster attacks at >60, destroys land value");
+            p.addProperty("strategy_ref", "Pollution → LandValue → Crime chain. Separate industry. Nuclear > Coal.");
+            priorities.add(p);
+            addObjective(objectives, ++objCount,
+                "Reduce pollution: separate industrial from residential, add parks as buffers",
+                "render_map to find industrial near residential → place_park(x,y) between them",
+                100, "get_averages shows pollution_avg < 60");
+        }
+
+        // P6: Demand-based expansion
+        if (objCount < 5 && totalZones > 0) {
+            int maxValve = Math.max(resValve, Math.max(comValve, indValve));
+            if (maxValve > 0) {
+                String zoneType;
+                int valve;
+                if (resValve >= comValve && resValve >= indValve) {
+                    zoneType = "residential"; valve = resValve;
+                } else if (comValve >= indValve) {
+                    zoneType = "commercial"; valve = comValve;
+                } else {
+                    zoneType = "industrial"; valve = indValve;
+                }
+
+                JsonObject p = new JsonObject();
+                p.addProperty("priority", 6);
+                p.addProperty("issue", "Positive " + zoneType + " demand (valve=" + valve + ") — city wants growth");
+                p.addProperty("strategy_ref", "Build the zone type with highest positive valve. Check analyze_demand first.");
+                priorities.add(p);
+
+                String location = "residential".equals(zoneType) ? "near city center (highest land value)"
+                    : "industrial".equals(zoneType) ? "at map edge (pollution spills off)"
+                    : "near city center (comRate = 64 - distance/4)";
+
+                addObjective(objectives, ++objCount,
+                    "Expand " + zoneType + " zones " + location + " (demand=" + valve + ")",
+                    "analyze_demand → find_empty_area → plan_city_block(" + zoneType + ", x, y, 3, 2) → connect_power(x, y)",
+                    800, "get_demand shows " + zoneType.substring(0, 3) + "_valve decreased (zones absorbing demand)");
+            } else if (maxValve < -500) {
+                JsonObject p = new JsonObject();
+                p.addProperty("priority", 6);
+                p.addProperty("issue", "All demand valves negative — city is oversupplied or taxes too high");
+                p.addProperty("strategy_ref", "Negative valves: lower taxes or wait. Don't build zones with negative demand.");
+                priorities.add(p);
+
+                if (engine.getCityTax() > 5 && objCount < 5) {
+                    addObjective(objectives, ++objCount,
+                        "Lower tax rate to stimulate demand (current: " + engine.getCityTax() + "%)",
+                        "set_tax_rate(" + Math.max(4, engine.getCityTax() - 2) + ")",
+                        0, "get_demand shows valves trending positive after 1-2 turns");
+                }
+            }
+        }
+
+        // P7: Low fire coverage
+        if (fireEffect < 500 && pop > 1000 && objCount < 5) {
+            addObjective(objectives, ++objCount,
+                "Build fire station for safety coverage",
+                "find_empty_area(3,3) near developed area → place_building(fire, x, y) → connect_power(x, y)",
+                500, "get_averages shows fire_effect increased");
+        }
+
+        // P8: Score optimization for late game
+        if ("LATE".equals(phase) && objCount < 5) {
+            if (score < 500) {
+                JsonObject p = new JsonObject();
+                p.addProperty("priority", 8);
+                p.addProperty("issue", "Score=" + score + " is below 500 — focus on score optimization");
+                p.addProperty("strategy_ref", "Score Optimization Checklist: power all zones, build caps, fund services, grow pop, minimize problems.");
+                priorities.add(p);
+            }
+            if (policeEffect < 1000 && objCount < 5) {
+                addObjective(objectives, ++objCount,
+                    "Maximize police funding and coverage for score multiplier",
+                    "set_budget(100, 100, fire_pct) + place more police stations if needed",
+                    500, "get_averages shows police_effect approaching 1000");
+            }
+        }
+
+        // Fill remaining slots with phase-appropriate objectives
+        if (objCount == 0) {
+            addObjective(objectives, ++objCount,
+                "City is stable — use capture_map_screenshot to review layout, then expand smartly",
+                "capture_map_screenshot → analyze_demand → plan_city_block for highest demand zone type",
+                800, "Population or score increased after expansion");
+        }
+
+        r.add("priority_analysis", priorities);
+        r.add("suggested_objectives", objectives);
+        r.addProperty("objective_count", objCount);
+
+        StringBuilder instructions = new StringBuilder();
+        instructions.append("Call set_objectives with these objectives (use semicolons to separate). ");
+        instructions.append("Execute each objective using the listed tools. ");
+        instructions.append("Before calling complete_objective, VERIFY using the listed verification check. ");
+        instructions.append("When all objectives are done, call strategic_plan again for next priorities.");
+        r.addProperty("instructions", instructions.toString());
+
+        return r;
+    }
+
+    private void addObjective(JsonArray objectives, int index, String description,
+                               String tools, int estimatedCost, String verification) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("index", index);
+        obj.addProperty("objective", description);
+        obj.addProperty("tools_to_use", tools);
+        obj.addProperty("estimated_cost", "$" + estimatedCost);
+        obj.addProperty("verify_with", verification);
+        objectives.add(obj);
     }
 
     private JsonObject executeSetObjectives(JsonObject input) {
@@ -1013,17 +1265,43 @@ public class AIToolHandler {
 
     private JsonObject executeCompleteObjective(JsonObject input) {
         int index = input.get("index").getAsInt();
+        String verification = input.has("verification") && !input.get("verification").isJsonNull()
+            ? input.get("verification").getAsString().trim() : "";
+
         int zeroBasedIndex = index - 1;
         List<AIAssistant.Objective> current = assistant.getObjectives();
         if (zeroBasedIndex < 0 || zeroBasedIndex >= current.size()) {
             return errorResult("Invalid index " + index + ". You have " + current.size() + " active objectives (1-" + current.size() + ").");
         }
+
+        if (verification.isEmpty() || verification.length() < 15) {
+            return errorResult("Verification required. Explain HOW you confirmed this objective is complete. "
+                + "Reference a specific tool check (e.g. 'get_city_entities shows 0 unpowered zones'). "
+                + "You must VERIFY before completing — don't guess.");
+        }
+
         String completedText = current.get(zeroBasedIndex).getText();
         assistant.completeObjective(zeroBasedIndex);
+
         JsonObject r = new JsonObject();
         r.addProperty("success", true);
         r.addProperty("completed", completedText);
+        r.addProperty("verification", verification);
         r.addProperty("remaining_active", assistant.getObjectives().size());
+
+        JsonObject metrics = new JsonObject();
+        metrics.addProperty("population", engine.getCityPopulation());
+        metrics.addProperty("score", engine.getEvaluation().getCityScore());
+        metrics.addProperty("funds", engine.getBudget().getTotalFunds());
+        metrics.addProperty("powered_zones", engine.getPoweredZoneCount());
+        metrics.addProperty("unpowered_zones", engine.getUnpoweredZoneCount());
+        metrics.addProperty("crime", engine.getCrimeAverage());
+        metrics.addProperty("pollution", engine.getPollutionAverage());
+        r.add("current_metrics", metrics);
+
+        if (assistant.getObjectives().isEmpty()) {
+            r.addProperty("hint", "All objectives completed! Call strategic_plan to generate your next set of objectives.");
+        }
         return r;
     }
 
@@ -1092,6 +1370,19 @@ public class AIToolHandler {
         } catch (IOException e) {
             return errorResult("Failed to read session notes: " + e.getMessage());
         }
+    }
+
+    private JsonObject executeCaptureMapScreenshot() {
+        String base64 = MapScreenshot.captureBase64(engine);
+        if (base64 == null) {
+            return errorResult("Failed to capture map screenshot.");
+        }
+        JsonObject r = new JsonObject();
+        r.addProperty("success", true);
+        r.addProperty("message", "Map screenshot captured (960x800 PNG). The image shows the full 120x100 tile map.");
+        r.addProperty("_image_base64", base64);
+        r.addProperty("_image_media_type", "image/png");
+        return r;
     }
 
     private JsonObject executeDismissBudget() {

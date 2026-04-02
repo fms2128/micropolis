@@ -213,7 +213,19 @@ public class LLMClient {
                             JsonObject toolMsg = new JsonObject();
                             toolMsg.addProperty("role", "tool");
                             toolMsg.addProperty("tool_call_id", block.get("tool_use_id").getAsString());
-                            toolMsg.addProperty("content", block.get("content").getAsString());
+                            JsonElement contentEl = block.get("content");
+                            if (contentEl.isJsonArray()) {
+                                StringBuilder textContent = new StringBuilder();
+                                for (JsonElement cb : contentEl.getAsJsonArray()) {
+                                    if (cb.isJsonObject() && "text".equals(
+                                            cb.getAsJsonObject().get("type").getAsString())) {
+                                        textContent.append(cb.getAsJsonObject().get("text").getAsString());
+                                    }
+                                }
+                                toolMsg.addProperty("content", textContent.toString());
+                            } else {
+                                toolMsg.addProperty("content", contentEl.getAsString());
+                            }
                             oai.add(toolMsg);
                         }
                     }
