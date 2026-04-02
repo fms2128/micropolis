@@ -196,12 +196,11 @@ public class AIToolHandler {
             + "scoring system, costs, and strategic tips. Contains the source-of-truth for all game mechanics."
         ));
         tools.add(makeTool("strategic_plan",
-            "YOUR PRIMARY PLANNING TOOL. Analyzes current game state against the strategy guide and generates "
-            + "a concrete action plan with specific objectives. Returns: game phase assessment, priority analysis "
-            + "based on engine mechanics, recommended objectives with EXACT tools to use, cost estimates, and "
-            + "verification criteria for each objective. "
-            + "ALWAYS call this: (1) at game start, (2) after completing all objectives, (3) after major events/disasters, "
-            + "(4) when reward trend is declining. Then use set_objectives with the suggested objectives."
+            "Get a comprehensive snapshot of your city's current state alongside the full strategy guide. "
+            + "Returns all key metrics (population, funds, score, demand valves, infrastructure, problems) "
+            + "plus the complete game strategy guide with engine mechanics, formulas, and costs. "
+            + "Use this to understand your city and decide what to do next. "
+            + "Call whenever you need to plan — at game start, when unsure what to build, or after major changes."
         ));
         tools.add(makeToolWithOptional("set_objectives",
             "Set your current short-term objectives (1-5 goals). These appear in every turn's context to keep you focused. "
@@ -916,306 +915,44 @@ public class AIToolHandler {
     private JsonObject executeStrategicPlan() {
         JsonObject r = new JsonObject();
 
-        int pop = engine.getCityPopulation();
-        int resPop = engine.getResPop();
-        int comPop = engine.getComPop();
-        int indPop = engine.getIndPop();
-        int funds = engine.getBudget().getTotalFunds();
-        int score = engine.getEvaluation().getCityScore();
-        int resValve = engine.getResValve();
-        int comValve = engine.getComValve();
-        int indValve = engine.getIndValve();
-        int poweredZones = engine.getPoweredZoneCount();
-        int unpoweredZones = engine.getUnpoweredZoneCount();
-        int crime = engine.getCrimeAverage();
-        int pollution = engine.getPollutionAverage();
-        int traffic = engine.getTrafficAverage();
-        int roadEffect = engine.getRoadEffect();
-        int policeEffect = engine.getPoliceEffect();
-        int fireEffect = engine.getFireEffect();
-        boolean resCap = engine.isResCap();
-        boolean comCap = engine.isComCap();
-        boolean indCap = engine.isIndCap();
-        int totalZones = poweredZones + unpoweredZones;
-
-        String phase;
-        if (totalZones == 0) {
-            phase = "BOOTSTRAP";
-        } else if (pop < 2000) {
-            phase = "EARLY";
-        } else if (pop < 10000) {
-            phase = "MID";
-        } else {
-            phase = "LATE";
-        }
-        r.addProperty("game_phase", phase);
-
         JsonObject metrics = new JsonObject();
-        metrics.addProperty("population", pop);
-        metrics.addProperty("funds", funds);
-        metrics.addProperty("score", score);
-        metrics.addProperty("total_zones", totalZones);
-        metrics.addProperty("powered_zones", poweredZones);
-        metrics.addProperty("unpowered_zones", unpoweredZones);
-        metrics.addProperty("res_valve", resValve);
-        metrics.addProperty("com_valve", comValve);
-        metrics.addProperty("ind_valve", indValve);
-        metrics.addProperty("crime_avg", crime);
-        metrics.addProperty("pollution_avg", pollution);
-        metrics.addProperty("traffic_avg", traffic);
-        metrics.addProperty("road_effect", roadEffect);
-        metrics.addProperty("police_effect", policeEffect);
-        metrics.addProperty("fire_effect", fireEffect);
-        r.add("current_metrics", metrics);
+        metrics.addProperty("population", engine.getCityPopulation());
+        metrics.addProperty("res_pop", engine.getResPop());
+        metrics.addProperty("com_pop", engine.getComPop());
+        metrics.addProperty("ind_pop", engine.getIndPop());
+        metrics.addProperty("funds", engine.getBudget().getTotalFunds());
+        metrics.addProperty("score", engine.getEvaluation().getCityScore());
+        metrics.addProperty("total_zones", engine.getPoweredZoneCount() + engine.getUnpoweredZoneCount());
+        metrics.addProperty("powered_zones", engine.getPoweredZoneCount());
+        metrics.addProperty("unpowered_zones", engine.getUnpoweredZoneCount());
+        metrics.addProperty("res_valve", engine.getResValve());
+        metrics.addProperty("com_valve", engine.getComValve());
+        metrics.addProperty("ind_valve", engine.getIndValve());
+        metrics.addProperty("res_capped", engine.isResCap());
+        metrics.addProperty("com_capped", engine.isComCap());
+        metrics.addProperty("ind_capped", engine.isIndCap());
+        metrics.addProperty("crime_avg", engine.getCrimeAverage());
+        metrics.addProperty("pollution_avg", engine.getPollutionAverage());
+        metrics.addProperty("traffic_avg", engine.getTrafficAverage());
+        metrics.addProperty("land_value_avg", engine.getLandValueAverage());
+        metrics.addProperty("road_effect", engine.getRoadEffect());
+        metrics.addProperty("police_effect", engine.getPoliceEffect());
+        metrics.addProperty("fire_effect", engine.getFireEffect());
+        metrics.addProperty("tax_rate", engine.getCityTax());
+        r.add("city_state", metrics);
 
-        JsonArray priorities = new JsonArray();
-        JsonArray objectives = new JsonArray();
-        int objCount = 0;
-
-        // P0: Bootstrap — no zones at all
-        if (totalZones == 0) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 0);
-            p.addProperty("issue", "City has no zones — need to bootstrap");
-            p.addProperty("strategy_ref", "Priority Order: Power first, then road access, then zones");
-            priorities.add(p);
-
-            if (funds >= 5000) {
-                addObjective(objectives, ++objCount,
-                    "Build nuclear power plant at map edge",
-                    "find_empty_area(4,4) → place_building(nuclear, x, y)",
-                    5000, "get_infrastructure shows 1 nuclear plant");
-            } else if (funds >= 3000) {
-                addObjective(objectives, ++objCount,
-                    "Build coal power plant at map edge",
-                    "find_empty_area(4,4) → place_building(powerplant, x, y)",
-                    3000, "get_infrastructure shows 1 coal plant");
+        try {
+            Path p = Paths.get(STRATEGY_FILE);
+            if (Files.exists(p)) {
+                r.addProperty("strategy_guide", Files.readString(p));
+            } else {
+                r.addProperty("strategy_guide_error", "Strategy guide file not found at " + STRATEGY_FILE);
             }
-
-            int blockCost = Math.min(funds - 5000, 2000);
-            if (blockCost >= 800) {
-                addObjective(objectives, ++objCount,
-                    "Build first residential neighborhood near power plant",
-                    "plan_city_block(residential, x, y, 3, 2) → connect_power(x, y)",
-                    800, "get_city_entities shows residential zones, all powered");
-                addObjective(objectives, ++objCount,
-                    "Build first industrial zone at map edge (away from residential)",
-                    "plan_city_block(industrial, x, y, 2, 2) → connect_power(x, y)",
-                    600, "get_city_entities shows industrial zones, all powered");
-            }
+        } catch (IOException e) {
+            r.addProperty("strategy_guide_error", "Error reading strategy guide: " + e.getMessage());
         }
-
-        // P1: Unpowered zones — critical
-        if (unpoweredZones > 0) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 1);
-            p.addProperty("issue", unpoweredZones + " unpowered zones — zscore=-500, no growth possible");
-            p.addProperty("strategy_ref", "Power → Growth: Without power, zscore=-500. Nothing else matters.");
-            priorities.add(p);
-
-            if (objCount < 5) {
-                addObjective(objectives, ++objCount,
-                    "Connect all " + unpoweredZones + " unpowered zones to the power grid",
-                    "get_city_entities (find unpowered coords) → connect_power(x, y) for each",
-                    unpoweredZones * 20, "get_city_entities shows unpowered_zones=0");
-            }
-        }
-
-        // P2: Road effect below max
-        if (roadEffect < 32 && totalZones > 0) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 2);
-            p.addProperty("issue", "roadEffect=" + roadEffect + "/32 — directly subtracts from score");
-            p.addProperty("strategy_ref", "Fund roads to roadEffect=32. Below this, direct score subtraction.");
-            priorities.add(p);
-
-            if (objCount < 5) {
-                addObjective(objectives, ++objCount,
-                    "Fix road funding: set road maintenance to 100%",
-                    "set_budget(100, police_pct, fire_pct)",
-                    0, "get_averages shows road_effect=32");
-            }
-        }
-
-        // P3: Growth caps approaching or active
-        if (resCap && objCount < 5) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 3);
-            p.addProperty("issue", "Residential growth CAPPED — no stadium (resPop=" + resPop + ">500). Score penalty -15%");
-            p.addProperty("strategy_ref", "Build Stadium when resPop > 500. Each cap = -15% score.");
-            priorities.add(p);
-            addObjective(objectives, ++objCount,
-                "Build stadium to lift residential growth cap",
-                "find_empty_area(4,4) → place_building(stadium, x, y) → connect_power(x, y)",
-                5000, "get_demand shows res_capped=false");
-        }
-        if (indCap && objCount < 5) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 3);
-            p.addProperty("issue", "Industrial growth CAPPED — no seaport (indPop=" + indPop + ">70). Score penalty -15%");
-            priorities.add(p);
-            addObjective(objectives, ++objCount,
-                "Build seaport to lift industrial growth cap",
-                "find_empty_area(4,4) near water → place_building(seaport, x, y)",
-                3000, "get_demand shows ind_capped=false");
-        }
-        if (comCap && objCount < 5) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 3);
-            p.addProperty("issue", "Commercial growth CAPPED — no airport (comPop=" + comPop + ">100). Score penalty -15%");
-            priorities.add(p);
-            addObjective(objectives, ++objCount,
-                "Build airport to lift commercial growth cap",
-                "find_empty_area(6,6) → place_building(airport, x, y) → connect_power(x, y)",
-                10000, "get_demand shows com_capped=false");
-        }
-
-        // Approaching caps (not yet active)
-        if (!resCap && resPop > 400 && resPop <= 500 && objCount < 5) {
-            addObjective(objectives, ++objCount,
-                "Build stadium SOON — resPop=" + resPop + ", cap activates at 500",
-                "find_empty_area(4,4) → place_building(stadium, x, y)",
-                5000, "get_infrastructure shows stadium count >= 1");
-        }
-        if (!indCap && indPop > 55 && indPop <= 70 && objCount < 5) {
-            addObjective(objectives, ++objCount,
-                "Build seaport SOON — indPop=" + indPop + ", cap activates at 70",
-                "find_empty_area(4,4) near water → place_building(seaport, x, y)",
-                3000, "get_infrastructure shows seaport count >= 1");
-        }
-        if (!comCap && comPop > 80 && comPop <= 100 && objCount < 5) {
-            addObjective(objectives, ++objCount,
-                "Build airport SOON — comPop=" + comPop + ", cap activates at 100",
-                "find_empty_area(6,6) → place_building(airport, x, y)",
-                10000, "get_infrastructure shows airport count >= 1");
-        }
-
-        // P4: High crime without police
-        if (crime > 80 && policeEffect < 500 && objCount < 5) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 4);
-            p.addProperty("issue", "High crime (" + crime + ") with low police effect (" + policeEffect + ")");
-            p.addProperty("strategy_ref", "Crime = 128 - landValue + popDensity - policeEffect. Police stations every ~15 tiles.");
-            priorities.add(p);
-            addObjective(objectives, ++objCount,
-                "Build police station in high-crime area to reduce crime",
-                "get_city_entities (find dense area) → find_empty_area(3,3) → place_building(police, x, y) → connect_power(x, y)",
-                500, "get_averages shows crime_avg decreased or policeEffect increased");
-        }
-
-        // P5: High pollution
-        if (pollution > 60 && objCount < 5) {
-            JsonObject p = new JsonObject();
-            p.addProperty("priority", 5);
-            p.addProperty("issue", "High pollution (" + pollution + ") — triggers monster attacks at >60, destroys land value");
-            p.addProperty("strategy_ref", "Pollution → LandValue → Crime chain. Separate industry. Nuclear > Coal.");
-            priorities.add(p);
-            addObjective(objectives, ++objCount,
-                "Reduce pollution: separate industrial from residential, add parks as buffers",
-                "render_map to find industrial near residential → place_park(x,y) between them",
-                100, "get_averages shows pollution_avg < 60");
-        }
-
-        // P6: Demand-based expansion
-        if (objCount < 5 && totalZones > 0) {
-            int maxValve = Math.max(resValve, Math.max(comValve, indValve));
-            if (maxValve > 0) {
-                String zoneType;
-                int valve;
-                if (resValve >= comValve && resValve >= indValve) {
-                    zoneType = "residential"; valve = resValve;
-                } else if (comValve >= indValve) {
-                    zoneType = "commercial"; valve = comValve;
-                } else {
-                    zoneType = "industrial"; valve = indValve;
-                }
-
-                JsonObject p = new JsonObject();
-                p.addProperty("priority", 6);
-                p.addProperty("issue", "Positive " + zoneType + " demand (valve=" + valve + ") — city wants growth");
-                p.addProperty("strategy_ref", "Build the zone type with highest positive valve. Check analyze_demand first.");
-                priorities.add(p);
-
-                String location = "residential".equals(zoneType) ? "near city center (highest land value)"
-                    : "industrial".equals(zoneType) ? "at map edge (pollution spills off)"
-                    : "near city center (comRate = 64 - distance/4)";
-
-                addObjective(objectives, ++objCount,
-                    "Expand " + zoneType + " zones " + location + " (demand=" + valve + ")",
-                    "analyze_demand → find_empty_area → plan_city_block(" + zoneType + ", x, y, 3, 2) → connect_power(x, y)",
-                    800, "get_demand shows " + zoneType.substring(0, 3) + "_valve decreased (zones absorbing demand)");
-            } else if (maxValve < -500) {
-                JsonObject p = new JsonObject();
-                p.addProperty("priority", 6);
-                p.addProperty("issue", "All demand valves negative — city is oversupplied or taxes too high");
-                p.addProperty("strategy_ref", "Negative valves: lower taxes or wait. Don't build zones with negative demand.");
-                priorities.add(p);
-
-                if (engine.getCityTax() > 5 && objCount < 5) {
-                    addObjective(objectives, ++objCount,
-                        "Lower tax rate to stimulate demand (current: " + engine.getCityTax() + "%)",
-                        "set_tax_rate(" + Math.max(4, engine.getCityTax() - 2) + ")",
-                        0, "get_demand shows valves trending positive after 1-2 turns");
-                }
-            }
-        }
-
-        // P7: Low fire coverage
-        if (fireEffect < 500 && pop > 1000 && objCount < 5) {
-            addObjective(objectives, ++objCount,
-                "Build fire station for safety coverage",
-                "find_empty_area(3,3) near developed area → place_building(fire, x, y) → connect_power(x, y)",
-                500, "get_averages shows fire_effect increased");
-        }
-
-        // P8: Score optimization for late game
-        if ("LATE".equals(phase) && objCount < 5) {
-            if (score < 500) {
-                JsonObject p = new JsonObject();
-                p.addProperty("priority", 8);
-                p.addProperty("issue", "Score=" + score + " is below 500 — focus on score optimization");
-                p.addProperty("strategy_ref", "Score Optimization Checklist: power all zones, build caps, fund services, grow pop, minimize problems.");
-                priorities.add(p);
-            }
-            if (policeEffect < 1000 && objCount < 5) {
-                addObjective(objectives, ++objCount,
-                    "Maximize police funding and coverage for score multiplier",
-                    "set_budget(100, 100, fire_pct) + place more police stations if needed",
-                    500, "get_averages shows police_effect approaching 1000");
-            }
-        }
-
-        // Fill remaining slots with phase-appropriate objectives
-        if (objCount == 0) {
-            addObjective(objectives, ++objCount,
-                "City is stable — use capture_map_screenshot to review layout, then expand smartly",
-                "capture_map_screenshot → analyze_demand → plan_city_block for highest demand zone type",
-                800, "Population or score increased after expansion");
-        }
-
-        r.add("priority_analysis", priorities);
-        r.add("suggested_objectives", objectives);
-        r.addProperty("objective_count", objCount);
-
-        StringBuilder instructions = new StringBuilder();
-        instructions.append("Call set_objectives with these objectives (use semicolons to separate). ");
-        instructions.append("Execute each objective using the listed tools. ");
-        instructions.append("Before calling complete_objective, VERIFY using the listed verification check. ");
-        instructions.append("When all objectives are done, call strategic_plan again for next priorities.");
-        r.addProperty("instructions", instructions.toString());
 
         return r;
-    }
-
-    private void addObjective(JsonArray objectives, int index, String description,
-                               String tools, int estimatedCost, String verification) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("index", index);
-        obj.addProperty("objective", description);
-        obj.addProperty("tools_to_use", tools);
-        obj.addProperty("estimated_cost", "$" + estimatedCost);
-        obj.addProperty("verify_with", verification);
-        objectives.add(obj);
     }
 
     private JsonObject executeSetObjectives(JsonObject input) {
@@ -1300,7 +1037,7 @@ public class AIToolHandler {
         r.add("current_metrics", metrics);
 
         if (assistant.getObjectives().isEmpty()) {
-            r.addProperty("hint", "All objectives completed! Call strategic_plan to generate your next set of objectives.");
+            r.addProperty("hint", "All objectives completed! Consider what to do next.");
         }
         return r;
     }

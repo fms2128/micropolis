@@ -1,0 +1,1 @@
+[18:33:50] Turn 1 starter layout: coal plant at (0,0); industrial block at (5,7); commercial block at (20,7); residential block at (20,18). Main roads tied along y=5 and x=35. Need to watch cashflow before more expansion.

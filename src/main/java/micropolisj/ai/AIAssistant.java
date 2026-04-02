@@ -558,7 +558,20 @@ public class AIAssistant {
         return false;
     }
 
+    private static final String STRATEGY_FILE = "ai_data/game_strategy_guide.md";
+
     private String buildSystemPrompt() {
+        if (turnCount <= 1) {
+            try {
+                Path p = Paths.get(STRATEGY_FILE);
+                if (Files.exists(p)) {
+                    String guide = Files.readString(p);
+                    return SystemPrompt.PROMPT
+                        + "\n\n# Game Strategy Guide (Engine Mechanics Reference)\n\n"
+                        + guide;
+                }
+            } catch (IOException ignored) {}
+        }
         return SystemPrompt.PROMPT;
     }
 

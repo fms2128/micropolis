@@ -334,6 +334,23 @@ When funds are insufficient, the engine allocates in this priority:
 2. **Fire Stations** (funded second)
 3. **Police Stations** (funded last)
 
+### Financial Health & Emergency Tax Policy
+
+Running out of funds is catastrophic — the city cannot build, services lose funding, and the score collapses from underfunded roads/police/fire. Preventing insolvency is more important than keeping taxes low.
+
+**Fund thresholds and recommended actions:**
+- **Healthy (funds > $2,000):** Keep taxes at growth-optimal level (4–7%). Focus on building and expansion.
+- **Tight (funds $500–$2,000):** Raise taxes to 8–9%. Pause non-essential construction. The slight demand penalty is far less damaging than running out of money.
+- **Critical (funds < $500):** Raise taxes to 10–12% immediately. Stop all construction. A temporary tax hike to refill the treasury is always better than insolvency — you can lower taxes again once funds recover above $2,000.
+- **Bankrupt (funds = $0):** Set taxes to maximum sustainable level (12–15%). You cannot build anything, services lose funding, and the city decays. Recovery requires aggressive taxation until funds are restored.
+
+**Why this matters mechanically:**
+- At $0 funds, road/police/fire funding drops. `roadEffect` falls below 32 → direct score subtraction. `policeEffect` and `fireEffect` drop → multiplicative score penalties.
+- A temporary tax of 12% for a few cycles costs roughly `12 * 10 = 120` points in the tax problem score. But losing road funding costs the full `(32 - roadEffect) * penalty` AND triggers cascading issues (police underfunded → crime rises → land value drops → tax income falls further).
+- The engine's OUT_OF_FUNDS event triggers when the city cannot pay its obligations. This is a critical event that demands immediate action.
+
+**Recovery pattern:** Raise taxes → wait 2–3 tax cycles for treasury to rebuild → lower taxes back to 6–7% → resume building. Never keep emergency tax rates longer than necessary — they suppress demand.
+
 ### Effect Calculation
 
 - `roadEffect`: 0–32 scale. Full funding = 32. Below 32 directly subtracts from score.
@@ -522,15 +539,100 @@ Since zones conduct power to adjacent zones, the strip pattern also provides fre
 
 ---
 
-## 12. Strategic Implications (Quick Reference)
+## 12. Lessons from Past Games (Empirical — from 6 collapsed cities)
+
+These patterns caused every city to collapse. They are the most common agent failures.
+
+### Anti-Pattern 1: "Build First, Earn Never"
+
+In every failed session, the agent spent 75–85% of the $20,000 starting funds in the first 7 turns before any meaningful tax income existed. The result: a large, impressive city with zero financial runway.
+
+**The fix — Budget Phases:**
+- **Turns 1–3 (Bootstrap):** Spend up to $10,000 on power plant + first neighborhoods. This is your initial investment.
+- **Turns 4–8 (Stabilize):** Spend conservatively ($500–$1,000/turn max). Let zones grow and generate tax income. Check `get_budget` to see actual income vs. expenses.
+- **Turns 9+ (Sustained growth):** Only expand when funds are stable above $2,000 AND tax income exceeds service costs. If funds are declining turn over turn, STOP building and raise taxes.
+
+**Key metric to watch:** If funds are lower than last turn AND you didn't build anything, your expenses exceed income. Raise taxes or cut services immediately.
+
+### Anti-Pattern 2: Tax Rate Goes Down When Funds Go Down
+
+This killed every single city. The agent's reasoning: "lower taxes → more growth → more income." This is theoretically correct in a healthy economy, but at funds < $1,000 it creates a death spiral:
+
+```
+Low funds → Agent lowers taxes → Less income per capita → 
+Services underfunded → Crime rises → Population flees → 
+Even less tax income → Funds hit $0 → City collapses
+```
+
+**The fix:** Tax rate MUST go UP when funds go down. See "Financial Health & Emergency Tax Policy" in Budget Mechanics. The demand penalty from 10% taxes is mild (-40 per TaxTable cycle). The penalty from $0 funds is catastrophic (underfunded roads/police/fire = multiplicative score collapse + population flight).
+
+### Anti-Pattern 3: Luxury Spending During Financial Stress
+
+Observed repeatedly:
+- Stadium ($5,000) at Turn 6 with only $12,000 funds — when population was only 760 (cap doesn't activate until resPop > 500)
+- Cross-map rail ($1,978) at Turn 15 with only 3,000 population
+- Rail ($201) at Turn 18 with only $1,870 funds
+
+**The fix:** Before spending, always ask: "Is this urgent or can it wait?"
+- **Urgent:** Power (unpowered zones lose ALL growth), road connections (unconnected zones can't grow), tax adjustment
+- **Can wait:** Stadium (only needed near pop cap), rail (roads work fine early), parks (nice but not essential), police/fire (important but not emergency if crime is still low)
+- **Never:** Bulldozing tornado debris far from the city, building rail before population justifies it
+
+### Anti-Pattern 4: Crime Spiral from Neglected Police
+
+Every city hit crime > 100 because the agent built 1–2 police stations for 10,000+ residents. The strategy guide says "every ~15 tiles of developed area" — that means roughly 1 police station per 2,000–3,000 population.
+
+```
+No police → Crime 100+ → Land value drops → Population flees → 
+Less tax income → Can't afford police → Crime gets worse
+```
+
+**The fix:** Build police stations PROACTIVELY as population grows:
+- Pop 2,000: should have 1 police station
+- Pop 5,000: should have 2 police stations  
+- Pop 10,000: should have 3–4 police stations
+- Check `get_averages` — if crime_avg > 60, add a police station before doing anything else.
+
+### Anti-Pattern 5: Service Budgets Never Adjusted
+
+Every session set road/police/fire to 100% at Turn 1 and NEVER reduced them. With 400+ road tiles, road maintenance alone can exceed tax income at low population.
+
+**The fix:** When funds are tight:
+- Roads: reduce to 80% (roadEffect drops slightly but saves significant money)
+- Police/Fire: reduce to 80% if crime/fire risk is low
+- When funds recover above $3,000: restore to 100%
+
+### Anti-Pattern 6: No Concept of "Stop and Wait"
+
+The agent never paused construction to let the city generate income. Even at $88 or $206, it kept trying to build. Some turns should simply be: raise taxes, set speed to FAST, call end_turn('wait'), and let the city earn money.
+
+**The fix:** If funds < $1,000 and no critical emergency (unpowered zones, active disaster): do NOT build. Set taxes appropriately, ensure services are funded, and wait for income to accumulate.
+
+### The Death Spiral (recognize it early!)
+
+Every collapsed city followed this exact sequence:
+1. Aggressive early building → funds depleted to < $2,000
+2. Agent keeps building (or doesn't raise taxes) → funds hit $500
+3. Services start losing funding → crime rises, roads deteriorate
+4. Population starts fleeing → tax income drops
+5. Agent panics, builds more (or lowers taxes!) → funds hit $0
+6. Complete collapse: no building, no services, population exodus
+
+**Break the spiral at step 1 or 2.** By step 4, recovery is very difficult. By step 5, it's nearly impossible.
+
+---
+
+## 13. Strategic Implications (Quick Reference)
 
 ### Priority Order for City Building
 
-1. **Power first** — Without power, zscore = -500. Nothing else matters until zones are powered.
-2. **Road access second** — Without roads, localScore = -3000 (res/com) or -1000 (ind). Connect every zone.
-3. **Demand balance** — Check valves before building. Negative valve + building that zone = wasted money.
-4. **Pollution separation** — Industrial zones and coal plants must be far from residential. The pollution->landValue->crime chain is devastating.
-5. **Services for score** — Police and fire stations are multiplicative score factors. Underfunding them is a direct score penalty.
+1. **Solvency first** — If funds < $2,000, fix finances BEFORE building anything. Raise taxes, cut service budgets if needed. A city with money can recover from any problem. A city without money cannot fix anything.
+2. **Power second** — Without power, zscore = -500. Nothing else matters until zones are powered.
+3. **Road access third** — Without roads, localScore = -3000 (res/com) or -1000 (ind). Connect every zone.
+4. **Crime control** — Build police stations proactively as population grows (1 per ~2,500 pop). Crime > 80 triggers population flight, which reduces tax income, creating a death spiral.
+5. **Demand balance** — Check valves before building. Negative valve + building that zone = wasted money.
+6. **Pollution separation** — Industrial zones and coal plants must be far from residential. The pollution->landValue->crime chain is devastating.
+7. **Services for score** — Police and fire stations are multiplicative score factors. Underfunding them is a direct score penalty.
 
 ### Optimal Tax Strategy
 
@@ -539,9 +641,15 @@ The TaxTable index is `taxEffect + gameLevel`:
 - **Index 8+** creates **negative** pressure (-10 and worse, down to -600)
 
 Practical guidance:
-- **Early game:** Keep taxes at 4–5% to maximize growth stimulus
-- **Mid game:** 6–7% is sustainable; demand stays slightly positive
-- **Avoid:** Tax rates above 10% create severe negative valve pressure and a score penalty of `tax * 10` in the problems table
+- **Early game (funds > $5,000):** 5–6% balances growth stimulus with income generation. Don't go below 5% — the marginal growth benefit is tiny but the income loss is real.
+- **Mid game (stable income):** 6–7% is sustainable; demand stays slightly positive.
+- **Low funds (< $2,000):** Raise to 8–9% immediately. See "Financial Health & Emergency Tax Policy".
+- **Critical funds (< $500):** Raise to 10–12%. Stop building. This is not optional — insolvency destroys the city far worse than a demand dip.
+- **Bankrupt ($0):** 12–15%. You must generate surplus to recover. Lower taxes back to 7% once funds exceed $3,000.
+
+**CRITICAL RULE: Tax rate must INCREASE when funds DECREASE.** Never lower taxes while funds are declining. This is the #1 cause of city collapse in every observed game. The demand penalty from high taxes is mild and temporary. The cascade from insolvency (underfunded services → crime → population flight → less income → deeper insolvency) is catastrophic and often unrecoverable.
+
+**Avoid long-term:** Tax rates above 10% create a score penalty of `tax * 10` in the problems table and suppress demand valves. But short-term hikes (5–10 tax cycles) to refill the treasury are always the right move when funds are low.
 
 ### When to Build Key Infrastructure
 
@@ -570,15 +678,17 @@ Practical guidance:
 
 ### Score Optimization Checklist
 
-1. Keep all zones powered (unpowered ratio directly multiplies score)
-2. Build Stadium/Seaport/Airport before caps activate (each cap = -15%)
-3. Fund roads to `roadEffect = 32` (below this, direct score subtraction)
-4. Fund police/fire to `effect = 1000` (below this, multiplicative penalty)
-5. Keep all three valves above -1000 (each below = -15% score penalty)
-6. Grow population (positive deltaPop = score bonus)
-7. Minimize crime (police + land value), pollution (separate industry), traffic (use rail)
-8. Keep taxes moderate (raw tax rate is subtracted from score)
-9. Prevent fires (fire stations + funding)
+1. **Stay solvent** — funds > $2,000 at all times. Raise taxes rather than go broke. Insolvency causes cascading failures in ALL other checklist items.
+2. Keep all zones powered (unpowered ratio directly multiplies score)
+3. Build Stadium/Seaport/Airport before caps activate (each cap = -15%)
+4. Fund roads to `roadEffect = 32` (below this, direct score subtraction)
+5. Fund police/fire to `effect = 1000` (below this, multiplicative penalty)
+6. Keep crime below 80 (police stations + land value). Above 80, population flees.
+7. Keep all three valves above -1000 (each below = -15% score penalty)
+8. Grow population (positive deltaPop = score bonus)
+9. Minimize pollution (separate industry), traffic (use rail)
+10. Keep taxes moderate long-term (raw tax rate is subtracted from score) — but temporary hikes to stay solvent are always worth it
+11. Prevent fires (fire stations + funding)
 
 ### Reward Signal Alignment
 
